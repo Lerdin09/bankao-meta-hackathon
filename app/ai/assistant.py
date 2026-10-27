@@ -8,9 +8,12 @@ Bankão AI Copilot:
 """
 import os
 import json
+import logging
 from typing import Dict, Any, List, Optional
 from openai import OpenAI
 from app.config import settings
+
+logger = logging.getLogger("bankao.assistant")
 
 def get_meta_client() -> Optional[OpenAI]:
     api_key = settings.MODEL_API_KEY
@@ -22,9 +25,9 @@ def get_meta_client() -> Optional[OpenAI]:
     )
 
 SYSTEM_PROMPT = """
-És o 'Bankão Copilot', um assistente financeiro inteligente e amigável da carteira digital Bankão (voltada para Angola e o mundo).
+És o 'Bankão Copilot', o assistente financeiro inteligente e amigável da carteira digital Bankão (voltada para Angola e o mundo).
 Diretrizes fundamentais:
-1. Responde sempre em Português claro, cordial e acessível (com sensibilidade ao contexto angolano e internacional).
+1. Responde sempre em Português claro, cordial e acessível, com pleno entendimento do contexto angolano e internacional (Multicaixa Express, referências, BNA, SEPA e envios para Portugal/Europa).
 2. Explica taxas de câmbio (Kz AOA, EUR, USD), prazos e custos de forma transparente e detalhada.
 3. Alerta sobre limites diários e boas práticas de segurança contra fraudes.
 4. NUNCA peças palavras-passe, PINs ou dados confidenciais de cartões.
@@ -62,13 +65,14 @@ class BankaoAssistant:
                         {"role": "system", "content": SYSTEM_PROMPT},
                         {"role": "user", "content": prompt}
                     ],
-                    max_tokens=400,
+                    max_tokens=2048,
                     temperature=0.3
                 )
-                return response.choices[0].message.content
+                content = response.choices[0].message.content
+                if content:
+                    return content
             except Exception as e:
-                # Caso ocorra falha de rede ou chave inválida, recai no gerador local
-                pass
+                logger.error(f"Erro ao chamar Meta Model API (explain_transfer): {e}")
 
         # Fallback local humanizado e informativo
         return (
@@ -115,12 +119,14 @@ class BankaoAssistant:
                             {"role": "system", "content": SYSTEM_PROMPT},
                             {"role": "user", "content": prompt}
                         ],
-                        max_tokens=250,
+                        max_tokens=2048,
                         temperature=0.2
                     )
-                    warning_text = resp.choices[0].message.content
-                except Exception:
-                    pass
+                    content = resp.choices[0].message.content
+                    if content:
+                        warning_text = content
+                except Exception as e:
+                    logger.error(f"Erro ao chamar Meta Model API (analyze_risk): {e}")
 
             if not warning_text:
                 warning_text = (
@@ -138,7 +144,7 @@ class BankaoAssistant:
 
     @staticmethod
     def chat(message: str, history: List[Dict[str, str]] = None) -> str:
-        """Atendimento em linguagem natural sobre serviços da carteira."""
+        """Atendimento em linguagem natural sobre serviços da carteira com Meta Model API."""
         client = get_meta_client()
         messages = [{"role": "system", "content": SYSTEM_PROMPT}]
         if history:
@@ -150,12 +156,14 @@ class BankaoAssistant:
                 response = client.chat.completions.create(
                     model=settings.MODEL_NAME,
                     messages=messages,
-                    max_tokens=450,
+                    max_tokens=2048,
                     temperature=0.4
                 )
-                return response.choices[0].message.content
+                content = response.choices[0].message.content
+                if content:
+                    return content
             except Exception as e:
-                pass
+                logger.error(f"Erro ao chamar Meta Model API (chat): {e}")
 
         # Resposta inteligente para dúvidas frequentes no modo offline/simulado
         msg_lower = message.lower()
