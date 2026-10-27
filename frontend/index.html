@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bankão — Carteira Digital para Angola e o Mundo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- Banner de Sandbox e Conformidade -->
+    <div class="sandbox-banner">
+        <span>⚡ <strong>Meta Global AI Developer Hackathon</strong> · Ambiente de Demonstração com Fundos Simulados</span>
+        <span class="sandbox-badge">SANDBOX OFICIAL</span>
+    </div>
+
+    <div class="app-container">
+        <!-- Barra de Navegação Superior -->
+        <header class="top-nav">
+            <div class="nav-brand">
+                <div class="brand-logo">
+                    <span class="logo-icon">🏦</span>
+                    <span class="logo-text">Bank<span class="highlight">ão</span></span>
+                </div>
+                <span class="version-tag">AI Powered</span>
+            </div>
+
+            <div class="nav-stats">
+                <div class="fx-ticker">
+                    <span class="ticker-item">💶 1 EUR = <strong id="fxEurAoa">1.050,00 Kz</strong></span>
+                    <span class="ticker-item">💵 1 USD = <strong id="fxUsdAoa">950,00 Kz</strong></span>
+                </div>
+            </div>
+
+            <div class="nav-user">
+                <div class="user-profile" id="userProfileArea">
+                    <div class="avatar" id="userAvatar">AO</div>
+                    <div class="user-details">
+                        <span class="user-name" id="userNameDisplay">Lerdin dos Santos</span>
+                        <span class="kyc-badge verified" id="userKycBadge">KYC Verificado</span>
+                    </div>
+                </div>
+                <button class="btn-copilot-toggle" id="btnToggleCopilot">
+                    <span class="copilot-sparkle">✨</span>
+                    <span>Bankão Copilot</span>
+                    <span class="model-badge">Meta Muse</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <!-- Coluna Esquerda: Carteira, Ações e Extrato -->
+            <div class="dashboard-grid">
+                
+                <!-- Secção de Cartões de Saldo -->
+                <section class="wallets-section">
+                    <div class="section-header">
+                        <h2>Minhas Carteiras</h2>
+                        <span class="subtitle">Saldos protegidos por livro-razão atómico</span>
+                    </div>
+
+                    <div class="cards-row">
+                        <!-- Cartão Kwanza (AOA) -->
+                        <div class="card-wallet card-aoa">
+                            <div class="card-chip"></div>
+                            <div class="card-currency-tag">ANGOLA · AOA</div>
+                            <div class="card-balance-block">
+                                <span class="balance-label">Saldo Disponível</span>
+                                <div class="balance-amount" id="balanceAoa">100.000,00 <span class="curr">Kz</span></div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="card-account-info">
+                                    <span class="acc-label">CONTA INTERNA</span>
+                                    <span class="acc-val" id="accNumberAoa">0040 8291 9410</span>
+                                </div>
+                                <div class="card-account-info">
+                                    <span class="acc-label">IBAN VIRTUAL (SANDBOX)</span>
+                                    <span class="acc-val mono" id="ibanAoa">AO06 9999 4810 2938 1029 4810 2</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cartão Euro (EUR) -->
+                        <div class="card-wallet card-eur">
+                            <div class="card-chip"></div>
+                            <div class="card-currency-tag">EUROPA · EUR</div>
+                            <div class="card-balance-block">
+                                <span class="balance-label">Saldo Disponível</span>
+                                <div class="balance-amount" id="balanceEur">0,00 <span class="curr">€</span></div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="card-account-info">
+                                    <span class="acc-label">CONTA INTERNA</span>
+                                    <span class="acc-val" id="accNumberEur">0050 1928 4719</span>
+                                </div>
+                                <div class="card-account-info">
+                                    <span class="acc-label">IBAN SEPA (SANDBOX)</span>
+                                    <span class="acc-val mono" id="ibanEur">PT50 9999 2819 4710 2938 1029 3</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Atalhos e Operações Principais -->
+                <section class="operations-section">
+                    <div class="tabs-nav">
+                        <button class="tab-btn active" data-tab="tab-deposit">
+                            <span class="tab-icon">📥</span> Depositar em Angola
+                        </button>
+                        <button class="tab-btn" data-tab="tab-transfer-internal">
+                            <span class="tab-icon">⚡</span> Enviar p/ Conta Interna
+                        </button>
+                        <button class="tab-btn" data-tab="tab-transfer-iban">
+                            <span class="tab-icon">🌍</span> Enviar p/ IBAN Internacional
+                        </button>
+                    </div>
+
+                    <!-- Aba 1: Depósito Angolano -->
+                    <div class="tab-pane active" id="tab-deposit">
+                        <div class="operation-card">
+                            <div class="method-selector">
+                                <label class="method-card active">
+                                    <input type="radio" name="depositMethod" value="express" checked>
+                                    <div class="method-body">
+                                        <div class="method-title">📱 Multicaixa Express</div>
+                                        <div class="method-desc">Autorize na hora pelo aplicativo no seu telemóvel</div>
+                                    </div>
+                                </label>
+                                <label class="method-card">
+                                    <input type="radio" name="depositMethod" value="referencia">
+                                    <div class="method-body">
+                                        <div class="method-title">🧾 Pagamento por Referência</div>
+                                        <div class="method-desc">Pague em qualquer ATM Multicaixa ou Internet Banking</div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Formulário Multicaixa Express -->
+                            <form id="formDepositExpress" class="deposit-subform active">
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="expressPhone">Telemóvel Associado ao Multicaixa Express</label>
+                                        <input type="tel" id="expressPhone" value="923 456 789" required placeholder="Ex: 923 000 000">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="expressAmount">Valor a Depositar (Kz AOA)</label>
+                                        <input type="number" id="expressAmount" value="50000" min="500" step="100" required>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary" id="btnSubmitExpress">
+                                        <span>Solicitar Aprovação no Telemóvel</span>
+                                        <span class="btn-arrow">→</span>
+                                    </button>
+                                </div>
+                            </form>
+
+                            <!-- Formulário Referência -->
+                            <form id="formDepositReferencia" class="deposit-subform">
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="refAmount">Valor a Depositar (Kz AOA)</label>
+                                        <input type="number" id="refAmount" value="25000" min="500" step="100" required>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary" id="btnSubmitReferencia">
+                                        <span>Gerar Dados de Pagamento</span>
+                                        <span class="btn-arrow">→</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Aba 2: Transferência Interna -->
+                    <div class="tab-pane" id="tab-transfer-internal">
+                        <div class="operation-card">
+                            <form id="formTransferInternal">
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="internalDestAcc">Número da Conta Destino Bankão</label>
+                                        <input type="text" id="internalDestAcc" placeholder="Ex: 0040 8291 9410" required>
+                                        <span class="input-hint">Transferências instantâneas e sem custos adicionais.</span>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="internalAmount">Valor a Enviar (Kz AOA)</label>
+                                        <input type="number" id="internalAmount" placeholder="Ex: 15000" min="100" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="internalDesc">Descrição / Mensagem</label>
+                                    <input type="text" id="internalDesc" placeholder="Ex: Pagamento do almoço">
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary" id="btnSubmitInternal">
+                                        <span>Transferir Imediatamente</span>
+                                        <span class="btn-arrow">⚡</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Aba 3: Transferência Internacional IBAN -->
+                    <div class="tab-pane" id="tab-transfer-iban">
+                        <div class="operation-card">
+                            <form id="formTransferIban">
+                                <div class="form-row">
+                                    <div class="form-group flex-2">
+                                        <label for="ibanInput">IBAN do Beneficiário (Angola ou Portugal/SEPA)</label>
+                                        <div class="input-with-validation">
+                                            <input type="text" id="ibanInput" placeholder="PT50 0035 0000 0000 0000 0000 0" class="mono" required>
+                                            <span class="iban-status-badge" id="ibanValidationStatus">Aguardando</span>
+                                        </div>
+                                        <span class="input-hint" id="ibanFeedbackText">Validado com algoritmo Mod 97 (ISO 7064).</span>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="beneficiaryName">Nome Completo do Titular</label>
+                                        <input type="text" id="beneficiaryName" placeholder="Ex: Maria António" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="ibanSendAmount">Valor em Kwanzas a Debitar (AOA)</label>
+                                        <input type="number" id="ibanSendAmount" value="50000" min="1000" step="500" required>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label>Valor Líquido a Receber em Portugal/Europa</label>
+                                        <div class="quote-preview-box">
+                                            <span class="quote-val" id="quoteReceiveAmount">~ 46,90 €</span>
+                                            <span class="quote-details" id="quoteDetails">Câmbio: 1€ = 1.050 Kz · Taxa: 1,5%</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="ai-suggestion-box" id="aiTransferHelperBox">
+                                    <div class="ai-box-header">
+                                        <span>✨ <strong>Análise do Bankão Copilot (Meta Muse Spark)</strong></span>
+                                        <button type="button" class="btn-text" id="btnAskAiExplain">Pedir Explicação Completa</button>
+                                    </div>
+                                    <p class="ai-box-text" id="aiTransferSummaryText">
+                                        O câmbio atual para Portugal (SEPA) é favorável. O valor cai em cêntimos sem dedução para o beneficiário.
+                                    </p>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary" id="btnSubmitIban">
+                                        <span>Confirmar e Enviar para IBAN</span>
+                                        <span class="btn-arrow">🌍</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Extrato e Livro-Razão -->
+                <section class="transactions-section">
+                    <div class="section-header">
+                        <h2>Extrato do Livro-Razão</h2>
+                        <span class="subtitle">Registos atómicos e auditáveis</span>
+                    </div>
+                    <div class="table-container">
+                        <table class="tx-table">
+                            <thead>
+                                <tr>
+                                    <th>Data / Hora</th>
+                                    <th>Operação</th>
+                                    <th>Descrição</th>
+                                    <th>Conta</th>
+                                    <th>Valor</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsTableBody">
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">Carregando movimentações...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Coluna Direita: Bankão AI Copilot (Meta Model API) -->
+            <aside class="copilot-sidebar" id="copilotSidebar">
+                <div class="copilot-header">
+                    <div class="copilot-title">
+                        <span class="sparkle-icon">✨</span>
+                        <div>
+                            <h3>Bankão Copilot</h3>
+                            <span class="copilot-subtitle">Alimentado por Meta Muse Spark</span>
+                        </div>
+                    </div>
+                    <span class="online-indicator">Online</span>
+                </div>
+
+                <div class="copilot-chat-messages" id="copilotChatMessages">
+                    <div class="chat-bubble ai">
+                        <div class="bubble-avatar">🤖</div>
+                        <div class="bubble-content">
+                            <p>Olá! Sou o <strong>Bankão Copilot</strong>, o seu assistente de inteligência financeira construído com os modelos da Meta.</p>
+                            <p>Posso simular transferências, explicar taxas cambiais para a Europa ou esclarecer dúvidas sobre os depósitos no Multicaixa Express!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="copilot-quick-prompts">
+                    <button class="quick-prompt-btn" data-prompt="Como faço para depositar com Multicaixa Express?">📱 Como depositar?</button>
+                    <button class="quick-prompt-btn" data-prompt="Quais são as taxas de câmbio para enviar dinheiro a Portugal?">💶 Taxas para Portugal?</button>
+                    <button class="quick-prompt-btn" data-prompt="Como funciona a garantia de livro-razão e segurança?">🛡️ Segurança e Ledger?</button>
+                </div>
+
+                <form class="copilot-input-form" id="copilotInputForm">
+                    <input type="text" id="copilotUserInput" placeholder="Pergunte ao Copilot..." autocomplete="off">
+                    <button type="submit" class="btn-send-copilot">
+                        <span>➤</span>
+                    </button>
+                </form>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Modal Interativo de Simulação: Smartphone Multicaixa Express -->
+    <div class="modal-overlay" id="modalExpressSim">
+        <div class="phone-simulator">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+                <div class="phone-header">
+                    <span class="phone-time">12:30</span>
+                    <span class="phone-icons">📶 🔋</span>
+                </div>
+                <div class="express-app-header">
+                    <div class="express-logo">MULTICAIXA <span>Express</span></div>
+                    <div class="express-sub">Autorização de Pagamento</div>
+                </div>
+                <div class="express-body">
+                    <div class="express-card-art">
+                        <span class="bank-name">BANCO DE ANGOLA</span>
+                        <span class="card-num">**** **** **** 8412</span>
+                    </div>
+                    <div class="express-tx-info">
+                        <span class="tx-merchant">Comerciante: <strong>Bankão Soluções Digitais</strong></span>
+                        <span class="tx-ref" id="expressSimRef">Ref: MCX-918237</span>
+                        <div class="tx-price-tag" id="expressSimAmount">50.000,00 Kz</div>
+                    </div>
+                    <div class="express-pin-mock">
+                        <span>Introduza o PIN ou Confirme Biometria</span>
+                        <div class="pin-dots">● ● ● ●</div>
+                    </div>
+                    <div class="express-actions">
+                        <button class="btn-mcx-reject" id="btnMcxReject">Recusar</button>
+                        <button class="btn-mcx-approve" id="btnMcxApprove">Aprovar Pagamento</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Interativo de Referência Multicaixa -->
+    <div class="modal-overlay" id="modalRefSim">
+        <div class="receipt-modal">
+            <div class="receipt-header">
+                <span class="receipt-icon">🧾</span>
+                <h3>Talão de Pagamento por Referência</h3>
+                <p>Pague no ATM Multicaixa ou Internet Banking</p>
+            </div>
+            <div class="receipt-body">
+                <div class="receipt-row">
+                    <span class="label">Entidade:</span>
+                    <strong class="val mono" id="receiptEntidade">00543</strong>
+                </div>
+                <div class="receipt-row">
+                    <span class="label">Referência:</span>
+                    <strong class="val mono highlight" id="receiptRefCode">123 456 789</strong>
+                </div>
+                <div class="receipt-row">
+                    <span class="label">Montante:</span>
+                    <strong class="val" id="receiptAmount">25.000,00 Kz</strong>
+                </div>
+                <div class="receipt-row">
+                    <span class="label">Validade:</span>
+                    <span class="val text-muted" id="receiptExpiry">24 Horas</span>
+                </div>
+            </div>
+            <div class="receipt-actions">
+                <button class="btn btn-secondary" id="btnCloseRefModal">Fechar</button>
+                <button class="btn btn-success" id="btnSimulateRefPay">
+                    <span>⚡ Simular Pagamento no ATM / Internet Banking</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
