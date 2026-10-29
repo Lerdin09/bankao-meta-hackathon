@@ -72,13 +72,14 @@ Copy-Item .env.example .env
 python -m pytest -v tests/test_ledger.py
 python tests/e2e_test.py
 
-# 6. Iniciar o servidor
-uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+# 6. Iniciar o servidor (acessível no PC e no Mobile/Wi-Fi)
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 Acesse no navegador:
-👉 **`http://127.0.0.1:8000/`** (Interface Web)  
-👉 **`http://127.0.0.1:8000/docs`** (Documentação Interativa Swagger/OpenAPI)
+👉 **`http://localhost:8000/`** (No computador local)  
+👉 **`http://<IP-DO-PC>:8000/`** (No telemóvel/mobile conectado ao mesmo Wi-Fi)  
+👉 **`http://localhost:8000/docs`** (Documentação Interativa Swagger/OpenAPI)
 
 ---
 

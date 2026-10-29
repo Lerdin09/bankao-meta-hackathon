@@ -353,3 +353,7 @@ if os.path.exists(frontend_dir):
     @app.get("/")
     def serve_index():
         return FileResponse(os.path.join(frontend_dir, "index.html"))
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app.main:app", host=settings.HOST, port=settings.PORT, reload=True)
