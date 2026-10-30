@@ -52,7 +52,14 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict[str, Any]:
         raise credentials_exception
 
     with get_connection() as conn:
-        user = conn.execute("SELECT id, nome, email, telefone, kyc_status, created_at FROM users WHERE id = ?", (user_id,)).fetchone()
+        user = conn.execute(
+            """
+            SELECT id, nome, primeiro_nome, ultimo_nome, email, telefone, kyc_status,
+                   nome_pai, nome_mae, doc_tipo, doc_numero, morada, data_emissao, created_at
+            FROM users WHERE id = ?
+            """,
+            (user_id,)
+        ).fetchone()
         if user is None:
             raise credentials_exception
         return dict(user)

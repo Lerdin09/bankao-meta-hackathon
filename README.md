@@ -1,4 +1,4 @@
-# 🏦 Bankão — Carteira Digital para Angola e o Mundo
+﻿# 🏦 BankAO — Carteira Digital para Angola e o Mundo
 
 > **Meta Global AI Developer Hackathon (Cerebral Valley)**  
 > **Track**: *Build for Your World*  
@@ -13,12 +13,12 @@ Enviar e receber dinheiro entre Angola e o resto do mundo (como Portugal, Europa
 - **Taxas abusivas e pouca transparência** sobre a conversão cambial real.
 - **Desconexão com a realidade angolana**, onde a rede **Multicaixa** (especialmente o **Multicaixa Express**, responsável por mais de 62% das transações) é o meio preferencial da população.
 
-### A Solução: **Bankão**
-O **Bankão** é uma carteira digital inteligente concebida especificamente para o contexto angolano:
+### A Solução: **BankAO**
+O **BankAO** é uma carteira digital inteligente concebida especificamente para o contexto angolano:
 1. **Depósitos Locais em Angola**: Simulação interativa e fiel de pagamentos por **Multicaixa Express** e **Referência Bancária de 9 dígitos** (para ATMs/Internet Banking).
 2. **Envio Internacional Descomplicado**: Transferências instantâneas para **IBAN internacional (rede SEPA)** com validação matemática rigorosa de controle **Mod 97 (ISO 7064)**.
 3. **Livro-Razão de Dupla Entrada (Ledger Atómico)**: Integridade financeira absoluta com valores inteiros em cêntimos (`minor units`), chaves de idempotência e bloqueio garantido de saldo negativo.
-4. **Bankão AI Copilot (Meta Model API)**: Agente de inteligência financeira alimentado por **Meta Muse Spark** (`muse-spark-1.3` / `muse-spark-open-1026`) que explica taxas e câmbio em linguagem clara, monitoriza limites de risco e apoia o utilizador em português.
+4. **BankAO AI Copilot (Meta Model API)**: Agente de inteligência financeira alimentado por **Meta Muse Spark** (`muse-spark-1.3` / `muse-spark-open-1026`) que explica taxas e câmbio em linguagem clara, monitoriza limites de risco e apoia o utilizador em português.
 
 > ⚠️ **Aviso de Sandbox**: Este projeto foi desenvolvido para o Meta Global AI Developer Hackathon como uma demonstração funcional com fundos e conexões simuladas. Nenhum valor monetário real circula na plataforma.
 
@@ -26,7 +26,7 @@ O **Bankão** é uma carteira digital inteligente concebida especificamente para
 
 ## 2. 🧠 Uso dos Modelos da Meta (Meta Model API)
 
-O Bankão incorpora o modelo **`muse-spark-1.3`** (e os modelos de pesos abertos **`muse-spark-open-1026`** via parceiros Baseten/Fireworks/Modal) nos seguintes fluxos do agente:
+O BankAO incorpora o modelo **`muse-spark-1.3`** (e os modelos de pesos abertos **`muse-spark-open-1026`** via parceiros Baseten/Fireworks/Modal) nos seguintes fluxos do agente:
 
 * **Explicador de Câmbio e Liquidação**: Descreve com transparência cirúrgica quanto o beneficiário recebe, a cotação aplicada e o tempo de liquidação na rede internacional.
 * **Detecção de Riscos e Compliance**: Avalia transferências de alto valor e perfil de KYC, emitindo recomendações pedagógicas de segurança sem jamais movimentar fundos sem confirmação expressa do utilizador (*Human-in-the-loop*).
@@ -87,7 +87,7 @@ Acesse no navegador:
 
 1. **Minuto 0:00 - 0:40 (O Problema)**: Contextualizar a barreira enfrentada por quem vive em Angola ou na diáspora para movimentar recursos com segurança e taxas justas.
 2. **Minuto 0:40 - 1:30 (Depósito Multicaixa Express)**: Demonstrar a simulação interativa no smartphone, aprovando uma recarga em Kwanzas creditada instantaneamente no livro-razão.
-3. **Minuto 1:30 - 2:15 (Envio Internacional para Portugal)**: Inserir um IBAN português (`PT50...`), exibir a validação Mod 97 em tempo real, a simulação de câmbio transparente e solicitar ao **Bankão Copilot** a explicação detalhada da taxa.
+3. **Minuto 1:30 - 2:15 (Envio Internacional para Portugal)**: Inserir um IBAN português (`PT50...`), exibir a validação Mod 97 em tempo real, a simulação de câmbio transparente e solicitar ao **BankAO Copilot** a explicação detalhada da taxa.
 4. **Minuto 2:15 - 3:00 (Meta Model API & Futuro)**: Destacar a integração com o modelo **Muse Spark**, a arquitetura de livro-razão atómico e a prontidão do sistema para integração com parceiros licenciados pelo BNA e SEPA.
 
 ---

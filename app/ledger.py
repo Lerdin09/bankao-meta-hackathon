@@ -1,5 +1,5 @@
 """
-Motor de Livro-Razão (Double-Entry Ledger) do Bankão.
+Motor de Livro-Razão (Double-Entry Ledger) do BankAO.
 Garante consistência matemática:
 - Nenhuma conta fica com saldo negativo.
 - Valores sempre em inteiros mínimos (cêntimos / minor units).
@@ -65,7 +65,9 @@ def execute_internal_transfer(
     to_account_id: str,
     amount_minor: int,
     idempotency_key: str,
-    description: str = "Transferência interna Bankão",
+    description: str = "Transferência interna BankAO",
+    fee_minor: int = 0,
+    beneficiary_name: str = "Transferência Interna",
 ) -> Dict[str, Any]:
     """
     Executa uma transferência atômica entre duas contas internas da mesma moeda.
@@ -74,6 +76,8 @@ def execute_internal_transfer(
         raise ValueError("O montante deve ser estritamente positivo.")
     if from_account_id == to_account_id:
         raise ValueError("Conta de origem e destino não podem ser iguais.")
+
+    dest_amount_minor = max(0, amount_minor - fee_minor)
 
     with transaction_scope() as conn:
         # Checagem de idempotência
@@ -115,7 +119,7 @@ def execute_internal_transfer(
         )
 
         # Lançamento de Dupla Entrada no Livro-Razão
-        # 1. Débito na conta remetente
+        # 1. Débito na conta remetente (valor total enviado)
         conn.execute(
             """
             INSERT INTO ledger_entries (transaction_id, account_id, amount_minor, currency)
@@ -123,13 +127,13 @@ def execute_internal_transfer(
             """,
             (tx_id, from_account_id, -amount_minor, currency)
         )
-        # 2. Crédito na conta destinatária
+        # 2. Crédito na conta destinatária (valor líquido após taxa)
         conn.execute(
             """
             INSERT INTO ledger_entries (transaction_id, account_id, amount_minor, currency)
             VALUES (?, ?, ?, ?)
             """,
-            (tx_id, to_account_id, amount_minor, currency)
+            (tx_id, to_account_id, dest_amount_minor, currency)
         )
 
         # Registo do detalhe da transferência
@@ -140,9 +144,9 @@ def execute_internal_transfer(
                 id, transaction_id, from_account_id, to_account_id, beneficiary_name,
                 source_amount_minor, source_currency, dest_amount_minor, dest_currency,
                 fx_rate, fee_minor, status
-            ) VALUES (?, ?, ?, ?, 'Transferência Interna', ?, ?, ?, ?, 1.0, 0, 'completed')
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1.0, ?, 'completed')
             """,
-            (transfer_id, tx_id, from_account_id, to_account_id, amount_minor, currency, amount_minor, currency)
+            (transfer_id, tx_id, from_account_id, to_account_id, beneficiary_name, amount_minor, currency, dest_amount_minor, currency, fee_minor)
         )
 
         return {
@@ -152,6 +156,9 @@ def execute_internal_transfer(
             "currency": currency,
             "from_account_id": from_account_id,
             "to_account_id": to_account_id,
+            "fee_minor": fee_minor,
+            "dest_amount_minor": dest_amount_minor,
+            "beneficiary_name": beneficiary_name
         }
 
 def credit_deposit(

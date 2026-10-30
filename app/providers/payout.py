@@ -1,4 +1,4 @@
-"""
+﻿"""
 Provedor de Payout Internacional e Transferência via IBAN (Simulado).
 Simula o envio para a rede SEPA (ex: Portugal/Espanha) ou bancos internacionais.
 """

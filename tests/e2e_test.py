@@ -3,12 +3,16 @@ Script de teste de integração ponta a ponta (E2E) para verificar todas as rota
 """
 import httpx
 import sys
+import uuid
+
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
 
 BASE_URL = "http://127.0.0.1:8000"
 
 def run_e2e_test():
-    print("🚀 Iniciando Teste de Integração Ponta a Ponta do Bankão...\n")
-    client = httpx.Client(base_url=BASE_URL, timeout=10.0)
+    print("🚀 Iniciando Teste de Integração Ponta a Ponta do BankAO...\n")
+    client = httpx.Client(base_url=BASE_URL, timeout=30.0)
 
     # 1. Autenticação (Login ou Registo)
     print("1. Testando Autenticação...")
@@ -92,16 +96,16 @@ def run_e2e_test():
         "beneficiary_name": "Maria António",
         "amount": 50000.0,
         "dest_currency": "EUR",
-        "idempotency_key": "test_e2e_tx_iban_001"
+        "idempotency_key": f"test_e2e_tx_iban_{uuid.uuid4().hex[:8]}"
     })
     assert res_iban_tx.status_code == 200
     tx_iban_data = res_iban_tx.json()
     print(f"   ✅ Remessa internacional liquidada! Beneficiário recebe {tx_iban_data['dest_amount_decimal']} EUR.")
 
-    # 7. Testando Assistente Bankão Copilot (Meta Model API)
-    print("\n6. Testando Bankão Copilot (Meta Muse Spark)...")
+    # 7. Testando Assistente BankAO Copilot (Meta Model API)
+    print("\n6. Testando BankAO Copilot (Meta Muse Spark)...")
     res_chat = client.post("/api/ai/chat", json={
-        "message": "Como funciona o depósito por Multicaixa Express no Bankão?"
+        "message": "Como funciona o depósito por Multicaixa Express no BankAO?"
     })
     assert res_chat.status_code == 200
     reply = res_chat.json()

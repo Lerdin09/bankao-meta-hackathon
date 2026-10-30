@@ -1,5 +1,5 @@
 """
-Suíte de testes automatizados do Bankão:
+Suíte de testes automatizados do BankAO:
 - Validação de IBAN Mod 97 (AO e PT)
 - Transações atômicas no livro-razão
 - Bloqueio estrito de saldo negativo
@@ -41,13 +41,13 @@ def test_ledger_double_entry_and_negative_balance_block():
     with get_connection() as conn:
         u1_id = str(uuid.uuid4())
         u2_id = str(uuid.uuid4())
-        conn.execute("INSERT INTO users (id, nome, email, password_hash) VALUES (?, 'User 1', 'u1@test.com', 'hash')", (u1_id,))
-        conn.execute("INSERT INTO users (id, nome, email, password_hash) VALUES (?, 'User 2', 'u2@test.com', 'hash')", (u2_id,))
+        conn.execute("INSERT INTO users (id, nome, email, password_hash) VALUES (?, 'User 1', ?, 'hash')", (u1_id, f"u1_{u1_id[:8]}@test.com"))
+        conn.execute("INSERT INTO users (id, nome, email, password_hash) VALUES (?, 'User 2', ?, 'hash')", (u2_id, f"u2_{u2_id[:8]}@test.com"))
 
         acc1_id = str(uuid.uuid4())
         acc2_id = str(uuid.uuid4())
-        conn.execute("INSERT INTO accounts (id, user_id, account_number, iban_virtual, currency) VALUES (?, ?, 'ACC1', 'IBAN1', 'AOA')", (acc1_id, u1_id))
-        conn.execute("INSERT INTO accounts (id, user_id, account_number, iban_virtual, currency) VALUES (?, ?, 'ACC2', 'IBAN2', 'AOA')", (acc2_id, u2_id))
+        conn.execute("INSERT INTO accounts (id, user_id, account_number, iban_virtual, currency) VALUES (?, ?, ?, ?, 'AOA')", (acc1_id, u1_id, f"ACC1_{acc1_id[:6]}", f"IBAN1_{acc1_id[:6]}"))
+        conn.execute("INSERT INTO accounts (id, user_id, account_number, iban_virtual, currency) VALUES (?, ?, ?, ?, 'AOA')", (acc2_id, u2_id, f"ACC2_{acc2_id[:6]}", f"IBAN2_{acc2_id[:6]}"))
 
         # Creditar 50.000 Kz (5.000.000 minor units) na acc1
         tx_init = str(uuid.uuid4())
@@ -55,11 +55,12 @@ def test_ledger_double_entry_and_negative_balance_block():
         conn.execute("INSERT INTO ledger_entries (transaction_id, account_id, amount_minor, currency) VALUES (?, ?, 5000000, 'AOA')", (tx_init, acc1_id))
 
     # Teste 1: Transferir 20.000 Kz (2.000.000 minor units) com sucesso
+    test_idemp = f"idemp_{acc1_id[:8]}"
     res = execute_internal_transfer(
         from_account_id=acc1_id,
         to_account_id=acc2_id,
         amount_minor=2000000,
-        idempotency_key="idemp_test_1"
+        idempotency_key=test_idemp
     )
     assert res["status"] == "completed"
 
@@ -72,7 +73,7 @@ def test_ledger_double_entry_and_negative_balance_block():
         from_account_id=acc1_id,
         to_account_id=acc2_id,
         amount_minor=2000000,
-        idempotency_key="idemp_test_1"
+        idempotency_key=test_idemp
     )
     assert res_repeat.get("idempotent") is True
     assert get_account_balance(acc1_id) == 3000000  # Mantém 30.000 Kz

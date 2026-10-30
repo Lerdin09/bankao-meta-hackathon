@@ -1,4 +1,4 @@
-"""
+﻿"""
 Provedores de Depósito Angolano (Simulados para o Hackathon).
 - Multicaixa Express: Notificação móvel e aprovação no telemóvel.
 - Pagamento por Referência: Entidade (ex: 00123) + Referência de 9 dígitos para ATM / Internet Banking.
@@ -9,7 +9,7 @@ import datetime
 from typing import Dict, Any
 from app.db import transaction_scope, get_connection
 
-ENTIDADE_PADRAO = "00543"  # Entidade simulada do Bankão
+ENTIDADE_PADRAO = "00543"  # Entidade simulada do BankAO
 
 class DepositProvider:
     @staticmethod

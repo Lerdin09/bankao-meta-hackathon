@@ -1,5 +1,5 @@
 """
-Aplicação Principal FastAPI — Bankão (Meta Global AI Developer Hackathon).
+Aplicação Principal FastAPI — BankAO (Meta Global AI Developer Hackathon).
 """
 import uuid
 import random
@@ -26,8 +26,10 @@ from app.providers.deposits import DepositProvider
 from app.providers.fx import FXProvider
 from app.providers.payout import PayoutProvider
 from app.ai.assistant import BankaoAssistant
+from app.ai.kyc import DocumentKYCExtractor
 from app.schemas import (
     UserRegister, UserLogin, TokenResponse,
+    KYCExtractRequest, KYCConfirmRequest,
     DepositReferenciaCreate, DepositExpressCreate, DepositSimulatePayment,
     InternalTransferCreate, IbanTransferCreate, FxQuoteRequest,
     AIChatRequest, AIExplainTransferRequest
@@ -37,7 +39,7 @@ from app.schemas import (
 init_db()
 
 app = FastAPI(
-    title="Bankão API",
+    title="BankAO API",
     description="Carteira Digital para Angola e o Mundo — Meta Global AI Developer Hackathon",
     version="1.0.0"
 )
@@ -55,24 +57,29 @@ app.add_middleware(
 
 @app.post("/api/auth/register", response_model=TokenResponse)
 def register(data: UserRegister):
+    if data.confirm_password and data.password != data.confirm_password:
+        raise HTTPException(status_code=400, detail="As palavras-passe não coincidem.")
+    if not data.terms_accepted:
+        raise HTTPException(status_code=400, detail="Deve aceitar os Termos e Condições para criar conta.")
+
     with get_connection() as conn:
         existing = conn.execute("SELECT id FROM users WHERE email = ?", (data.email,)).fetchone()
         if existing:
-            raise HTTPException(status_code=400, detail="Este e-mail já está registrado.")
+            raise HTTPException(status_code=400, detail="Este e-mail já está registado. Por favor inicie sessão.")
 
         user_id = str(uuid.uuid4())
         pwd_hash = get_password_hash(data.password)
+        nome_display = data.nome if (data.nome and data.nome != "Novo Utilizador") else "Novo Utilizador"
 
         conn.execute(
             """
-            INSERT INTO users (id, nome, email, password_hash, telefone, kyc_status)
-            VALUES (?, ?, ?, ?, ?, 'verificado')
+            INSERT INTO users (id, nome, email, password_hash, telefone, kyc_status, terms_accepted)
+            VALUES (?, ?, ?, ?, ?, 'pendente', 1)
             """,
-            (user_id, data.nome, data.email, pwd_hash, data.telefone)
+            (user_id, nome_display, data.email, pwd_hash, data.telefone)
         )
 
-        # Criar automaticamente carteira em Kwanza (AOA) e Euro (EUR)
-        # Conta AOA
+        # Criar automaticamente carteira em Kwanza (AOA), Euro (EUR) e Dólar (USD)
         acc_aoa_id = str(uuid.uuid4())
         acc_aoa_num = f"0040{random.randint(10000000, 99999999)}"
         iban_aoa = gerar_iban_ficticio("AO")
@@ -81,7 +88,6 @@ def register(data: UserRegister):
             (acc_aoa_id, user_id, acc_aoa_num, iban_aoa)
         )
 
-        # Conta EUR
         acc_eur_id = str(uuid.uuid4())
         acc_eur_num = f"0050{random.randint(10000000, 99999999)}"
         iban_eur = gerar_iban_ficticio("PT")
@@ -90,15 +96,12 @@ def register(data: UserRegister):
             (acc_eur_id, user_id, acc_eur_num, iban_eur)
         )
 
-        # Bônus de boas-vindas simulado para testes imediatos (100.000 Kz)
-        tx_id = str(uuid.uuid4())
+        acc_usd_id = str(uuid.uuid4())
+        acc_usd_num = f"0060{random.randint(10000000, 99999999)}"
+        iban_usd = gerar_iban_ficticio("AO")
         conn.execute(
-            "INSERT INTO transactions (id, type, status, description) VALUES (?, 'deposit', 'completed', 'Bónus de Boas-Vindas Sandbox')",
-            (tx_id,)
-        )
-        conn.execute(
-            "INSERT INTO ledger_entries (transaction_id, account_id, amount_minor, currency) VALUES (?, ?, 10000000, 'AOA')",
-            (tx_id, acc_aoa_id)
+            "INSERT INTO accounts (id, user_id, account_number, iban_virtual, currency) VALUES (?, ?, ?, ?, 'USD')",
+            (acc_usd_id, user_id, acc_usd_num, iban_usd)
         )
 
     token = create_access_token(data={"sub": user_id, "email": data.email})
@@ -107,10 +110,11 @@ def register(data: UserRegister):
         "token_type": "bearer",
         "user": {
             "id": user_id,
-            "nome": data.nome,
+            "nome": nome_display,
             "email": data.email,
             "telefone": data.telefone,
-            "kyc_status": "verificado"
+            "kyc_status": "pendente",
+            "created_at": datetime.datetime.utcnow().isoformat()
         }
     }
 
@@ -124,9 +128,14 @@ def login(data: UserLogin):
         user_dict = {
             "id": user["id"],
             "nome": user["nome"],
+            "primeiro_nome": user["primeiro_nome"],
+            "ultimo_nome": user["ultimo_nome"],
             "email": user["email"],
             "telefone": user["telefone"],
-            "kyc_status": user["kyc_status"]
+            "kyc_status": user["kyc_status"],
+            "doc_tipo": user["doc_tipo"],
+            "doc_numero": user["doc_numero"],
+            "created_at": user["created_at"] if "created_at" in user.keys() else None
         }
 
     token = create_access_token(data={"sub": user["id"], "email": user["email"]})
@@ -139,6 +148,140 @@ def login(data: UserLogin):
 @app.get("/api/auth/me")
 def me(current_user: dict = Depends(get_current_user)):
     return current_user
+
+# ----------------- KYC / VERIFICAÇÃO DE IDENTIDADE COM IA -----------------
+
+@app.post("/api/kyc/extract")
+def kyc_extract(
+    data: KYCExtractRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Submete fotos de documento à IA (Meta Model API / Muse Spark)
+    e extrai estruturadamente todos os dados cadastrais solicitados.
+    """
+    try:
+        extracted = DocumentKYCExtractor.extract_document_data(
+            doc_type=data.doc_type,
+            foto_frente=data.foto_frente,
+            foto_verso=data.foto_verso
+        )
+        return {
+            "success": True,
+            "extracted": extracted
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro na extração de dados do documento: {str(e)}")
+
+@app.post("/api/kyc/confirm")
+def kyc_confirm(
+    data: KYCConfirmRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Salva os dados de KYC validados no perfil do utilizador,
+    atualiza o estado para 'verificado' e credita o bónus inicial de sandbox.
+    """
+    user_id = current_user["id"]
+    with get_connection() as conn:
+        conn.execute(
+            """
+            UPDATE users
+            SET nome = ?,
+                primeiro_nome = ?,
+                ultimo_nome = ?,
+                nome_pai = ?,
+                nome_mae = ?,
+                doc_tipo = ?,
+                doc_numero = ?,
+                morada = ?,
+                data_emissao = ?,
+                kyc_status = 'verificado'
+            WHERE id = ?
+            """,
+            (
+                data.nome_completo,
+                data.primeiro_nome,
+                data.ultimo_nome,
+                data.nome_pai or "",
+                data.nome_mae or "",
+                data.doc_tipo,
+                data.doc_numero,
+                data.morada or "",
+                data.data_emissao or "",
+                user_id
+            )
+        )
+
+        # Buscar contas do utilizador para creditar bónus de boas-vindas sandbox se ainda não creditado
+        bonus_config = [
+            ("AOA", 10000000, "Bónus de Boas-Vindas BankAO (100.000 Kz Sandbox)"),
+            ("USD", 1000000, "Bónus de Boas-Vindas BankAO ($10.000 Sandbox)"),
+            ("EUR", 1000000, "Bónus de Boas-Vindas BankAO (10.000 € Sandbox)")
+        ]
+        for b_curr, b_minor, b_desc in bonus_config:
+            acc_cur = conn.execute("SELECT id FROM accounts WHERE user_id = ? AND currency = ?", (user_id, b_curr)).fetchone()
+            if acc_cur:
+                has_bonus = conn.execute(
+                    """
+                    SELECT id FROM transactions
+                    WHERE description LIKE '%Bónus%'
+                      AND id IN (SELECT transaction_id FROM ledger_entries WHERE account_id = ?)
+                    """,
+                    (acc_cur["id"],)
+                ).fetchone()
+                if not has_bonus:
+                    tx_id = str(uuid.uuid4())
+                    conn.execute(
+                        "INSERT INTO transactions (id, type, status, description) VALUES (?, 'deposit', 'completed', ?)",
+                        (tx_id, b_desc)
+                    )
+                    conn.execute(
+                        "INSERT INTO ledger_entries (transaction_id, account_id, amount_minor, currency) VALUES (?, ?, ?, ?)",
+                        (tx_id, acc_cur["id"], b_minor, b_curr)
+                    )
+
+        user = conn.execute(
+            """
+            SELECT id, nome, primeiro_nome, ultimo_nome, email, telefone, kyc_status,
+                   nome_pai, nome_mae, doc_tipo, doc_numero, morada, data_emissao
+            FROM users WHERE id = ?
+            """,
+            (user_id,)
+        ).fetchone()
+
+    return {
+        "success": True,
+        "message": "Identidade verificada com sucesso! A sua carteira BankAO está ativa.",
+        "user": dict(user)
+    }
+
+@app.get("/api/kyc/samples/{doc_type}")
+def get_sample_document(doc_type: str):
+    """
+    Retorna as imagens de teste pré-carregadas em base64 para facilitar demonstrações e testes rápidos.
+    """
+    import base64
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "samples"))
+    if doc_type == "passaporte":
+        frente_path = os.path.join(base_dir, "passaporte_frente.png")
+        verso_path = os.path.join(base_dir, "passaporte_verso.png")
+    else:
+        frente_path = os.path.join(base_dir, "bi_frente.png")
+        verso_path = os.path.join(base_dir, "bi_verso.png")
+
+    if not os.path.exists(frente_path) or not os.path.exists(verso_path):
+        raise HTTPException(status_code=404, detail="Amostras não encontradas.")
+
+    with open(frente_path, "rb") as f1, open(verso_path, "rb") as f2:
+        frente_b64 = "data:image/png;base64," + base64.b64encode(f1.read()).decode("utf-8")
+        verso_b64 = "data:image/png;base64," + base64.b64encode(f2.read()).decode("utf-8")
+
+    return {
+        "doc_type": doc_type,
+        "foto_frente": frente_b64,
+        "foto_verso": verso_b64
+    }
 
 # ----------------- CONTAS & CARTEIRAS -----------------
 
@@ -180,7 +323,26 @@ def simular_pagamento(data: DepositSimulatePayment):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-# ----------------- TRANSFERÊNCIAS -----------------
+# ----------------- TRANSFERÊNCIAS & DESTINATÁRIOS -----------------
+
+@app.get("/api/users/lookup")
+def lookup_user(email: str, current_user: dict = Depends(get_current_user)):
+    with get_connection() as conn:
+        u = conn.execute(
+            "SELECT id, nome, primeiro_nome, ultimo_nome, email FROM users WHERE lower(email) = lower(?)",
+            (email.strip(),)
+        ).fetchone()
+        if not u:
+            return {"found": False}
+        nome_completo = u["nome"]
+        if not nome_completo or nome_completo == "Novo Utilizador":
+            nome_completo = f"{u['primeiro_nome'] or ''} {u['ultimo_nome'] or ''}".strip() or u["email"]
+        return {
+            "found": True,
+            "id": u["id"],
+            "nome": nome_completo,
+            "email": u["email"]
+        }
 
 @app.post("/api/transfers/internal")
 def transfer_internal(
@@ -188,22 +350,74 @@ def transfer_internal(
     current_user: dict = Depends(get_current_user)
 ):
     amount_minor = int(round(data.amount * 100))
+    if amount_minor <= 0:
+        raise HTTPException(status_code=400, detail="O montante deve ser estritamente maior que zero.")
 
-    # Descobrir a conta de destino pelo número da conta
+    # Descobrir a conta de destino pelo e-mail ou número de conta
     with get_connection() as conn:
-        dest = conn.execute("SELECT id FROM accounts WHERE account_number = ?", (data.to_account_number,)).fetchone()
+        dest = None
+        beneficiary_name = "Cliente BankAO"
+
+        if data.to_email:
+            dest_user = conn.execute(
+                "SELECT id, nome, primeiro_nome, ultimo_nome, email FROM users WHERE lower(email) = lower(?)",
+                (data.to_email.strip(),)
+            ).fetchone()
+            if not dest_user:
+                raise HTTPException(status_code=404, detail=f"Cliente com e-mail '{data.to_email}' não encontrado.")
+            
+            nome_cand = dest_user["nome"]
+            if not nome_cand or nome_cand == "Novo Utilizador":
+                nome_cand = f"{dest_user['primeiro_nome'] or ''} {dest_user['ultimo_nome'] or ''}".strip() or dest_user["email"]
+            beneficiary_name = nome_cand
+
+            from_acc = conn.execute("SELECT currency FROM accounts WHERE id = ?", (data.from_account_id,)).fetchone()
+            curr = from_acc["currency"] if from_acc else "AOA"
+            dest = conn.execute(
+                "SELECT id, account_number FROM accounts WHERE user_id = ? AND currency = ? AND status = 'active'",
+                (dest_user["id"], curr)
+            ).fetchone()
+            if not dest:
+                dest = conn.execute(
+                    "SELECT id, account_number FROM accounts WHERE user_id = ? AND status = 'active' LIMIT 1",
+                    (dest_user["id"],)
+                ).fetchone()
+
+        elif data.to_account_number:
+            dest = conn.execute(
+                "SELECT a.id, a.account_number, u.nome, u.primeiro_nome, u.ultimo_nome FROM accounts a JOIN users u ON a.user_id = u.id WHERE a.account_number = ?",
+                (data.to_account_number.strip(),)
+            ).fetchone()
+            if dest:
+                beneficiary_name = dest["nome"] or f"{dest['primeiro_nome'] or ''} {dest['ultimo_nome'] or ''}".strip() or "Cliente BankAO"
+            else:
+                dest_direct = conn.execute("SELECT id FROM accounts WHERE account_number = ?", (data.to_account_number.strip(),)).fetchone()
+                if dest_direct:
+                    dest = dest_direct
+
         if not dest:
-            raise HTTPException(status_code=404, detail=f"Conta destino {data.to_account_number} não encontrada.")
+            raise HTTPException(status_code=404, detail="Conta ou e-mail de destino não encontrado.")
         to_account_id = dest["id"]
+
+    # Taxa de 1% para transferência entre contas
+    fee_minor = int(round(amount_minor * 0.01))
+    dest_amount_minor = max(0, amount_minor - fee_minor)
 
     try:
         res = execute_internal_transfer(
             from_account_id=data.from_account_id,
             to_account_id=to_account_id,
             amount_minor=amount_minor,
+            fee_minor=fee_minor,
             idempotency_key=data.idempotency_key,
-            description=data.description
+            description=data.description,
+            beneficiary_name=beneficiary_name
         )
+        res["beneficiary_name"] = beneficiary_name
+        res["source_amount_decimal"] = amount_minor / 100.0
+        res["dest_amount_decimal"] = dest_amount_minor / 100.0
+        res["fee_decimal"] = fee_minor / 100.0
+        res["fee_percentage"] = 1.0
         return res
     except InsufficientFundsError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -261,7 +475,7 @@ def validate_iban(iban: str):
 def get_fx_quote(data: FxQuoteRequest):
     amount_minor = int(round(data.amount * 100))
     try:
-        quote = FXProvider.get_quote(data.from_currency, data.to_currency, amount_minor)
+        quote = FXProvider.get_quote(data.from_currency, data.to_currency, amount_minor, custom_fee_pct=0.025)
         return quote
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -280,7 +494,7 @@ def get_transactions(current_user: dict = Depends(get_current_user)):
             JOIN accounts a ON l.account_id = a.id
             WHERE a.user_id = ?
             ORDER BY l.created_at DESC
-            LIMIT 50
+            LIMIT 500
             """,
             (current_user["id"],)
         ).fetchall()
@@ -305,9 +519,10 @@ def get_transactions(current_user: dict = Depends(get_current_user)):
 
 @app.post("/api/ai/chat")
 def ai_chat(data: AIChatRequest):
-    reply = BankaoAssistant.chat(data.message, data.history)
+    res = BankaoAssistant.chat_with_action(data.message, data.history)
     return {
-        "reply": reply,
+        "reply": res["reply"],
+        "action": res.get("action"),
         "model": settings.MODEL_NAME,
         "provider": "Meta Model API / Muse Spark"
     }

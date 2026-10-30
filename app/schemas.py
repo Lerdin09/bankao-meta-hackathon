@@ -1,15 +1,17 @@
 """
-Modelos de validação de dados Pydantic para a API do Bankão.
+Modelos de validação de dados Pydantic para a API do BankAO.
 """
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List, Any
 
 # Auth
 class UserRegister(BaseModel):
-    nome: str = Field(..., min_length=2, max_length=100)
     email: EmailStr
+    telefone: str
     password: str = Field(..., min_length=6)
-    telefone: Optional[str] = None
+    confirm_password: Optional[str] = None
+    terms_accepted: bool = Field(default=True)
+    nome: Optional[str] = "Novo Utilizador"
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -19,6 +21,23 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: dict
+
+# KYC / Verificação de Identidade com IA
+class KYCExtractRequest(BaseModel):
+    doc_type: str = Field(..., description="'bilhete' ou 'passaporte'")
+    foto_frente: str = Field(..., description="Imagem base64 da frente ou página de dados")
+    foto_verso: str = Field(..., description="Imagem base64 do verso ou página de assinatura")
+
+class KYCConfirmRequest(BaseModel):
+    nome_completo: str
+    primeiro_nome: str
+    ultimo_nome: str
+    nome_pai: Optional[str] = ""
+    nome_mae: Optional[str] = ""
+    doc_tipo: str = "bilhete"
+    doc_numero: str
+    morada: Optional[str] = ""
+    data_emissao: Optional[str] = ""
 
 # Contas
 class AccountResponse(BaseModel):
@@ -47,9 +66,10 @@ class DepositSimulatePayment(BaseModel):
 # Transferências
 class InternalTransferCreate(BaseModel):
     from_account_id: str
-    to_account_number: str
+    to_account_number: Optional[str] = None
+    to_email: Optional[str] = None
     amount: float = Field(..., gt=0)
-    description: Optional[str] = "Transferência interna Bankão"
+    description: Optional[str] = "Transferência interna BankAO"
     idempotency_key: str
 
 class IbanTransferCreate(BaseModel):

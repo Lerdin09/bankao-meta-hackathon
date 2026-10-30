@@ -2,398 +2,2322 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bankão — Carteira Digital para Angola e o Mundo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#070B14">
+    <meta name="color-scheme" content="dark">
+    <title>BankAO — Carteira Digital para Angola e o Mundo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <!-- Banner de Sandbox e Conformidade -->
+    <!-- Ícones (sprite SVG) -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+            <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M5.5 10v9.5a.5.5 0 0 0 .5.5h4v-6h4v6h4a.5.5 0 0 0 .5-.5V10" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+            <symbol id="i-swap" viewBox="0 0 24 24"><path d="M7 7h12m0 0-3-3m3 3-3 3M17 17H5m0 0 3-3m-3 3 3 3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+            <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+            <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3zM19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+            <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v12m0 0-4.5-4.5M12 16l4.5-4.5M5 20h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+            <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 20V8m0 0-4.5 4.5M12 8l4.5 4.5M5 4h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+            <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5 13.5h6L10 21l8-10.5h-6L13 3z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+            <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3 12h18M12 3c2.6 2.6 3.9 5.6 3.9 9s-1.3 6.4-3.9 9c-2.6-2.6-3.9-5.6-3.9-9S9.4 5.6 12 3z" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+            <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5.5c0 4.3 2.9 8 7 9.5 4.1-1.5 7-5.2 7-9.5V6l-7-3zM9 12l2.2 2.2L15.5 10" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+            <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+            <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 5.1A9.7 9.7 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4M6.5 6.6A17 17 0 0 0 2 12s3.6 7 10 7c1.7 0 3.2-.5 4.5-1.2M9.9 9.9a3 3 0 0 0 4.2 4.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+            <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+            <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+            <symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3 10 14M21 3l-6.5 18-3.5-7-7-3.5L21 3z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+            <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+            <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3zM9 8h6M9 12h6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+            <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M11 18.5h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+            <symbol id="i-dots" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><circle cx="19" cy="12" r="2.2" fill="currentColor"/><circle cx="5" cy="12" r="2.2" fill="currentColor"/></symbol>
+            <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+            <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+            <symbol id="i-card" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.8"/></symbol>
+            <symbol id="i-trending" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="17 6 23 6 23 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+            <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M7 11V7a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+            <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+            <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2" fill="currentColor"/></symbol>
+            <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 14a2 2 0 1 0 4 0 2 2 0 1 0-4 0z" fill="currentColor"/><path d="M4 7V5a2 2 0 0 1 2-2h13" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+            <symbol id="i-pie" viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M22 12A10 10 0 0 0 12 2v10z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+            <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="14" r="1.2" fill="currentColor"/><circle cx="12" cy="14" r="1.2" fill="currentColor"/><circle cx="16" cy="14" r="1.2" fill="currentColor"/><circle cx="8" cy="18" r="1.2" fill="currentColor"/><circle cx="12" cy="18" r="1.2" fill="currentColor"/></symbol>
+            <symbol id="i-qrcode" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="5" y="5" width="3" height="3" fill="currentColor"/><rect x="14" y="3" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="16" y="5" width="3" height="3" fill="currentColor"/><rect x="3" y="14" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="5" y="16" width="3" height="3" fill="currentColor"/><path d="M14 14h3v3h-3zM17 17h4v4h-4zM14 20h3v1h-3zM20 14h1v3h-1z" fill="currentColor"/></symbol>
+            <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+            <symbol id="i-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        </defs>
+    </svg>
+
     <div class="sandbox-banner">
-        <span>⚡ <strong>Meta Global AI Developer Hackathon</strong> · Ambiente de Demonstração com Fundos Simulados</span>
-        <span class="sandbox-badge">SANDBOX OFICIAL</span>
+        <span><strong>Meta Global AI Developer Hackathon</strong><span class="hide-sm"> · Ambiente de demonstração com fundos simulados</span></span>
+        <span class="sandbox-badge">SANDBOX</span>
     </div>
 
-    <div class="app-container">
-        <!-- Barra de Navegação Superior -->
-        <header class="top-nav">
-            <div class="nav-brand">
-                <div class="brand-logo">
-                    <span class="logo-icon">🏦</span>
-                    <span class="logo-text">Bank<span class="highlight">ão</span></span>
-                </div>
-                <span class="version-tag">AI Powered</span>
+    <div class="shell">
+        <!-- Barra lateral (estilo NovaBank / BankAO) -->
+        <aside class="sidebar" aria-label="Navegação principal">
+            <div class="sidebar-top">
+                <a class="brand" href="/">
+                    <span class="brand-mark-gradient">
+                        <svg viewBox="0 0 24 24"><path d="M4 4h4l8 12V4h4v16h-4L8 8v12H4V4z" fill="currentColor"/></svg>
+                    </span>
+                    <span class="brand-name">Bank<span class="accent">AO</span></span>
+                </a>
             </div>
 
-            <div class="nav-stats">
-                <div class="fx-ticker">
-                    <span class="ticker-item">💶 1 EUR = <strong id="fxEurAoa">1.050,00 Kz</strong></span>
-                    <span class="ticker-item">💵 1 USD = <strong id="fxUsdAoa">950,00 Kz</strong></span>
-                </div>
-            </div>
+            <nav class="side-nav">
+                <button class="nav-item active" data-view="view-home">
+                    <span class="nav-item-icon"><svg><use href="#i-home"/></svg></span>
+                    <span class="nav-item-text">Início</span>
+                    <span class="nav-item-chevron"><svg><use href="#i-chevron-right"/></svg></span>
+                </button>
+                <button class="nav-item" data-view="view-accounts">
+                    <span class="nav-item-icon"><svg><use href="#i-wallet"/></svg></span>
+                    <span class="nav-item-text">Contas</span>
+                </button>
+                <button class="nav-item" data-view="view-ops" data-goto-tab="tab-transfer-internal">
+                    <span class="nav-item-icon"><svg><use href="#i-swap"/></svg></span>
+                    <span class="nav-item-text">Transferências</span>
+                </button>
+                <button class="nav-item" data-view="view-payments">
+                    <span class="nav-item-icon"><svg><use href="#i-receipt"/></svg></span>
+                    <span class="nav-item-text">Pagamentos</span>
+                </button>
+                <button class="nav-item" data-view="view-expenses">
+                    <span class="nav-item-icon"><svg><use href="#i-pie"/></svg></span>
+                    <span class="nav-item-text">Despesas</span>
+                </button>
+                <button class="nav-item" onclick="toast('Módulo de Cartões em breve', 'info')">
+                    <span class="nav-item-icon"><svg><use href="#i-card"/></svg></span>
+                    <span class="nav-item-text">Cartões</span>
+                </button>
+                <button class="nav-item" onclick="toast('Módulo de Investimentos em breve', 'info')">
+                    <span class="nav-item-icon"><svg><use href="#i-trending"/></svg></span>
+                    <span class="nav-item-text">Investimentos</span>
+                </button>
+                <button class="nav-item" data-view="view-savings">
+                    <span class="nav-item-icon"><svg><use href="#i-lock"/></svg></span>
+                    <span class="nav-item-text">Poupança</span>
+                </button>
+                <button class="nav-item" data-view="view-statement">
+                    <span class="nav-item-icon"><svg><use href="#i-list"/></svg></span>
+                    <span class="nav-item-text">Extrato</span>
+                </button>
+                <button class="nav-item nav-copilot" data-view="view-copilot">
+                    <span class="nav-item-icon"><svg class="ic-spark"><use href="#i-spark"/></svg></span>
+                    <span class="nav-item-text">Copilot IA</span>
+                </button>
+            </nav>
 
-            <div class="nav-user">
-                <div class="user-profile" id="userProfileArea">
-                    <div class="avatar" id="userAvatar">AO</div>
-                    <div class="user-details">
-                        <span class="user-name" id="userNameDisplay">Lerdin dos Santos</span>
-                        <span class="kyc-badge verified" id="userKycBadge">KYC Verificado</span>
-                    </div>
+            <div class="sidebar-user-card" id="sidebarUserProfileArea">
+                <div class="avatar sidebar-avatar" id="sidebarUserAvatar">AS</div>
+                <div class="sidebar-user-details">
+                    <span class="sidebar-user-name" id="sidebarUserNameDisplay">Avelino Simão</span>
+                    <span class="sidebar-user-badge" id="sidebarUserKycBadge">Cliente Premium</span>
                 </div>
-                <button class="btn-copilot-toggle" id="btnToggleCopilot">
-                    <span class="copilot-sparkle">✨</span>
-                    <span>Bankão Copilot</span>
-                    <span class="model-badge">Meta Muse</span>
+                <button class="sidebar-settings-btn" id="sidebarBtnSettings" title="Definições / Sair" onclick="openAuthModal()">
+                    <svg><use href="#i-gear"/></svg>
                 </button>
             </div>
-        </header>
+        </aside>
 
-        <!-- Conteúdo Principal -->
-        <main class="main-content">
-            <!-- Coluna Esquerda: Carteira, Ações e Extrato -->
-            <div class="dashboard-grid">
-                
-                <!-- Secção de Cartões de Saldo -->
-                <section class="wallets-section">
-                    <div class="section-header">
-                        <h2>Minhas Carteiras</h2>
-                        <span class="subtitle">Saldos protegidos por livro-razão atómico</span>
-                    </div>
+        <div class="workspace">
+            <!-- Cabeçalho -->
+            <header class="topbar">
+                <button class="icon-btn mobile-menu-btn" id="btnMobileNavHamburger" aria-label="Abrir menu móvel" onclick="toggleMobileMenu()">
+                    <svg><use href="#i-menu"/></svg>
+                </button>
+                <a class="brand brand-mobile" href="/">
+                    <span class="brand-mark">B</span>
+                    <span class="brand-name">Bank<span class="accent">AO</span></span>
+                </a>
 
-                    <div class="cards-row">
-                        <!-- Cartão Kwanza (AOA) -->
-                        <div class="card-wallet card-aoa">
-                            <div class="card-chip"></div>
-                            <div class="card-currency-tag">ANGOLA · AOA</div>
-                            <div class="card-balance-block">
-                                <span class="balance-label">Saldo Disponível</span>
-                                <div class="balance-amount" id="balanceAoa">100.000,00 <span class="curr">Kz</span></div>
-                            </div>
-                            <div class="card-footer">
-                                <div class="card-account-info">
-                                    <span class="acc-label">CONTA INTERNA</span>
-                                    <span class="acc-val" id="accNumberAoa">0040 8291 9410</span>
-                                </div>
-                                <div class="card-account-info">
-                                    <span class="acc-label">IBAN VIRTUAL (SANDBOX)</span>
-                                    <span class="acc-val mono" id="ibanAoa">AO06 9999 4810 2938 1029 4810 2</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Cartão Euro (EUR) -->
-                        <div class="card-wallet card-eur">
-                            <div class="card-chip"></div>
-                            <div class="card-currency-tag">EUROPA · EUR</div>
-                            <div class="card-balance-block">
-                                <span class="balance-label">Saldo Disponível</span>
-                                <div class="balance-amount" id="balanceEur">0,00 <span class="curr">€</span></div>
-                            </div>
-                            <div class="card-footer">
-                                <div class="card-account-info">
-                                    <span class="acc-label">CONTA INTERNA</span>
-                                    <span class="acc-val" id="accNumberEur">0050 1928 4719</span>
-                                </div>
-                                <div class="card-account-info">
-                                    <span class="acc-label">IBAN SEPA (SANDBOX)</span>
-                                    <span class="acc-val mono" id="ibanEur">PT50 9999 2819 4710 2938 1029 3</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Atalhos e Operações Principais -->
-                <section class="operations-section">
-                    <div class="tabs-nav">
-                        <button class="tab-btn active" data-tab="tab-deposit">
-                            <span class="tab-icon">📥</span> Depositar em Angola
-                        </button>
-                        <button class="tab-btn" data-tab="tab-transfer-internal">
-                            <span class="tab-icon">⚡</span> Enviar p/ Conta Interna
-                        </button>
-                        <button class="tab-btn" data-tab="tab-transfer-iban">
-                            <span class="tab-icon">🌍</span> Enviar p/ IBAN Internacional
-                        </button>
-                    </div>
-
-                    <!-- Aba 1: Depósito Angolano -->
-                    <div class="tab-pane active" id="tab-deposit">
-                        <div class="operation-card">
-                            <div class="method-selector">
-                                <label class="method-card active">
-                                    <input type="radio" name="depositMethod" value="express" checked>
-                                    <div class="method-body">
-                                        <div class="method-title">📱 Multicaixa Express</div>
-                                        <div class="method-desc">Autorize na hora pelo aplicativo no seu telemóvel</div>
-                                    </div>
-                                </label>
-                                <label class="method-card">
-                                    <input type="radio" name="depositMethod" value="referencia">
-                                    <div class="method-body">
-                                        <div class="method-title">🧾 Pagamento por Referência</div>
-                                        <div class="method-desc">Pague em qualquer ATM Multicaixa ou Internet Banking</div>
-                                    </div>
-                                </label>
-                            </div>
-
-                            <!-- Formulário Multicaixa Express -->
-                            <form id="formDepositExpress" class="deposit-subform active">
-                                <div class="form-row">
-                                    <div class="form-group flex-1">
-                                        <label for="expressPhone">Telemóvel Associado ao Multicaixa Express</label>
-                                        <input type="tel" id="expressPhone" value="923 456 789" required placeholder="Ex: 923 000 000">
-                                    </div>
-                                    <div class="form-group flex-1">
-                                        <label for="expressAmount">Valor a Depositar (Kz AOA)</label>
-                                        <input type="number" id="expressAmount" value="50000" min="500" step="100" required>
-                                    </div>
-                                </div>
-                                <div class="form-actions">
-                                    <button type="submit" class="btn btn-primary" id="btnSubmitExpress">
-                                        <span>Solicitar Aprovação no Telemóvel</span>
-                                        <span class="btn-arrow">→</span>
-                                    </button>
-                                </div>
-                            </form>
-
-                            <!-- Formulário Referência -->
-                            <form id="formDepositReferencia" class="deposit-subform">
-                                <div class="form-row">
-                                    <div class="form-group flex-1">
-                                        <label for="refAmount">Valor a Depositar (Kz AOA)</label>
-                                        <input type="number" id="refAmount" value="25000" min="500" step="100" required>
-                                    </div>
-                                </div>
-                                <div class="form-actions">
-                                    <button type="submit" class="btn btn-primary" id="btnSubmitReferencia">
-                                        <span>Gerar Dados de Pagamento</span>
-                                        <span class="btn-arrow">→</span>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- Aba 2: Transferência Interna -->
-                    <div class="tab-pane" id="tab-transfer-internal">
-                        <div class="operation-card">
-                            <form id="formTransferInternal">
-                                <div class="form-row">
-                                    <div class="form-group flex-1">
-                                        <label for="internalDestAcc">Número da Conta Destino Bankão</label>
-                                        <input type="text" id="internalDestAcc" placeholder="Ex: 0040 8291 9410" required>
-                                        <span class="input-hint">Transferências instantâneas e sem custos adicionais.</span>
-                                    </div>
-                                    <div class="form-group flex-1">
-                                        <label for="internalAmount">Valor a Enviar (Kz AOA)</label>
-                                        <input type="number" id="internalAmount" placeholder="Ex: 15000" min="100" required>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="internalDesc">Descrição / Mensagem</label>
-                                    <input type="text" id="internalDesc" placeholder="Ex: Pagamento do almoço">
-                                </div>
-                                <div class="form-actions">
-                                    <button type="submit" class="btn btn-primary" id="btnSubmitInternal">
-                                        <span>Transferir Imediatamente</span>
-                                        <span class="btn-arrow">⚡</span>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- Aba 3: Transferência Internacional IBAN -->
-                    <div class="tab-pane" id="tab-transfer-iban">
-                        <div class="operation-card">
-                            <form id="formTransferIban">
-                                <div class="form-row">
-                                    <div class="form-group flex-2">
-                                        <label for="ibanInput">IBAN do Beneficiário (Angola ou Portugal/SEPA)</label>
-                                        <div class="input-with-validation">
-                                            <input type="text" id="ibanInput" placeholder="PT50 0035 0000 0000 0000 0000 0" class="mono" required>
-                                            <span class="iban-status-badge" id="ibanValidationStatus">Aguardando</span>
-                                        </div>
-                                        <span class="input-hint" id="ibanFeedbackText">Validado com algoritmo Mod 97 (ISO 7064).</span>
-                                    </div>
-                                    <div class="form-group flex-1">
-                                        <label for="beneficiaryName">Nome Completo do Titular</label>
-                                        <input type="text" id="beneficiaryName" placeholder="Ex: Maria António" required>
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group flex-1">
-                                        <label for="ibanSendAmount">Valor em Kwanzas a Debitar (AOA)</label>
-                                        <input type="number" id="ibanSendAmount" value="50000" min="1000" step="500" required>
-                                    </div>
-                                    <div class="form-group flex-1">
-                                        <label>Valor Líquido a Receber em Portugal/Europa</label>
-                                        <div class="quote-preview-box">
-                                            <span class="quote-val" id="quoteReceiveAmount">~ 46,90 €</span>
-                                            <span class="quote-details" id="quoteDetails">Câmbio: 1€ = 1.050 Kz · Taxa: 1,5%</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="ai-suggestion-box" id="aiTransferHelperBox">
-                                    <div class="ai-box-header">
-                                        <span>✨ <strong>Análise do Bankão Copilot (Meta Muse Spark)</strong></span>
-                                        <button type="button" class="btn-text" id="btnAskAiExplain">Pedir Explicação Completa</button>
-                                    </div>
-                                    <p class="ai-box-text" id="aiTransferSummaryText">
-                                        O câmbio atual para Portugal (SEPA) é favorável. O valor cai em cêntimos sem dedução para o beneficiário.
-                                    </p>
-                                </div>
-
-                                <div class="form-actions">
-                                    <button type="submit" class="btn btn-primary" id="btnSubmitIban">
-                                        <span>Confirmar e Enviar para IBAN</span>
-                                        <span class="btn-arrow">🌍</span>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Extrato e Livro-Razão -->
-                <section class="transactions-section">
-                    <div class="section-header">
-                        <h2>Extrato do Livro-Razão</h2>
-                        <span class="subtitle">Registos atómicos e auditáveis</span>
-                    </div>
-                    <div class="table-container">
-                        <table class="tx-table">
-                            <thead>
-                                <tr>
-                                    <th>Data / Hora</th>
-                                    <th>Operação</th>
-                                    <th>Descrição</th>
-                                    <th>Conta</th>
-                                    <th>Valor</th>
-                                    <th>Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody id="transactionsTableBody">
-                                <tr>
-                                    <td colspan="6" class="text-center text-muted">Carregando movimentações...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-            </div>
-
-            <!-- Coluna Direita: Bankão AI Copilot (Meta Model API) -->
-            <aside class="copilot-sidebar" id="copilotSidebar">
-                <div class="copilot-header">
-                    <div class="copilot-title">
-                        <span class="sparkle-icon">✨</span>
-                        <div>
-                            <h3>Bankão Copilot</h3>
-                            <span class="copilot-subtitle">Alimentado por Meta Muse Spark</span>
-                        </div>
-                    </div>
-                    <span class="online-indicator">Online</span>
+                <div class="fx-ticker" aria-label="Câmbio de referência">
+                    <span class="ticker-item"><em>EUR</em> <strong id="fxEurAoa">1.050,00 Kz</strong></span>
+                    <span class="ticker-sep"></span>
+                    <span class="ticker-item"><em>USD</em> <strong id="fxUsdAoa">950,00 Kz</strong></span>
                 </div>
 
-                <div class="copilot-chat-messages" id="copilotChatMessages">
-                    <div class="chat-bubble ai">
-                        <div class="bubble-avatar">🤖</div>
-                        <div class="bubble-content">
-                            <p>Olá! Sou o <strong>Bankão Copilot</strong>, o seu assistente de inteligência financeira construído com os modelos da Meta.</p>
-                            <p>Posso simular transferências, explicar taxas cambiais para a Europa ou esclarecer dúvidas sobre os depósitos no Multicaixa Express!</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="copilot-quick-prompts">
-                    <button class="quick-prompt-btn" data-prompt="Como faço para depositar com Multicaixa Express?">📱 Como depositar?</button>
-                    <button class="quick-prompt-btn" data-prompt="Quais são as taxas de câmbio para enviar dinheiro a Portugal?">💶 Taxas para Portugal?</button>
-                    <button class="quick-prompt-btn" data-prompt="Como funciona a garantia de livro-razão e segurança?">🛡️ Segurança e Ledger?</button>
-                </div>
-
-                <form class="copilot-input-form" id="copilotInputForm">
-                    <input type="text" id="copilotUserInput" placeholder="Pergunte ao Copilot..." autocomplete="off">
-                    <button type="submit" class="btn-send-copilot">
-                        <span>➤</span>
+                <div class="topbar-right">
+                    <button class="icon-btn hide-unauthenticated" id="btnToggleBalance" aria-label="Ocultar saldos" title="Ocultar/mostrar saldos">
+                        <svg class="ic-eye"><use href="#i-eye"/></svg>
+                        <svg class="ic-eye-off"><use href="#i-eye-off"/></svg>
                     </button>
-                </form>
-            </aside>
-        </main>
+                    <button class="icon-btn hide-unauthenticated topbar-qr-btn" id="btnTopbarQr" title="Receber Transferência / Código QR" aria-label="Código QR da conta" onclick="openReceiveQrModal()">
+                        <svg><use href="#i-qrcode"/></svg>
+                    </button>
+                    <button class="btn-copilot-toggle hide-unauthenticated" id="btnToggleCopilot">
+                        <svg><use href="#i-spark"/></svg><span>Copilot</span>
+                    </button>
+                    <div class="user-profile hide-unauthenticated" id="userProfileArea">
+                        <div class="avatar" id="userAvatar">?</div>
+                        <div class="user-details">
+                            <span class="user-name" id="userNameDisplay">Visitante</span>
+                            <span class="kyc-badge" id="userKycBadge">Não autenticado</span>
+                        </div>
+                    </div>
+                    <button class="btn-auth-action" id="btnAuthAction" onclick="openAuthModal()">Entrar</button>
+                </div>
+            </header>
+
+            <main class="main-content">
+                <div class="views">
+
+                    <!-- ============ INÍCIO (Estilo NovaBank / BankAO) ============ -->
+                    <section class="view active" id="view-home">
+                        <div class="nb-dash-layout">
+                            <!-- Coluna Principal (Mobile & Desktop) -->
+                            <div class="nb-dash-main">
+                                <!-- Cabeçalho de Boas-vindas -->
+                                <div class="nb-dash-header">
+                                    <div class="nb-user-greeting">
+                                        <h1 class="nb-title">Olá, <span id="greetingName">Avelino</span> <span class="wave-hand">👋</span></h1>
+                                        <p class="nb-subtitle" id="greetingLine">Aqui está o resumo da sua vida financeira.</p>
+                                        <div class="nb-key-badge">
+                                            <span class="nb-key-tag">Chave (E-mail):</span>
+                                            <span class="nb-key-val mono" id="dashAccountEmail">carregando...</span>
+                                            <button class="nb-key-copy-btn" id="btnCopyDashEmail" title="Copiar Chave">
+                                                <svg><use href="#i-copy"/></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="nb-header-actions">
+                                        <button class="nb-qr-btn" id="btnOpenReceiveQr" title="Receber por Código QR ou Chave" onclick="openReceiveQrModal()">
+                                            <svg><use href="#i-qrcode"/></svg>
+                                        </button>
+                                        <button class="nb-bell-btn" title="Notificações" onclick="toast('Nenhuma notificação nova no momento', 'info')">
+                                            <svg><use href="#i-bell"/></svg>
+                                            <span class="nb-bell-dot"></span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Card de Saldo Total (Aurora Glow + Neon Sparkline) -->
+                                <div class="nb-balance-card">
+                                    <div class="nb-balance-card-inner">
+                                        <div class="nb-balance-top">
+                                            <span class="nb-balance-label">Saldo total</span>
+                                            <!-- Seletor de moeda de preferência -->
+                                            <div class="nb-currency-selector" role="group" aria-label="Moeda de preferência">
+                                                <button type="button" class="dash-curr-tag active" data-curr="AOA">AOA</button>
+                                                <button type="button" class="dash-curr-tag" data-curr="USD">USD</button>
+                                                <button type="button" class="dash-curr-tag" data-curr="EUR">EUR</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="nb-balance-amount-box">
+                                            <span class="dash-balance-masked">••••••••</span>
+                                            <span class="dash-balance-num" id="dashPrefBalanceVal">1.250.000</span>
+                                            <span class="dash-balance-curr" id="dashPrefBalanceCurr">KZ</span>
+                                            <button class="nb-eye-btn" id="btnToggleDashBalance" title="Mostrar/Ocultar saldo" aria-label="Mostrar/Ocultar saldo">
+                                                <svg class="ic-eye"><use href="#i-eye"/></svg>
+                                                <svg class="ic-eye-off"><use href="#i-eye-off"/></svg>
+                                            </button>
+                                        </div>
+
+                                        <div class="nb-balance-bottom">
+                                            <span class="nb-trend-pill">
+                                                <svg viewBox="0 0 12 12"><path d="M2 8l4-4 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                                +12% este mês
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Gráfico Sparkline de fundo neon -->
+                                    <div class="nb-balance-chart-art">
+                                        <svg class="nb-sparkline" viewBox="0 0 180 80" preserveAspectRatio="none">
+                                            <defs>
+                                                <linearGradient id="chartGlowGrad" x1="0" y1="0" x2="1" y2="0">
+                                                    <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.3"/>
+                                                    <stop offset="60%" stop-color="#818CF8" stop-opacity="0.85"/>
+                                                    <stop offset="100%" stop-color="#C084FC" stop-opacity="1"/>
+                                                </linearGradient>
+                                            </defs>
+                                            <path d="M 0 55 Q 35 65 60 40 T 110 35 T 150 15 L 175 10" fill="none" stroke="url(#chartGlowGrad)" stroke-width="3" stroke-linecap="round"/>
+                                            <circle cx="175" cy="10" r="4.5" fill="#C084FC" filter="drop-shadow(0 0 6px #C084FC)"/>
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <!-- Secção: As suas contas (logo após o saldo) -->
+                                <div class="nb-section">
+                                    <div class="nb-section-head">
+                                        <h3>As suas contas</h3>
+                                        <button class="nb-head-link" data-goto="view-accounts">Ver todas <svg><use href="#i-chevron-right"/></svg></button>
+                                    </div>
+
+                                    <div class="nb-accounts-list">
+                                        <div class="nb-account-card" data-goto="view-accounts">
+                                            <div class="nb-acc-icon-wrap blue">
+                                                <svg><use href="#i-wallet"/></svg>
+                                            </div>
+                                            <div class="nb-acc-details">
+                                                <strong>Conta Principal (AOA)</strong>
+                                                <span class="nb-acc-val-masked">••••••••</span>
+                                                <span class="nb-acc-val" id="balanceAoaRow">0,00 KZ</span>
+                                            </div>
+                                            <svg class="nb-chevron"><use href="#i-chevron-right"/></svg>
+                                        </div>
+
+                                        <div class="nb-account-card" data-goto="view-savings">
+                                            <div class="nb-acc-icon-wrap green">
+                                                <svg><use href="#i-target"/></svg>
+                                            </div>
+                                            <div class="nb-acc-details">
+                                                <strong>Conta Poupança</strong>
+                                                <span class="nb-acc-val-masked">••••••••</span>
+                                                <span class="nb-acc-val" id="balanceSavingsRow">50.000 KZ</span>
+                                            </div>
+                                            <svg class="nb-chevron"><use href="#i-chevron-right"/></svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 4 Botões Rápidos (Transferir, Pagar, Depositar, Mais) -->
+                                <div class="nb-action-tiles">
+                                    <button class="nb-tile" data-goto="view-ops" data-goto-tab="tab-transfer-internal">
+                                        <div class="nb-tile-ic blue"><svg><use href="#i-swap"/></svg></div>
+                                        <span class="nb-tile-text">Transferir</span>
+                                    </button>
+                                    <button class="nb-tile" data-goto="view-payments">
+                                        <div class="nb-tile-ic gold"><svg><use href="#i-receipt"/></svg></div>
+                                        <span class="nb-tile-text">Pagamentos</span>
+                                    </button>
+                                    <button class="nb-tile" data-goto="view-ops" data-goto-tab="tab-deposit">
+                                        <div class="nb-tile-ic green"><svg><use href="#i-phone"/></svg></div>
+                                        <span class="nb-tile-text">Depositar</span>
+                                    </button>
+                                    <button class="nb-tile" data-goto="view-savings">
+                                        <div class="nb-tile-ic purple"><svg><use href="#i-lock"/></svg></div>
+                                        <span class="nb-tile-text">Poupança</span>
+                                    </button>
+                                </div>
+
+                                <!-- Banner: O seu futuro financeiro -->
+                                <div class="nb-future-banner">
+                                    <div class="nb-banner-content">
+                                        <div class="nb-banner-orb"><svg><use href="#i-target"/></svg></div>
+                                        <div class="nb-banner-texts">
+                                            <h4>O seu futuro financeiro</h4>
+                                            <p>Defina os seus objetivos e converse com o BankAO Copilot.</p>
+                                        </div>
+                                    </div>
+                                    <button class="nb-banner-action-btn" data-goto="view-copilot">
+                                        <span>Falar com Copilot</span>
+                                        <svg><use href="#i-chevron-right"/></svg>
+                                    </button>
+                                </div>
+
+                                <!-- Secção: Transferências recentes -->
+                                <div class="nb-section">
+                                    <div class="nb-section-head">
+                                        <h3>Transferências recentes</h3>
+                                        <button class="nb-head-link" data-goto="view-statement">Ver todas <svg><use href="#i-chevron-right"/></svg></button>
+                                    </div>
+                                    <div class="nb-tx-container tx-list" id="recentTx">
+                                        <div class="empty">A carregar movimentos…</div>
+                                    </div>
+                                </div>
+
+                                <!-- Detalhes de Carteiras Multi-Moeda (colapsável com IBANs detalhados) -->
+                                <div class="wallets-accordion" id="walletsAccordionWrap">
+                                    <details class="wallets-details" id="walletsDetailsToggle">
+                                        <summary class="wallets-summary">
+                                            <span class="summary-title"><svg class="summary-ic"><use href="#i-swap"/></svg> Contas &amp; IBANs Detalhados (AOA, EUR, USD)</span>
+                                            <svg class="summary-arrow"><use href="#i-down"/></svg>
+                                        </summary>
+                                        <div class="cards-row wallets-cards-row">
+                                            <article class="card-wallet card-aoa">
+                                                <div class="card-top">
+                                                    <span class="card-currency-tag">Kwanza · AOA</span>
+                                                    <span class="card-chip" aria-hidden="true"></span>
+                                                </div>
+                                                <div class="card-balance-block">
+                                                    <span class="balance-label">Saldo disponível</span>
+                                                    <div class="balance-amount" id="balanceAoa">100.000,00 <span class="curr">Kz</span></div>
+                                                </div>
+                                                <div class="card-footer">
+                                                    <div class="card-account-info">
+                                                        <span class="acc-label">Conta interna</span>
+                                                        <button class="acc-val copyable" data-copy-target="accNumberAoa" id="accNumberAoa">0040 8291 9410</button>
+                                                    </div>
+                                                    <div class="card-account-info">
+                                                        <span class="acc-label">IBAN virtual</span>
+                                                        <button class="acc-val mono copyable" data-copy-target="ibanAoa" id="ibanAoa">AO06 9999 4810 2938 1029 4810 2</button>
+                                                    </div>
+                                                </div>
+                                            </article>
+
+                                            <article class="card-wallet card-eur">
+                                                <div class="card-top">
+                                                    <span class="card-currency-tag">Euro · EUR</span>
+                                                    <span class="card-chip" aria-hidden="true"></span>
+                                                </div>
+                                                <div class="card-balance-block">
+                                                    <span class="balance-label">Saldo disponível</span>
+                                                    <div class="balance-amount" id="balanceEur">0,00 <span class="curr">€</span></div>
+                                                </div>
+                                                <div class="card-footer">
+                                                    <div class="card-account-info">
+                                                        <span class="acc-label">Conta interna</span>
+                                                        <button class="acc-val copyable" data-copy-target="accNumberEur" id="accNumberEur">0050 1928 4719</button>
+                                                    </div>
+                                                    <div class="card-account-info">
+                                                        <span class="acc-label">IBAN SEPA</span>
+                                                        <button class="acc-val mono copyable" data-copy-target="ibanEur" id="ibanEur">PT50 9999 2819 4710 2938 1029 3</button>
+                                                    </div>
+                                                </div>
+                                            </article>
+
+                                            <article class="card-wallet card-usd">
+                                                <div class="card-top">
+                                                    <span class="card-currency-tag">Dólar · USD</span>
+                                                    <span class="card-chip" aria-hidden="true"></span>
+                                                </div>
+                                                <div class="card-balance-block">
+                                                    <span class="balance-label">Saldo disponível</span>
+                                                    <div class="balance-amount" id="balanceUsd">0,00 <span class="curr">$</span></div>
+                                                </div>
+                                                <div class="card-footer">
+                                                    <div class="card-account-info">
+                                                        <span class="acc-label">Conta interna</span>
+                                                        <button class="acc-val copyable" data-copy-target="accNumberUsd" id="accNumberUsd">0060 8472 9182</button>
+                                                    </div>
+                                                    <div class="card-account-info">
+                                                        <span class="acc-label">IBAN virtual</span>
+                                                        <button class="acc-val mono copyable" data-copy-target="ibanUsd" id="ibanUsd">AO06 9999 0060 2819 4710 8291 4</button>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        </div>
+                                    </details>
+                                </div>
+                            </div>
+
+                            <!-- Coluna Lateral de Widgets (Estilo NovaBank para ecrãs médios/grandes) -->
+                            <aside class="nb-dash-side-widgets">
+                                <!-- Widget 1: O seu saldo gráfico detalhado -->
+                                <div class="nb-widget-card">
+                                    <div class="nb-widget-head">
+                                        <div>
+                                            <span class="nb-widget-label">O seu saldo</span>
+                                            <div class="nb-widget-amount" id="nbWidgetAmount">1.250.000 Kz</div>
+                                            <span class="nb-trend-pill">↑ +12%</span>
+                                        </div>
+                                        <span class="nb-badge-time">Últimos 30 dias</span>
+                                    </div>
+                                    <div class="nb-chart-wrapper">
+                                        <svg viewBox="0 0 280 120" class="nb-full-chart" preserveAspectRatio="none">
+                                            <defs>
+                                                <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.35"/>
+                                                    <stop offset="100%" stop-color="#38BDF8" stop-opacity="0.0"/>
+                                                </linearGradient>
+                                                <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                                                    <stop offset="0%" stop-color="#38BDF8"/>
+                                                    <stop offset="50%" stop-color="#60A5FA"/>
+                                                    <stop offset="100%" stop-color="#818CF8"/>
+                                                </linearGradient>
+                                            </defs>
+                                            <path d="M 0 100 Q 30 110 50 85 T 100 80 T 150 65 T 200 45 T 250 25 L 280 15 L 280 120 L 0 120 Z" fill="url(#areaGrad)"/>
+                                            <path d="M 0 100 Q 30 110 50 85 T 100 80 T 150 65 T 200 45 T 250 25 L 280 15" fill="none" stroke="url(#lineGrad)" stroke-width="3" stroke-linecap="round"/>
+                                            <circle cx="250" cy="25" r="5" fill="#38BDF8" filter="drop-shadow(0 0 8px #38BDF8)"/>
+                                        </svg>
+                                        <div class="nb-chart-dates">
+                                            <span>01 Out</span>
+                                            <span>08 Out</span>
+                                            <span>15 Out</span>
+                                            <span>22 Out</span>
+                                            <span>30 Out</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Widget 2: Cartões Virtuais (NovaBank Visa) -->
+                                <div class="nb-widget-card">
+                                    <div class="nb-widget-head">
+                                        <span class="nb-widget-title">Cartões</span>
+                                        <button class="nb-head-link" onclick="toast('Gestão de Cartões em breve', 'info')">Ver todos <svg><use href="#i-chevron-right"/></svg></button>
+                                    </div>
+
+                                    <div class="nb-card-visual">
+                                        <div class="nb-card-brand-row">
+                                            <span class="nb-card-brand">Bank<span class="accent">AO</span></span>
+                                            <svg class="nb-card-contactless" viewBox="0 0 24 24"><path d="M8.5 16.5a5 5 0 0 1 0-7M12 18.5a8 8 0 0 1 0-11M15.5 20.5a11 11 0 0 1 0-15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                        </div>
+                                        <div class="nb-card-number">•••• 4582</div>
+                                        <div class="nb-card-footer">
+                                            <span class="nb-card-type">Débito Virtual</span>
+                                            <span class="nb-card-network">VISA</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="nb-card-actions">
+                                        <button class="nb-card-act" onclick="toast('Cartão bloqueado com segurança', 'info')">
+                                            <svg><use href="#i-lock"/></svg>
+                                            <span>Bloquear</span>
+                                        </button>
+                                        <button class="nb-card-act" onclick="toast('Definições do cartão', 'info')">
+                                            <svg><use href="#i-gear"/></svg>
+                                            <span>Definições</span>
+                                        </button>
+                                        <button class="nb-card-act" onclick="toast('Limites de transação ajustados', 'info')">
+                                            <svg><use href="#i-trending"/></svg>
+                                            <span>Limites</span>
+                                        </button>
+                                        <button class="nb-card-act" onclick="toast('Mais opções do cartão', 'info')">
+                                            <svg><use href="#i-dots"/></svg>
+                                            <span>Mais</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Widget 3: Despesas deste mês (Donut Chart) -->
+                                <div class="nb-widget-card">
+                                    <div class="nb-widget-head">
+                                        <span class="nb-widget-title">Despesas deste mês</span>
+                                        <button class="nb-head-link" onclick="document.querySelector('[data-view=\'view-expenses\']')?.click()">Ver detalhes <svg><use href="#i-chevron-right"/></svg></button>
+                                    </div>
+
+                                    <div class="nb-expenses-row">
+                                        <div class="nb-donut-wrap">
+                                            <svg viewBox="0 0 100 100" class="nb-donut-chart">
+                                                <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="12"/>
+                                                <circle cx="50" cy="50" r="38" fill="none" stroke="#EC4899" stroke-width="12" stroke-dasharray="84 239" stroke-dashoffset="0"/>
+                                                <circle cx="50" cy="50" r="38" fill="none" stroke="#3B82F6" stroke-width="12" stroke-dasharray="43 239" stroke-dashoffset="-84"/>
+                                                <circle cx="50" cy="50" r="38" fill="none" stroke="#10B981" stroke-width="12" stroke-dasharray="29 239" stroke-dashoffset="-127"/>
+                                                <circle cx="50" cy="50" r="38" fill="none" stroke="#F59E0B" stroke-width="12" stroke-dasharray="24 239" stroke-dashoffset="-156"/>
+                                            </svg>
+                                            <div class="nb-donut-center">
+                                                <strong>320.000</strong>
+                                                <span>Total Kz</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="nb-expense-legend">
+                                            <div class="nb-leg-item"><span class="dot pink"></span><span>Alimentação</span><strong>35%</strong></div>
+                                            <div class="nb-leg-item"><span class="dot blue"></span><span>Transporte</span><strong>18%</strong></div>
+                                            <div class="nb-leg-item"><span class="dot green"></span><span>Internet</span><strong>12%</strong></div>
+                                            <div class="nb-leg-item"><span class="dot amber"></span><span>Outros</span><strong>35%</strong></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </aside>
+                        </div>
+                    </section>
+
+                    <!-- ============ CONTAS ============ -->
+                    <section class="view" id="view-accounts">
+                        <div class="page-head">
+                            <div>
+                                <p class="eyebrow">Gestão de contas</p>
+                                <h1>As suas contas</h1>
+                            </div>
+                            <button class="btn btn-outline" data-goto="view-ops" data-goto-tab="tab-deposit">
+                                <svg><use href="#i-down"/></svg><span>Depositar</span>
+                            </button>
+                        </div>
+
+                        <!-- Resumo geral -->
+                        <div class="acc-summary-grid">
+                            <div class="acc-summary-card acc-aoa">
+                                <div class="acc-summary-top">
+                                    <div class="acc-summary-icon">
+                                        <svg><use href="#i-wallet"/></svg>
+                                    </div>
+                                    <span class="acc-summary-label">Conta Principal</span>
+                                    <span class="acc-badge">AOA · Kwanza</span>
+                                </div>
+                                <div class="acc-summary-balance">
+                                    <span class="acc-bal-masked">••••••••</span>
+                                    <span class="acc-bal-val" id="accViewBalanceAoa">0,00 KZ</span>
+                                </div>
+                                <div class="acc-summary-details">
+                                    <div class="acc-detail-row">
+                                        <span class="acc-detail-label">Número de conta</span>
+                                        <button class="acc-detail-val copyable" id="accViewNumAoa">0040 8291 9410</button>
+                                    </div>
+                                    <div class="acc-detail-row">
+                                        <span class="acc-detail-label">IBAN Virtual</span>
+                                        <button class="acc-detail-val mono copyable" id="accViewIbanAoa">AO06 9999 0000 0000 0000 0000 0</button>
+                                    </div>
+                                </div>
+                                <div class="acc-summary-actions">
+                                    <button class="acc-act-btn" data-goto="view-ops" data-goto-tab="tab-deposit">
+                                        <svg><use href="#i-down"/></svg> Depositar
+                                    </button>
+                                    <button class="acc-act-btn" data-goto="view-ops" data-goto-tab="tab-transfer-internal">
+                                        <svg><use href="#i-swap"/></svg> Transferir
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="acc-summary-card acc-eur">
+                                <div class="acc-summary-top">
+                                    <div class="acc-summary-icon">
+                                        <svg><use href="#i-globe"/></svg>
+                                    </div>
+                                    <span class="acc-summary-label">Conta Multimoeda</span>
+                                    <span class="acc-badge">EUR · Euro</span>
+                                </div>
+                                <div class="acc-summary-balance">
+                                    <span class="acc-bal-masked">••••••••</span>
+                                    <span class="acc-bal-val" id="accViewBalanceEur">0,00 €</span>
+                                </div>
+                                <div class="acc-summary-details">
+                                    <div class="acc-detail-row">
+                                        <span class="acc-detail-label">Número de conta</span>
+                                        <button class="acc-detail-val copyable" id="accViewNumEur">0050 1928 4719</button>
+                                    </div>
+                                    <div class="acc-detail-row">
+                                        <span class="acc-detail-label">IBAN SEPA</span>
+                                        <button class="acc-detail-val mono copyable" id="accViewIbanEur">PT50 9999 0000 0000 0000 0000 3</button>
+                                    </div>
+                                </div>
+                                <div class="acc-summary-actions">
+                                    <button class="acc-act-btn" data-goto="view-ops" data-goto-tab="tab-transfer-iban">
+                                        <svg><use href="#i-globe"/></svg> Transferência IBAN
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="acc-summary-card acc-usd">
+                                <div class="acc-summary-top">
+                                    <div class="acc-summary-icon">
+                                        <svg><use href="#i-globe"/></svg>
+                                    </div>
+                                    <span class="acc-summary-label">Conta Multimoeda</span>
+                                    <span class="acc-badge">USD · Dólar</span>
+                                </div>
+                                <div class="acc-summary-balance">
+                                    <span class="acc-bal-masked">••••••••</span>
+                                    <span class="acc-bal-val" id="accViewBalanceUsd">0,00 $</span>
+                                </div>
+                                <div class="acc-summary-details">
+                                    <div class="acc-detail-row">
+                                        <span class="acc-detail-label">Número de conta</span>
+                                        <button class="acc-detail-val copyable" id="accViewNumUsd">0060 8472 9182</button>
+                                    </div>
+                                    <div class="acc-detail-row">
+                                        <span class="acc-detail-label">IBAN Virtual</span>
+                                        <button class="acc-detail-val mono copyable" id="accViewIbanUsd">AO06 9999 0060 0000 0000 0000 4</button>
+                                    </div>
+                                </div>
+                                <div class="acc-summary-actions">
+                                    <button class="acc-act-btn" data-goto="view-ops" data-goto-tab="tab-transfer-iban">
+                                        <svg><use href="#i-globe"/></svg> Transferência IBAN
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="acc-summary-card acc-savings">
+                                <div class="acc-summary-top">
+                                    <div class="acc-summary-icon">
+                                        <svg><use href="#i-lock"/></svg>
+                                    </div>
+                                    <span class="acc-summary-label">Conta Poupança</span>
+                                    <span class="acc-badge">AOA · Automática</span>
+                                </div>
+                                <div class="acc-summary-balance">
+                                    <span class="acc-bal-masked">••••••••</span>
+                                    <span class="acc-bal-val" id="accViewBalanceSavings">50.000,00 KZ</span>
+                                </div>
+                                <div class="acc-summary-details">
+                                    <div class="acc-detail-row">
+                                        <span class="acc-detail-label">Taxa de juro anual</span>
+                                        <span class="acc-detail-val" style="color:#4ADE80;font-weight:700;">4,5% ao ano</span>
+                                    </div>
+                                    <div class="acc-detail-row">
+                                        <span class="acc-detail-label">Próxima capitalização</span>
+                                        <span class="acc-detail-val">01 Dez 2026</span>
+                                    </div>
+                                </div>
+                                <div class="acc-summary-actions">
+                                    <button class="acc-act-btn" data-goto="view-savings">
+                                        <svg><use href="#i-target"/></svg> Ver metas
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ============ PAGAMENTOS ============ -->
+                    <section class="view" id="view-payments">
+                        <div class="page-head">
+                            <div>
+                                <p class="eyebrow">Histórico de gastos</p>
+                                <h1>Pagamentos</h1>
+                            </div>
+                        </div>
+
+                        <!-- Resumo de gastos do mês -->
+                        <div class="pay-summary-row">
+                            <div class="pay-stat-card">
+                                <div class="pay-stat-icon pink"><svg><use href="#i-up"/></svg></div>
+                                <div class="pay-stat-info">
+                                    <span class="pay-stat-label">Total gasto este mês</span>
+                                    <strong class="pay-stat-val" id="payTotalMonth">0,00 KZ</strong>
+                                </div>
+                            </div>
+                            <div class="pay-stat-card">
+                                <div class="pay-stat-icon amber"><svg><use href="#i-receipt"/></svg></div>
+                                <div class="pay-stat-info">
+                                    <span class="pay-stat-label">Compras este mês</span>
+                                    <strong class="pay-stat-val" id="payCountMonth">0 transações</strong>
+                                </div>
+                            </div>
+                            <div class="pay-stat-card">
+                                <div class="pay-stat-icon blue"><svg><use href="#i-trending"/></svg></div>
+                                <div class="pay-stat-info">
+                                    <span class="pay-stat-label">Média diária</span>
+                                    <strong class="pay-stat-val" id="payAvgDay">0,00 KZ</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filtros de período e Seletor de Mês a partir da criação da conta -->
+                        <div class="pay-filter-bar">
+                            <div class="pay-filters">
+                                <button class="pay-filter-btn active" data-period="month">Este mês</button>
+                                <button class="pay-filter-btn" data-period="3months">3 meses</button>
+                                <button class="pay-filter-btn" data-period="all">Todos</button>
+                            </div>
+                            <div class="filter-month-container">
+                                <label for="payMonthSelect" class="filter-month-label">
+                                    <svg><use href="#i-calendar"/></svg>
+                                    <span>Escolher mês:</span>
+                                </label>
+                                <select id="payMonthSelect" class="month-pill-select" aria-label="Mês de pagamentos" onchange="handlePaymentMonthChange(this.value)">
+                                    <!-- Preenchido dinamicamente via JS a partir do mês de criação da conta até meses posteriores -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Lista de pagamentos/compras -->
+                        <div class="panel">
+                            <div class="tx-list" id="paymentsList">
+                                <div class="empty">Nenhum pagamento registado ainda.</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ============ ANÁLISE DAS DESPESAS ============ -->
+                    <section class="view" id="view-expenses">
+                        <div class="page-head">
+                            <div>
+                                <p class="eyebrow">Gestão & Inteligência Financeira</p>
+                                <h1>Análise das Despesas</h1>
+                            </div>
+                            <div class="page-head-actions">
+                                <button class="btn btn-primary" onclick="openNewExpenseModal()">
+                                    <svg><use href="#i-receipt"/></svg><span>+ Registar despesa</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 1. ESCOLHER O MÊS: Ocupa toda a parte horizontal de cima -->
+                        <div class="exp-month-bar-full">
+                            <div class="exp-month-bar-header">
+                                <div class="exp-month-label-wrap">
+                                    <svg><use href="#i-calendar"/></svg>
+                                    <span>Escolher Mês:</span>
+                                </div>
+                                <div class="exp-period-info-badge" id="expActivePeriodBadge">
+                                    <span class="dot"></span>
+                                    <span id="expActivePeriodText">Todos os meses</span>
+                                </div>
+                            </div>
+                            <!-- Pílulas horizontais de seleção de mês -->
+                            <div class="exp-month-pills-scroll" id="expMonthPillsScroll">
+                                <!-- Gerado dinamicamente via JS a partir da criação da conta até posteriores -->
+                            </div>
+                        </div>
+
+                        <!-- 2. GRÁFICO NO CENTRO: Clicável e Editável -->
+                        <div class="exp-center-zone">
+                            <div class="exp-donut-center-card">
+                                <div class="exp-donut-card-top">
+                                    <div>
+                                        <h3>Distribuição de Gastos</h3>
+                                        <p class="exp-donut-subtext">Toque numa fatia do gráfico para ver detalhes específicos, compras e média habitual.</p>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline exp-btn-reset-donut" id="btnResetDonutSelection" onclick="resetDonutCategorySelection()" style="display:none;">
+                                        <svg><use href="#i-swap"/></svg><span>Ver Total Global</span>
+                                    </button>
+                                </div>
+
+                                <div class="exp-donut-spotlight-layout">
+                                    <!-- Donut Chart Interativo -->
+                                    <div class="exp-donut-stage">
+                                        <svg viewBox="0 0 200 200" class="exp-donut-svg-interactive" id="expDonutSvg">
+                                            <!-- Fatias SVG Donut com eventos de clique geradas via JS -->
+                                        </svg>
+                                        <div class="exp-donut-center-hub" id="expDonutCenterHub">
+                                            <span class="exp-donut-hub-lbl" id="expDonutHubLabel">Total Gasto</span>
+                                            <strong class="exp-donut-hub-val" id="expTotalGastoVal">0 KZ</strong>
+                                            <span class="exp-donut-hub-sub" id="expTotalCountVal">0 compras</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Painel de Detalhes da Categoria Clicada -->
+                                    <div class="exp-donut-spotlight-card" id="expDonutSpotlightCard">
+                                        <div class="spotlight-empty-state" id="spotlightEmptyState">
+                                            <div class="spotlight-pulse-orb"><svg><use href="#i-pie"/></svg></div>
+                                            <h4>Fatia não selecionada</h4>
+                                            <p>Clique em qualquer fatia colorida do gráfico para inspecionar nome da despesa, compras feitas e limite normal.</p>
+                                        </div>
+
+                                        <div class="spotlight-content" id="spotlightContent" style="display:none;">
+                                            <div class="spotlight-header-row">
+                                                <div class="spotlight-icon-wrap" id="spotlightIconWrap">🛒</div>
+                                                <div class="spotlight-title-box">
+                                                    <h4 id="spotlightName">Alimentação</h4>
+                                                    <span class="spotlight-badge" id="spotlightShareBadge">38% do total</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="spotlight-grid">
+                                                <div class="spotlight-item">
+                                                    <span class="spotlight-item-lbl">Compras Feitas</span>
+                                                    <strong class="spotlight-item-val" id="spotlightPurchasesCount">4 compras</strong>
+                                                </div>
+                                                <div class="spotlight-item">
+                                                    <span class="spotlight-item-lbl">Total Gasto</span>
+                                                    <strong class="spotlight-item-val debit" id="spotlightTotalSpent">45.000,00 KZ</strong>
+                                                </div>
+                                                <div class="spotlight-item full">
+                                                    <span class="spotlight-item-lbl">Quanto Gasta Normalmente (Meta Mensal)</span>
+                                                    <div class="spotlight-normal-flex">
+                                                        <strong class="spotlight-item-val" id="spotlightNormalSpent">40.000,00 KZ</strong>
+                                                        <span class="spotlight-trend-badge" id="spotlightTrendBadge">+12% vs meta</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="spotlight-actions">
+                                                <button type="button" class="btn btn-sm btn-primary" onclick="openEditCategoryBudgetModal()">
+                                                    <svg><use href="#i-gear"/></svg>
+                                                    <span>Editar Orçamento / Meta</span>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline" onclick="filterListBySpotlightCategory()">
+                                                    <span>Ver Gastos Desta Categoria ↓</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. TIPOS DE DESPESAS: Barra de progresso, preços e selecionáveis -->
+                        <div class="exp-types-card">
+                            <div class="exp-types-head">
+                                <div>
+                                    <h3>Tipos de Despesas</h3>
+                                    <p class="exp-subtext">Marque ou desmarque para incluir ou retirar despesas do gráfico em tempo real.</p>
+                                </div>
+                                <div class="exp-types-controls">
+                                    <button type="button" class="btn-text-link" onclick="selectAllCategoriesForChart(true)">Selecionar Todas</button>
+                                    <span class="sep">·</span>
+                                    <button type="button" class="btn-text-link" onclick="selectAllCategoriesForChart(false)">Limpar Todas</button>
+                                </div>
+                            </div>
+
+                            <div class="exp-types-list" id="expTypesList">
+                                <!-- Preenchido dinamicamente com checkbox, barra de progresso, percentagem e preço -->
+                            </div>
+                        </div>
+
+                        <!-- 4. ASSISTENTE: Card com foto, texto e botão "Ajuda com as despesas?" -->
+                        <div class="exp-assistant-card">
+                            <div class="exp-assistant-avatar-box">
+                                <div class="exp-assistant-avatar">
+                                    <svg class="ic-spark"><use href="#i-spark"/></svg>
+                                </div>
+                                <span class="exp-assistant-online-dot"></span>
+                            </div>
+                            <div class="exp-assistant-body">
+                                <div class="exp-assistant-tag">
+                                    <svg class="ic-spark" style="width:13px;height:13px"><use href="#i-spark"/></svg>
+                                    <span>BankAO Copilot · Inteligência Financeira</span>
+                                </div>
+                                <h4 class="exp-assistant-title">Recomendações e Otimização de Custos</h4>
+                                <p class="exp-assistant-desc" id="expAssistantDesc">
+                                    Identifiquei os seus padrões de consumo. A maior fatia das suas despesas está concentrada em compras essenciais. É possível economizar até 15.000 KZ este mês reorganizando gastos secundários.
+                                </p>
+                            </div>
+                            <div class="exp-assistant-actions">
+                                <button type="button" class="btn-exp-assistant-help" onclick="openExpenseAssistantHelpModal()">
+                                    <svg class="ic-spark"><use href="#i-spark"/></svg>
+                                    <span>Ajuda com as despesas?</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 5. NO FINAL: Os gastos, tudo organizado -->
+                        <div class="exp-organized-expenses-section">
+                            <div class="exp-organized-head">
+                                <div>
+                                    <h3>Histórico de Gastos Identificados</h3>
+                                    <p class="exp-subtext">Todas as transações do período registadas por si ou pelo Copilot IA.</p>
+                                </div>
+                                <div class="exp-organized-actions">
+                                    <button class="btn btn-sm btn-primary" onclick="openNewExpenseModal()">
+                                        <svg><use href="#i-receipt"/></svg><span>+ Registar despesa</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Entrada Rápida de Despesa com Copilot IA -->
+                            <form class="exp-quick-ai-strip" id="formQuickAiExpense" onsubmit="handleQuickAiExpense(event)">
+                                <div class="exp-quick-ai-inner">
+                                    <svg class="ic-spark"><use href="#i-spark"/></svg>
+                                    <input type="text" id="expQuickAiInput" class="exp-quick-ai-input" 
+                                        placeholder="Registar por linguagem natural: Ex: Gastei 15.000 KZ no supermercado ontem..." autocomplete="off">
+                                    <button type="submit" class="btn btn-sm btn-primary" id="btnQuickAiSubmit">
+                                        <svg><use href="#i-send"/></svg><span>Registar</span>
+                                    </button>
+                                </div>
+                            </form>
+
+                            <!-- Filtros de categoria para a lista -->
+                            <div class="exp-category-filter-chips" id="expCategoryFilters">
+                                <button class="exp-cat-pill active" data-cat="all">Todas</button>
+                                <button class="exp-cat-pill" data-cat="Alimentação">🛒 Alimentação</button>
+                                <button class="exp-cat-pill" data-cat="Transporte">🚗 Transporte</button>
+                                <button class="exp-cat-pill" data-cat="Habitação">🏠 Habitação</button>
+                                <button class="exp-cat-pill" data-cat="Telecomunicações">📱 Telecom</button>
+                                <button class="exp-cat-pill" data-cat="Lazer">🍽️ Lazer</button>
+                                <button class="exp-cat-pill" data-cat="Saúde">💊 Saúde</button>
+                                <button class="exp-cat-pill" data-cat="Outros">📦 Outros</button>
+                            </div>
+
+                            <!-- Lista detalhada e organizada de gastos -->
+                            <div class="panel exp-organized-panel">
+                                <div class="tx-list exp-items-list" id="expensesList">
+                                    <div class="empty">A carregar despesas…</div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ============ POUPANÇA ============ -->
+                    <section class="view" id="view-savings">
+                        <div class="page-head">
+                            <div>
+                                <p class="eyebrow">O meu futuro financeiro</p>
+                                <h1>Poupança</h1>
+                            </div>
+                            <button class="btn" onclick="openNewGoalModal()">
+                                <svg><use href="#i-target"/></svg><span>Nova meta</span>
+                            </button>
+                        </div>
+
+                        <!-- Resumo da poupança -->
+                        <div class="sav-hero-card">
+                            <div class="sav-hero-left">
+                                <span class="sav-hero-label">Total poupado</span>
+                                <div class="sav-hero-amount">
+                                    <span class="acc-bal-masked">••••••••</span>
+                                    <span class="sav-hero-val" id="savTotalBalance">50.000 KZ</span>
+                                </div>
+                                <span class="sav-hero-sub">Taxa de retorno anual: <strong style="color:#4ADE80;">4,5%</strong></span>
+                            </div>
+                            <div class="sav-hero-right">
+                                <div class="sav-ring-wrap">
+                                    <svg viewBox="0 0 100 100" class="sav-ring-chart">
+                                        <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
+                                        <circle cx="50" cy="50" r="38" fill="none" stroke="url(#savGrad)" stroke-width="10"
+                                            stroke-dasharray="120 239" stroke-dashoffset="0" stroke-linecap="round"/>
+                                        <defs>
+                                            <linearGradient id="savGrad" x1="0" y1="0" x2="1" y2="1">
+                                                <stop offset="0%" stop-color="#38BDF8"/>
+                                                <stop offset="100%" stop-color="#4ADE80"/>
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                    <div class="sav-ring-center">
+                                        <strong>50%</strong>
+                                        <span>das metas</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Metas de poupança -->
+                        <div class="sav-section-head">
+                            <h3>As suas metas</h3>
+                            <span class="sav-count-badge" id="savGoalCount">3 metas ativas</span>
+                        </div>
+
+                        <div class="sav-goals-list" id="savGoalsList">
+                            <!-- Meta 1 -->
+                            <div class="sav-goal-card">
+                                <div class="sav-goal-header">
+                                    <div class="sav-goal-icon" style="background:linear-gradient(135deg,#38BDF8,#6366F1);">✈️</div>
+                                    <div class="sav-goal-info">
+                                        <strong class="sav-goal-name">Férias em Portugal</strong>
+                                        <span class="sav-goal-date">Prazo: Junho 2027</span>
+                                    </div>
+                                    <div class="sav-goal-status on-track">No prazo</div>
+                                </div>
+                                <div class="sav-goal-progress-wrap">
+                                    <div class="sav-goal-vals">
+                                        <span class="acc-bal-masked">••••••</span>
+                                        <span class="sav-prog-saved">25.000 KZ poupados</span>
+                                        <span class="sav-prog-target">de 50.000 KZ</span>
+                                    </div>
+                                    <div class="sav-progress-track">
+                                        <div class="sav-progress-fill" style="width:50%;background:linear-gradient(90deg,#38BDF8,#6366F1);"></div>
+                                    </div>
+                                    <span class="sav-pct">50%</span>
+                                </div>
+                                <div class="sav-goal-monthly">
+                                    <svg><use href="#i-down"/></svg> Contribuição mensal automática: <strong>2.500 KZ</strong>
+                                </div>
+                            </div>
+
+                            <!-- Meta 2 -->
+                            <div class="sav-goal-card">
+                                <div class="sav-goal-header">
+                                    <div class="sav-goal-icon" style="background:linear-gradient(135deg,#F59E0B,#EF4444);">🏠</div>
+                                    <div class="sav-goal-info">
+                                        <strong class="sav-goal-name">Fundo de emergência</strong>
+                                        <span class="sav-goal-date">Prazo: Dezembro 2026</span>
+                                    </div>
+                                    <div class="sav-goal-status at-risk">Em risco</div>
+                                </div>
+                                <div class="sav-goal-progress-wrap">
+                                    <div class="sav-goal-vals">
+                                        <span class="acc-bal-masked">••••••</span>
+                                        <span class="sav-prog-saved">15.000 KZ poupados</span>
+                                        <span class="sav-prog-target">de 100.000 KZ</span>
+                                    </div>
+                                    <div class="sav-progress-track">
+                                        <div class="sav-progress-fill" style="width:15%;background:linear-gradient(90deg,#F59E0B,#EF4444);"></div>
+                                    </div>
+                                    <span class="sav-pct" style="color:#F59E0B;">15%</span>
+                                </div>
+                                <div class="sav-goal-monthly">
+                                    <svg><use href="#i-down"/></svg> Contribuição mensal automática: <strong>5.000 KZ</strong>
+                                </div>
+                            </div>
+
+                            <!-- Meta 3 -->
+                            <div class="sav-goal-card">
+                                <div class="sav-goal-header">
+                                    <div class="sav-goal-icon" style="background:linear-gradient(135deg,#4ADE80,#059669);">💻</div>
+                                    <div class="sav-goal-info">
+                                        <strong class="sav-goal-name">Computador novo</strong>
+                                        <span class="sav-goal-date">Prazo: Março 2027</span>
+                                    </div>
+                                    <div class="sav-goal-status on-track">No prazo</div>
+                                </div>
+                                <div class="sav-goal-progress-wrap">
+                                    <div class="sav-goal-vals">
+                                        <span class="acc-bal-masked">••••••</span>
+                                        <span class="sav-prog-saved">10.000 KZ poupados</span>
+                                        <span class="sav-prog-target">de 30.000 KZ</span>
+                                    </div>
+                                    <div class="sav-progress-track">
+                                        <div class="sav-progress-fill" style="width:33%;background:linear-gradient(90deg,#4ADE80,#059669);"></div>
+                                    </div>
+                                    <span class="sav-pct" style="color:#4ADE80;">33%</span>
+                                </div>
+                                <div class="sav-goal-monthly">
+                                    <svg><use href="#i-down"/></svg> Contribuição mensal automática: <strong>1.500 KZ</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dica do Copilot -->
+                        <div class="nb-future-banner" style="margin-top:24px;">
+                            <div class="nb-banner-content">
+                                <div class="nb-banner-orb"><svg><use href="#i-spark"/></svg></div>
+                                <div class="nb-banner-texts">
+                                    <h4>Conselho do Copilot IA</h4>
+                                    <p>Com base nos seus gastos, pode poupar mais 3.200 KZ por mês sem impactar o seu estilo de vida.</p>
+                                </div>
+                            </div>
+                            <button class="nb-banner-action-btn" data-goto="view-copilot">
+                                <span>Perguntar ao Copilot</span>
+                                <svg><use href="#i-chevron-right"/></svg>
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- ============ OPERAÇÕES ============ -->
+                    <section class="view" id="view-ops">
+                        <div class="page-head">
+                            <div>
+                                <p class="eyebrow">Mover dinheiro</p>
+                                <h1>Operações</h1>
+                            </div>
+                        </div>
+
+                        <section class="operations-section panel">
+                            <div class="tabs-nav" role="tablist">
+                                <button class="tab-btn active" data-tab="tab-deposit" role="tab"><svg><use href="#i-down"/></svg><span>Depositar</span></button>
+                                <button class="tab-btn" data-tab="tab-transfer-internal" role="tab"><svg><use href="#i-bolt"/></svg><span>Transferência de conta</span></button>
+                                <button class="tab-btn" data-tab="tab-transfer-iban" role="tab"><svg><use href="#i-globe"/></svg><span>Transferência bancária</span></button>
+                            </div>
+
+                            <!-- Depósito -->
+                            <div class="tab-pane active" id="tab-deposit">
+                                <div class="operation-card">
+                                    <div class="method-selector">
+                                        <label class="method-card active">
+                                            <input type="radio" name="depositMethod" value="express" checked>
+                                            <span class="method-ic"><svg><use href="#i-phone"/></svg></span>
+                                            <div class="method-body">
+                                                <div class="method-title">Multicaixa Express</div>
+                                                <div class="method-desc">Autorize na hora pelo telemóvel</div>
+                                            </div>
+                                        </label>
+                                        <label class="method-card">
+                                            <input type="radio" name="depositMethod" value="referencia">
+                                            <span class="method-ic"><svg><use href="#i-receipt"/></svg></span>
+                                            <div class="method-body">
+                                                <div class="method-title">Pagamento por referência</div>
+                                                <div class="method-desc">ATM Multicaixa ou Internet Banking</div>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    <form id="formDepositExpress" class="deposit-subform active">
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="expressPhone">Telemóvel Multicaixa Express</label>
+                                                <input type="tel" id="expressPhone" value="923 456 789" required placeholder="923 000 000" inputmode="tel" autocomplete="tel">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="expressAmount">Valor a depositar</label>
+                                                <div class="input-affix"><input type="number" id="expressAmount" value="50000" min="500" step="100" required inputmode="decimal"><span>Kz</span></div>
+                                            </div>
+                                        </div>
+                                        <div class="form-actions">
+                                            <button type="submit" class="btn btn-primary" id="btnSubmitExpress"><span>Solicitar aprovação no telemóvel</span><svg><use href="#i-send"/></svg></button>
+                                        </div>
+                                    </form>
+
+                                    <form id="formDepositReferencia" class="deposit-subform">
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="refAmount">Valor a depositar</label>
+                                                <div class="input-affix"><input type="number" id="refAmount" value="25000" min="500" step="100" required inputmode="decimal"><span>Kz</span></div>
+                                            </div>
+                                        </div>
+                                        <div class="form-actions">
+                                            <button type="submit" class="btn btn-primary" id="btnSubmitReferencia"><span>Gerar dados de pagamento</span><svg><use href="#i-receipt"/></svg></button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Transferência de conta (E-mail do cliente) -->
+                            <div class="tab-pane" id="tab-transfer-internal">
+                                <div class="operation-card">
+                                    <div class="op-header-info">
+                                        <div class="op-badge-tag"><svg style="width:14px;height:14px"><use href="#i-bolt"/></svg><span>Entre Contas BankAO</span></div>
+                                        <h3>Transferência de conta</h3>
+                                        <p>Envie dinheiro instantaneamente usando apenas o e-mail do cliente cadastrado. Taxa de apenas 1%.</p>
+                                    </div>
+
+                                    <form id="formTransferInternal">
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="internalDestEmail">E-mail do cliente destinatário</label>
+                                                <div class="input-with-validation">
+                                                    <input type="email" id="internalDestEmail" placeholder="cliente@bankao.ao ou outro e-mail" required autocomplete="email">
+                                                    <span class="iban-status-badge" id="recipientLookupStatus">Verificar</span>
+                                                </div>
+                                                <div class="recipient-live-name" id="internalRecipientLiveName" style="display:none">
+                                                    <svg style="width:14px;height:14px"><use href="#i-check"/></svg> <span id="recipientLiveNameText"></span>
+                                                </div>
+                                                <span class="input-hint">Insira o e-mail do cliente que receberá a quantia.</span>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="internalAmount">Quantia a enviar (Mínimo: $0.01)</label>
+                                                <div class="amount-currency-group">
+                                                    <div class="input-affix amount-input-wrap">
+                                                        <input type="number" id="internalAmount" placeholder="100" min="0.01" step="any" required inputmode="decimal">
+                                                        <span id="internalCurrencySymbol" class="affix-label">$</span>
+                                                    </div>
+                                                    <div class="currency-select-wrap">
+                                                        <select id="internalSendCurrency" class="currency-pill-select" aria-label="Moeda de envio">
+                                                            <option value="USD" selected>USD ($)</option>
+                                                            <option value="AOA">AOA (Kz)</option>
+                                                            <option value="EUR">EUR (€)</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <span class="input-hint">Escolha a moeda que deseja debitar da sua conta.</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Resumo em Tempo Real (Taxa 1%) -->
+                                        <div class="realtime-calc-box" id="internalRealtimeBox">
+                                            <div class="rt-head">
+                                                <div class="rt-tag"><svg><use href="#i-bolt"/></svg><span>Cálculo em tempo real (Taxa de 1%)</span></div>
+                                            </div>
+                                            <div class="rt-grid">
+                                                <div class="rt-item">
+                                                    <span class="rt-lbl">Quantia a enviar</span>
+                                                    <div class="rt-val-stack">
+                                                        <strong class="rt-val primary" id="rtInternalSent">100,00 $</strong>
+                                                        <span class="rt-val-sub" id="rtInternalSentSub">100.000,00 Kz</span>
+                                                    </div>
+                                                </div>
+                                                <div class="rt-item">
+                                                    <span class="rt-lbl">Taxa BankAO (1%)</span>
+                                                    <div class="rt-val-stack">
+                                                        <strong class="rt-val fee primary" id="rtInternalFee">- 1,00 $</strong>
+                                                        <span class="rt-val-sub fee" id="rtInternalFeeSub">- 1.000,00 Kz</span>
+                                                    </div>
+                                                </div>
+                                                <div class="rt-item highlight">
+                                                    <span class="rt-lbl">Dinheiro que vai chegar</span>
+                                                    <div class="rt-val-stack">
+                                                        <strong class="rt-val arrive primary" id="rtInternalArrive">99,00 $</strong>
+                                                        <span class="rt-val-sub arrive" id="rtInternalArriveSub">99.000,00 Kz</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="rt-footer-badge">
+                                                <span class="route-pill send"><span class="flag" id="internalRouteFromFlag">🇺🇸</span> Envia: <strong id="internalRouteFrom">USD ($)</strong></span>
+                                                <span class="route-arrow">➔</span>
+                                                <span class="route-pill dest"><span class="flag" id="internalRouteToFlag">🇦🇴</span> Destino: <strong id="internalRouteTo">Angola (AOA · Kz)</strong></span>
+                                                <span class="route-rate" id="internalRouteRate">Câmbio: 1 $ = 1.000 Kz</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group" style="margin-top: 14px;">
+                                            <label for="internalDesc">Descrição (opcional)</label>
+                                            <input type="text" id="internalDesc" placeholder="Ex.: Pagamento de serviços, almoço...">
+                                        </div>
+                                        <div class="form-actions">
+                                            <button type="submit" class="btn btn-primary" id="btnSubmitInternal">
+                                                <span>Confirmar transferência</span>
+                                                <svg><use href="#i-arrow-right"/></svg>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Transferência bancária (IBAN) -->
+                            <div class="tab-pane" id="tab-transfer-iban">
+                                <div class="operation-card">
+                                    <div class="op-header-info">
+                                        <div class="op-badge-tag"><svg style="width:14px;height:14px"><use href="#i-globe"/></svg><span>Rede Bancária & Internacional</span></div>
+                                        <h3>Transferência bancária (IBAN)</h3>
+                                        <p>Envie dinheiro para qualquer banco nacional (Angola) ou internacional (SEPA / Europa). Taxa de 2.5%.</p>
+                                    </div>
+
+                                    <form id="formTransferIban">
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="ibanInput">IBAN do beneficiário (Angola ou SEPA)</label>
+                                                <div class="input-with-validation">
+                                                    <input type="text" id="ibanInput" placeholder="AO06 0040 0000 0000 0000 0000 0" class="mono" required autocapitalize="characters" autocomplete="off" spellcheck="false">
+                                                    <span class="iban-status-badge" id="ibanValidationStatus">Aguardando</span>
+                                                </div>
+                                                <span class="input-hint" id="ibanFeedbackText">Validado com algoritmo Mod 97 (ISO 7064).</span>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="beneficiaryName">Nome do titular</label>
+                                                <input type="text" id="beneficiaryName" placeholder="Ex.: Maria António Silva" required autocomplete="off">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="ibanSendAmount">Quantia a debitar (Mínimo: $1.00)</label>
+                                                <div class="amount-currency-group">
+                                                    <div class="input-affix amount-input-wrap">
+                                                        <input type="number" id="ibanSendAmount" value="100" min="1.00" step="any" required inputmode="decimal">
+                                                        <span id="ibanCurrencySymbol" class="affix-label">$</span>
+                                                    </div>
+                                                    <div class="currency-select-wrap">
+                                                        <select id="ibanSendCurrency" class="currency-pill-select" aria-label="Moeda de envio">
+                                                            <option value="USD" selected>USD ($)</option>
+                                                            <option value="AOA">AOA (Kz)</option>
+                                                            <option value="EUR">EUR (€)</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <span class="input-hint">Escolha a moeda em que envia o dinheiro.</span>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="ibanDestCurrency">País / Moeda de destino (Automático pelo IBAN)</label>
+                                                <select id="ibanDestCurrency" class="select-field">
+                                                    <option value="AOA" selected>AO - Angola (Kz - Bancos Nacionais)</option>
+                                                    <option value="EUR">PT/EU - Portugal & SEPA (€ - Europa)</option>
+                                                    <option value="USD">US/INT - Internacional ($ - Dólar)</option>
+                                                </select>
+                                                <span class="input-hint" id="ibanDestHint">Detectado automaticamente pelo prefixo do IBAN.</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Resumo em Tempo Real (Taxa 2.5%) -->
+                                        <div class="realtime-calc-box" id="ibanRealtimeBox">
+                                            <div class="rt-head">
+                                                <div class="rt-tag"><svg><use href="#i-globe"/></svg><span>Cálculo em tempo real (Taxa bancária: 2.5%)</span></div>
+                                            </div>
+                                            <div class="rt-grid">
+                                                <div class="rt-item">
+                                                    <span class="rt-lbl">Quantia enviada</span>
+                                                    <div class="rt-val-stack">
+                                                        <strong class="rt-val primary" id="rtIbanSent">100,00 $</strong>
+                                                        <span class="rt-val-sub" id="rtIbanSentSub">100.000,00 Kz</span>
+                                                    </div>
+                                                </div>
+                                                <div class="rt-item">
+                                                    <span class="rt-lbl">Taxa bancária (2.5%)</span>
+                                                    <div class="rt-val-stack">
+                                                        <strong class="rt-val fee primary" id="rtIbanFee">- 2,50 $</strong>
+                                                        <span class="rt-val-sub fee" id="rtIbanFeeSub">- 2.500,00 Kz</span>
+                                                    </div>
+                                                </div>
+                                                <div class="rt-item highlight">
+                                                    <span class="rt-lbl">Dinheiro que vai chegar</span>
+                                                    <div class="rt-val-stack">
+                                                        <strong class="rt-val arrive primary" id="rtIbanArrive">97,50 $</strong>
+                                                        <span class="rt-val-sub arrive" id="rtIbanArriveSub">97.500,00 Kz</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="rt-footer-badge">
+                                                <span class="route-pill send"><span class="flag" id="ibanRouteFromFlag">🇺🇸</span> Envia: <strong id="ibanRouteFrom">USD ($)</strong></span>
+                                                <span class="route-arrow">➔</span>
+                                                <span class="route-pill dest"><span class="flag" id="ibanRouteToFlag">🇦🇴</span> Destino: <strong id="ibanRouteTo">Angola (AOA · Kz)</strong></span>
+                                                <span class="route-rate" id="ibanRouteRate">Câmbio: 1 $ = 1.000 Kz · Rede Bancária</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="ai-suggestion-box" id="aiTransferHelperBox">
+                                            <div class="ai-box-header">
+                                                <span class="ai-box-title"><svg><use href="#i-spark"/></svg>Análise do Copilot</span>
+                                                <button type="button" class="btn-text" id="btnAskAiExplain">Explicação completa</button>
+                                            </div>
+                                            <p class="ai-box-text" id="aiTransferSummaryText">O câmbio atual para Portugal (SEPA) é favorável. O valor cai em cêntimos sem dedução para o beneficiário.</p>
+                                        </div>
+
+                                        <div class="form-actions">
+                                            <button type="submit" class="btn btn-primary" id="btnSubmitIban">
+                                                <span>Confirmar transferência</span>
+                                                <svg><use href="#i-arrow-right"/></svg>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </section>
+                    </section>
+
+                    <!-- ============ EXTRATO ============ -->
+                    <section class="view" id="view-statement">
+                        <div class="page-head">
+                            <div>
+                                <p class="eyebrow">Livro-razão</p>
+                                <h1>Extrato</h1>
+                            </div>
+                        </div>
+                        <section class="panel">
+                            <div class="panel-head statement-panel-head">
+                                <div>
+                                    <h2>Todos os movimentos</h2>
+                                    <p class="subtitle">Registos atómicos e auditáveis pelo livro-razão</p>
+                                </div>
+                                <span class="statement-count-badge" id="statementCountBadge">A processar…</span>
+                            </div>
+
+                            <!-- Barra de Filtro de Intervalo de Data -->
+                            <div class="statement-toolbar">
+                                <div class="statement-range-wrap">
+                                    <div class="statement-date-field">
+                                        <label for="statementDateFrom" class="statement-date-label">
+                                            <svg><use href="#i-calendar"/></svg>
+                                            <span>De</span>
+                                        </label>
+                                        <input type="date" id="statementDateFrom" class="statement-date-input"
+                                               title="Data de início (mínimo: criação da conta)"
+                                               onchange="applyStatementDateRange()"
+                                               oninput="applyStatementDateRange()">
+                                    </div>
+                                    <span class="statement-range-arrow">→</span>
+                                    <div class="statement-date-field">
+                                        <label for="statementDateTo" class="statement-date-label">
+                                            <svg><use href="#i-calendar"/></svg>
+                                            <span>Até</span>
+                                        </label>
+                                        <input type="date" id="statementDateTo" class="statement-date-input"
+                                               title="Data de fim (máximo: hoje)"
+                                               onchange="applyStatementDateRange()"
+                                               oninput="applyStatementDateRange()">
+                                    </div>
+                                    <button type="button" class="btn-see-all-statement" id="btnSeeAllStatement"
+                                            onclick="clearStatementDateFilter()">
+                                        <svg><use href="#i-list"/></svg>
+                                        <span>Ver tudo</span>
+                                    </button>
+                                </div>
+                                <div class="statement-active-range-badge" id="statementActiveBadge" style="display:none;">
+                                    <svg><use href="#i-calendar"/></svg>
+                                    <span id="statementActiveBadgeText"></span>
+                                </div>
+                            </div>
+
+                            <div class="tx-list" id="transactionsList">
+                                <div class="empty">A carregar movimentos…</div>
+                            </div>
+
+                            <!-- Indicador de Processamento Progressivo -->
+                            <div class="statement-processing-wrap" id="statementProcessingIndicator" style="display:none;">
+                                <div class="statement-spinner-ring"></div>
+                                <span>A processar mais movimentos…</span>
+                            </div>
+
+                            <div class="statement-end-badge" id="statementEndBadge" style="display:none;">
+                                <svg><use href="#i-shield"/></svg>
+                                <span id="statementEndBadgeText">Todos os movimentos foram processados.</span>
+                            </div>
+
+                            <!-- Sentinela para Scroll Infinito -->
+                            <div id="statementScrollSentinel" style="height:1px;width:100%;pointer-events:none;"></div>
+                        </section>
+                    </section>
+
+                    <!-- ============ COPILOT ============ -->
+                    <section class="view copilot-view" id="view-copilot">
+                        <aside class="copilot-sidebar" id="copilotSidebar">
+                            <div class="copilot-header">
+                                <div class="copilot-title">
+                                    <span class="copilot-orb"><svg><use href="#i-spark"/></svg></span>
+                                    <div>
+                                        <h3>BankAO Copilot</h3>
+                                        <span class="copilot-subtitle">Meta Muse Spark</span>
+                                    </div>
+                                </div>
+                                <span class="online-indicator">Online</span>
+                            </div>
+
+                            <div class="copilot-chat-messages" id="copilotChatMessages">
+                                <div class="chat-bubble ai">
+                                    <div class="bubble-avatar"><svg><use href="#i-spark"/></svg></div>
+                                    <div class="bubble-content">
+                                        <p>Olá! Sou o <strong>BankAO Copilot</strong>, o seu assistente financeiro.</p>
+                                        <p>Posso explicar taxas de câmbio para a Europa, simular envios e esclarecer dúvidas sobre depósitos com Multicaixa Express.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="copilot-quick-prompts">
+                                <button class="quick-prompt-btn" data-prompt="Como faço para depositar com Multicaixa Express?">Como depositar?</button>
+                                <button class="quick-prompt-btn" data-prompt="Quais são as taxas de câmbio para enviar dinheiro a Portugal?">Taxas para Portugal</button>
+                                <button class="quick-prompt-btn" data-prompt="Como funciona a garantia de livro-razão e segurança?">Segurança e ledger</button>
+                            </div>
+
+                            <form class="copilot-input-form" id="copilotInputForm">
+                                <input type="text" id="copilotUserInput" placeholder="Pergunte ao Copilot…" autocomplete="off">
+                                <button type="submit" class="btn-send-copilot" aria-label="Enviar"><svg><use href="#i-send"/></svg></button>
+                            </form>
+                        </aside>
+                    </section>
+                </div>
+            </main>
+        </div>
     </div>
 
-    <!-- Modal Interativo de Simulação: Smartphone Multicaixa Express -->
+    <!-- Navegação inferior (telemóvel / tablet vertical) -->
+    <nav class="bottom-nav" aria-label="Navegação móvel">
+        <button class="nav-item active" data-view="view-home"><svg><use href="#i-home"/></svg><span>Início</span></button>
+        <button class="nav-item" data-view="view-ops"><svg><use href="#i-swap"/></svg><span>Operações</span></button>
+        <button class="nav-item" data-view="view-expenses"><svg><use href="#i-pie"/></svg><span>Despesas</span></button>
+        <button class="nav-item" data-view="view-statement"><svg><use href="#i-list"/></svg><span>Extrato</span></button>
+        <button class="nav-item nav-more-btn" id="btnBottomMore" onclick="toggleMobileMenu()"><svg><use href="#i-dots"/></svg><span>Mais</span></button>
+    </nav>
+
+    <!-- Drawer / Menu Móvel com todos os módulos do banco -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()" style="display:none;">
+        <div class="mobile-menu-drawer" onclick="event.stopPropagation()">
+            <div class="mobile-drawer-notch"></div>
+            <div class="mobile-menu-head">
+                <div class="mobile-menu-user-info">
+                    <div class="avatar mobile-avatar" id="mobileDrawerAvatar">AS</div>
+                    <div>
+                        <strong id="mobileDrawerUserName">Cliente BankAO</strong>
+                        <span class="mobile-drawer-kyc" id="mobileDrawerKyc">Conta Ativa</span>
+                    </div>
+                </div>
+                <button type="button" class="modal-close mobile-menu-close" onclick="closeMobileMenu()" aria-label="Fechar menu">
+                    <svg><use href="#i-x"/></svg>
+                </button>
+            </div>
+
+            <div class="mobile-menu-grid">
+                <button class="mobile-menu-item" onclick="mobileNavTo('view-home')">
+                    <div class="m-item-icon gold"><svg><use href="#i-home"/></svg></div>
+                    <span>Início</span>
+                </button>
+                <button class="mobile-menu-item" onclick="mobileNavTo('view-accounts')">
+                    <div class="m-item-icon blue"><svg><use href="#i-wallet"/></svg></div>
+                    <span>As Suas Contas</span>
+                </button>
+                <button class="mobile-menu-item" onclick="mobileNavTo('view-ops')">
+                    <div class="m-item-icon purple"><svg><use href="#i-swap"/></svg></div>
+                    <span>Transferências</span>
+                </button>
+                <button class="mobile-menu-item" onclick="mobileNavTo('view-expenses')">
+                    <div class="m-item-icon cyan"><svg><use href="#i-pie"/></svg></div>
+                    <span>Análise Despesas</span>
+                </button>
+                <button class="mobile-menu-item" onclick="mobileNavTo('view-payments')">
+                    <div class="m-item-icon amber"><svg><use href="#i-receipt"/></svg></div>
+                    <span>Pagamentos</span>
+                </button>
+                <button class="mobile-menu-item" onclick="mobileNavTo('view-savings')">
+                    <div class="m-item-icon green"><svg><use href="#i-target"/></svg></div>
+                    <span>Poupança & Metas</span>
+                </button>
+                <button class="mobile-menu-item" onclick="mobileNavTo('view-statement')">
+                    <div class="m-item-icon indigo"><svg><use href="#i-list"/></svg></div>
+                    <span>Extrato Completo</span>
+                </button>
+                <button class="mobile-menu-item" onclick="mobileNavTo('view-copilot')">
+                    <div class="m-item-icon spark"><svg class="ic-spark"><use href="#i-spark"/></svg></div>
+                    <span>Copilot IA</span>
+                </button>
+            </div>
+
+            <div class="mobile-menu-footer">
+                <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;gap:8px;" onclick="closeMobileMenu(); openReceiveQrModal();">
+                    <svg style="width:18px;height:18px;"><use href="#i-qrcode"/></svg>
+                    <span>Receber por QR Code / Chave</span>
+                </button>
+                <div class="mobile-menu-bottom-row">
+                    <button type="button" class="btn-text-link" onclick="closeMobileMenu(); document.getElementById('btnToggleBalance')?.click();">
+                        <svg style="width:15px;height:15px;"><use href="#i-eye"/></svg> Ocultar saldos
+                    </button>
+                    <button type="button" class="btn-text-link danger" onclick="closeMobileMenu(); document.getElementById('btnAuthAction')?.click();">
+                        Definições / Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+    <!-- Modal: simulador Multicaixa Express -->
     <div class="modal-overlay" id="modalExpressSim">
         <div class="phone-simulator">
             <div class="phone-notch"></div>
             <div class="phone-screen">
                 <div class="phone-header">
                     <span class="phone-time">12:30</span>
-                    <span class="phone-icons">📶 🔋</span>
+                    <span class="phone-icons">5G ▮▮▮</span>
                 </div>
                 <div class="express-app-header">
                     <div class="express-logo">MULTICAIXA <span>Express</span></div>
-                    <div class="express-sub">Autorização de Pagamento</div>
+                    <div class="express-sub">Autorização de pagamento</div>
                 </div>
                 <div class="express-body">
                     <div class="express-card-art">
                         <span class="bank-name">BANCO DE ANGOLA</span>
-                        <span class="card-num">**** **** **** 8412</span>
+                        <span class="card-num">•••• •••• •••• 8412</span>
                     </div>
                     <div class="express-tx-info">
-                        <span class="tx-merchant">Comerciante: <strong>Bankão Soluções Digitais</strong></span>
+                        <span class="tx-merchant">Comerciante: <strong>BankAO Soluções Digitais</strong></span>
                         <span class="tx-ref" id="expressSimRef">Ref: MCX-918237</span>
                         <div class="tx-price-tag" id="expressSimAmount">50.000,00 Kz</div>
                     </div>
                     <div class="express-pin-mock">
-                        <span>Introduza o PIN ou Confirme Biometria</span>
+                        <span>Introduza o PIN ou confirme a biometria</span>
                         <div class="pin-dots">● ● ● ●</div>
                     </div>
                     <div class="express-actions">
                         <button class="btn-mcx-reject" id="btnMcxReject">Recusar</button>
-                        <button class="btn-mcx-approve" id="btnMcxApprove">Aprovar Pagamento</button>
+                        <button class="btn-mcx-approve" id="btnMcxApprove">Aprovar</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Interativo de Referência Multicaixa -->
+    <!-- Modal: talão de referência -->
     <div class="modal-overlay" id="modalRefSim">
         <div class="receipt-modal">
             <div class="receipt-header">
-                <span class="receipt-icon">🧾</span>
-                <h3>Talão de Pagamento por Referência</h3>
+                <span class="receipt-icon"><svg><use href="#i-receipt"/></svg></span>
+                <h3>Talão de pagamento</h3>
                 <p>Pague no ATM Multicaixa ou Internet Banking</p>
             </div>
             <div class="receipt-body">
-                <div class="receipt-row">
-                    <span class="label">Entidade:</span>
-                    <strong class="val mono" id="receiptEntidade">00543</strong>
-                </div>
-                <div class="receipt-row">
-                    <span class="label">Referência:</span>
-                    <strong class="val mono highlight" id="receiptRefCode">123 456 789</strong>
-                </div>
-                <div class="receipt-row">
-                    <span class="label">Montante:</span>
-                    <strong class="val" id="receiptAmount">25.000,00 Kz</strong>
-                </div>
-                <div class="receipt-row">
-                    <span class="label">Validade:</span>
-                    <span class="val text-muted" id="receiptExpiry">24 Horas</span>
-                </div>
+                <div class="receipt-row"><span class="label">Entidade</span><strong class="val mono" id="receiptEntidade">00543</strong></div>
+                <div class="receipt-row"><span class="label">Referência</span><strong class="val mono highlight" id="receiptRefCode">123 456 789</strong></div>
+                <div class="receipt-row"><span class="label">Montante</span><strong class="val" id="receiptAmount">25.000,00 Kz</strong></div>
+                <div class="receipt-row"><span class="label">Validade</span><span class="val text-muted" id="receiptExpiry">24 horas</span></div>
             </div>
             <div class="receipt-actions">
                 <button class="btn btn-secondary" id="btnCloseRefModal">Fechar</button>
-                <button class="btn btn-success" id="btnSimulateRefPay">
-                    <span>⚡ Simular Pagamento no ATM / Internet Banking</span>
+                <button class="btn btn-success" id="btnSimulateRefPay"><svg><use href="#i-bolt"/></svg><span>Simular pagamento</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: CONFIRMAÇÃO DE TRANSFERÊNCIA ============ -->
+    <div class="modal-overlay" id="modalTransferConfirm" style="display:none">
+        <div class="confirm-transfer-modal">
+            <div class="confirm-modal-header">
+                <div class="confirm-modal-icon">
+                    <svg><use href="#i-shield"/></svg>
+                </div>
+                <div class="confirm-header-text">
+                    <h3>Confirmar Transferência</h3>
+                    <p class="confirm-subtitle">Confira os detalhes antes de concluir o envio</p>
+                </div>
+                <button type="button" class="confirm-close-btn" id="btnCloseConfirmTransfer" aria-label="Fechar">
+                    <svg><use href="#i-x"/></svg>
                 </button>
+            </div>
+
+            <div class="confirm-modal-body">
+                <div class="confirm-beneficiary-card">
+                    <div class="confirm-avatar" id="confirmRecipientAvatar">👤</div>
+                    <div class="confirm-beneficiary-info">
+                        <span class="confirm-tag" id="confirmTransferTypeBadge">Transferência de Conta</span>
+                        <h4 id="confirmRecipientName">Nome do Beneficiário</h4>
+                        <span class="confirm-dest-id mono" id="confirmRecipientDest">cliente@email.com</span>
+                    </div>
+                </div>
+
+                <div class="confirm-details-card">
+                    <div class="confirm-row">
+                        <span class="c-label">Quantia a ser enviada</span>
+                        <div class="confirm-val-stack">
+                            <strong class="c-val primary" id="confirmAmountSent">100,00 $</strong>
+                            <span class="c-val-sub" id="confirmAmountSentSub">100.000,00 Kz</span>
+                        </div>
+                    </div>
+                    <div class="confirm-row">
+                        <span class="c-label" id="confirmFeeLabel">Taxa aplicada</span>
+                        <div class="confirm-val-stack">
+                            <span class="c-val fee-text primary" id="confirmAmountFee">- 2,50 $ (2.5%)</span>
+                            <span class="c-val-sub fee" id="confirmAmountFeeSub">- 2.500,00 Kz</span>
+                        </div>
+                    </div>
+                    <div class="confirm-divider"></div>
+                    <div class="confirm-row highlight">
+                        <span class="c-label">Quantia que vai chegar</span>
+                        <div class="confirm-val-stack">
+                            <strong class="c-val total-arrive primary" id="confirmAmountArrive">97,50 $</strong>
+                            <span class="c-val-sub arrive" id="confirmAmountArriveSub">97.500,00 Kz</span>
+                        </div>
+                    </div>
+                    <div class="confirm-rate-note" id="confirmRateNote" style="display:none">
+                        Câmbio aplicado: 1 $ = 1.000 Kz · Rede Bancária
+                    </div>
+                </div>
+            </div>
+
+            <div class="confirm-modal-actions">
+                <button type="button" class="btn btn-secondary" id="btnCancelTransferConfirm">Voltar</button>
+                <button type="button" class="btn btn-primary" id="btnExecuteTransferConfirm">
+                    <span>Confirmar e enviar</span>
+                    <svg><use href="#i-check"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: AUTENTICAÇÃO ============ -->
+    <div class="modal-overlay auth-overlay" id="modalAuth" style="display:none">
+        <div class="auth-modal">
+            <button class="auth-close" id="btnCloseAuth" onclick="closeAuthModal()" aria-label="Fechar">
+                <svg><use href="#i-x"/></svg>
+            </button>
+
+            <div class="auth-brand">
+                <span class="brand-mark">B</span>
+                <span class="brand-name">Bank<span class="accent">AO</span></span>
+            </div>
+
+            <!-- Tabs -->
+            <div class="auth-tabs" role="tablist">
+                <button class="auth-tab active" id="tabLogin" role="tab" onclick="switchAuthTab('login')">Iniciar Sessão</button>
+                <button class="auth-tab" id="tabRegister" role="tab" onclick="switchAuthTab('register')">Criar Conta</button>
+            </div>
+
+            <!-- Login Form -->
+            <form class="auth-form" id="formLogin" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginEmail">E-mail</label>
+                    <input type="email" id="loginEmail" placeholder="o.seu@email.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Palavra-passe</label>
+                    <div class="input-eye-wrap">
+                        <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+                        <button type="button" class="btn-eye" onclick="togglePasswordVis('loginPassword', this)" aria-label="Mostrar/ocultar">
+                            <svg class="ic-eye"><use href="#i-eye"/></svg>
+                            <svg class="ic-eye-off" style="display:none"><use href="#i-eye-off"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="auth-error" id="loginError"></div>
+                <button type="submit" class="btn btn-primary btn-full" id="btnLoginSubmit">
+                    <svg><use href="#i-arrow-right"/></svg>
+                    <span>Entrar na minha carteira</span>
+                </button>
+                <p class="auth-switch">Não tem conta? <button type="button" class="link-btn" onclick="switchAuthTab('register')">Criar conta grátis</button></p>
+            </form>
+
+            <!-- Register Form -->
+            <form class="auth-form" id="formRegister" style="display:none" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="regEmail">E-mail</label>
+                    <input type="email" id="regEmail" placeholder="o.seu@email.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="regPhone">Número de telefone</label>
+                    <input type="tel" id="regPhone" placeholder="+244 9XX XXX XXX" required autocomplete="tel">
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Palavra-passe</label>
+                    <div class="input-eye-wrap">
+                        <input type="password" id="regPassword" placeholder="Mínimo 6 caracteres" required minlength="6" autocomplete="new-password">
+                        <button type="button" class="btn-eye" onclick="togglePasswordVis('regPassword', this)" aria-label="Mostrar/ocultar">
+                            <svg class="ic-eye"><use href="#i-eye"/></svg>
+                            <svg class="ic-eye-off" style="display:none"><use href="#i-eye-off"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="regConfirmPassword">Confirmar palavra-passe</label>
+                    <div class="input-eye-wrap">
+                        <input type="password" id="regConfirmPassword" placeholder="Repita a palavra-passe" required autocomplete="new-password">
+                        <button type="button" class="btn-eye" onclick="togglePasswordVis('regConfirmPassword', this)" aria-label="Mostrar/ocultar">
+                            <svg class="ic-eye"><use href="#i-eye"/></svg>
+                            <svg class="ic-eye-off" style="display:none"><use href="#i-eye-off"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <label class="terms-check">
+                    <input type="checkbox" id="regTerms" required>
+                    <span>Aceito os <a href="#" class="link-accent" onclick="return false">Termos e Condições</a> e a <a href="#" class="link-accent" onclick="return false">Política de Privacidade</a> da BankAO</span>
+                </label>
+                <div class="auth-error" id="registerError"></div>
+                <button type="submit" class="btn btn-primary btn-full" id="btnRegisterSubmit">
+                    <svg><use href="#i-arrow-right"/></svg>
+                    <span>Criar conta BankAO</span>
+                </button>
+                <p class="auth-switch">Já tem conta? <button type="button" class="link-btn" onclick="switchAuthTab('login')">Iniciar sessão</button></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: KYC — VERIFICAÇÃO DE IDENTIDADE ============ -->
+    <div class="modal-overlay kyc-overlay" id="modalKYC" style="display:none">
+        <div class="kyc-modal">
+
+            <!-- Header fixo -->
+            <div class="kyc-header">
+                <div class="kyc-brand">
+                    <svg style="width:22px;height:22px"><use href="#i-shield"/></svg>
+                    <span>Verificação de Identidade</span>
+                </div>
+                <div class="kyc-steps-bar">
+                    <span class="kyc-step active" id="kycStepDot1">1</span>
+                    <span class="kyc-step-line"></span>
+                    <span class="kyc-step" id="kycStepDot2">2</span>
+                    <span class="kyc-step-line"></span>
+                    <span class="kyc-step" id="kycStepDot3">3</span>
+                    <span class="kyc-step-line"></span>
+                    <span class="kyc-step" id="kycStepDot4">4</span>
+                </div>
+            </div>
+
+            <!-- PASSO 1: Escolher tipo de documento -->
+            <div class="kyc-step-panel active" id="kycPanel1">
+                <div class="kyc-step-title">
+                    <h2>Escolha o seu documento</h2>
+                    <p>Selecione o tipo de documento de identificação que irá usar para validar a sua identidade.</p>
+                </div>
+                <div class="kyc-doc-options">
+                    <button class="kyc-doc-option" id="optBI" onclick="selectDocType('bilhete')">
+                        <div class="kyc-doc-icon">🪪</div>
+                        <strong>Bilhete de Identidade</strong>
+                        <span>Documento Nacional de Identidade</span>
+                    </button>
+                    <button class="kyc-doc-option" id="optPassaporte" onclick="selectDocType('passaporte')">
+                        <div class="kyc-doc-icon">📔</div>
+                        <strong>Passaporte</strong>
+                        <span>Passaporte Nacional ou Internacional</span>
+                    </button>
+                </div>
+                <button class="btn btn-primary btn-full" id="btnKycStep1Next" onclick="kycGoToStep(2)" disabled>Continuar</button>
+            </div>
+
+            <!-- PASSO 2: Upload de fotos -->
+            <div class="kyc-step-panel" id="kycPanel2" style="display:none">
+                <div class="kyc-step-title">
+                    <h2 id="kycUploadTitle">Fotografias do documento</h2>
+                    <p id="kycUploadDesc">Tire ou carregue fotografias nítidas das duas faces do documento.</p>
+                </div>
+
+                <div class="kyc-upload-grid">
+                    <!-- Frente -->
+                    <div class="kyc-upload-zone" id="zoneFrente" onclick="document.getElementById('inputFrente').click()">
+                        <input type="file" id="inputFrente" accept="image/*" capture="environment" style="display:none" onchange="handleDocPhoto('frente', this)">
+                        <div class="upload-placeholder" id="placeholderFrente">
+                            <div class="upload-icon">📷</div>
+                            <span class="upload-label" id="labelFrente">Frente / Página de dados</span>
+                            <span class="upload-hint">Toque para fotografar ou selecionar</span>
+                        </div>
+                        <img class="upload-preview" id="previewFrente" style="display:none" alt="Frente do documento">
+                    </div>
+
+                    <!-- Verso -->
+                    <div class="kyc-upload-zone" id="zoneVerso" onclick="document.getElementById('inputVerso').click()">
+                        <input type="file" id="inputVerso" accept="image/*" capture="environment" style="display:none" onchange="handleDocPhoto('verso', this)">
+                        <div class="upload-placeholder" id="placeholderVerso">
+                            <div class="upload-icon">📷</div>
+                            <span class="upload-label" id="labelVerso">Verso / Assinatura</span>
+                            <span class="upload-hint">Toque para fotografar ou selecionar</span>
+                        </div>
+                        <img class="upload-preview" id="previewVerso" style="display:none" alt="Verso do documento">
+                    </div>
+                </div>
+
+                <!-- Botão de amostra para testes -->
+                <button class="btn-sample" id="btnUseSample" onclick="loadSampleDocument()">
+                    <svg style="width:16px;height:16px"><use href="#i-bolt"/></svg>
+                    Usar documento de amostra (teste rápido)
+                </button>
+
+                <div class="kyc-step-actions">
+                    <button class="btn btn-ghost" onclick="kycGoToStep(1)">← Voltar</button>
+                    <button class="btn btn-primary" id="btnKycStep2Next" onclick="kycGoToStep(3)" disabled>Validar com IA →</button>
+                </div>
+            </div>
+
+            <!-- PASSO 3: Extração com IA em progresso -->
+            <div class="kyc-step-panel" id="kycPanel3" style="display:none">
+                <div class="kyc-ai-loading">
+                    <div class="kyc-ai-orb">
+                        <div class="orb-ring"></div>
+                        <div class="orb-ring orb-ring-2"></div>
+                        <div class="orb-core">
+                            <svg style="width:32px;height:32px"><use href="#i-spark"/></svg>
+                        </div>
+                    </div>
+                    <h2>IA a analisar o documento...</h2>
+                    <p id="kycAiStatus">A extrair os seus dados de identificação com segurança.<br>Este processo pode demorar alguns segundos.</p>
+                    <div class="kyc-progress-bar"><div class="kyc-progress-fill" id="kycProgressFill"></div></div>
+                </div>
+            </div>
+
+            <!-- PASSO 4: Revisão e confirmação dos dados extraídos -->
+            <div class="kyc-step-panel" id="kycPanel4" style="display:none">
+                <div class="kyc-step-title">
+                    <h2>Confirme os seus dados</h2>
+                    <p>Verifique os dados extraídos pelo sistema de IA. Pode corrigir qualquer campo antes de confirmar.</p>
+                </div>
+
+                <div class="kyc-fields-grid">
+                    <div class="kyc-field">
+                        <label>Nome Completo</label>
+                        <input type="text" id="kycNomeCompleto" class="kyc-input">
+                    </div>
+                    <div class="kyc-fields-row">
+                        <div class="kyc-field">
+                            <label>Primeiro Nome</label>
+                            <input type="text" id="kycPrimeiroNome" class="kyc-input">
+                        </div>
+                        <div class="kyc-field">
+                            <label>Último Nome</label>
+                            <input type="text" id="kycUltimoNome" class="kyc-input">
+                        </div>
+                    </div>
+                    <div class="kyc-field">
+                        <label>Nome do Pai</label>
+                        <input type="text" id="kycNomePai" class="kyc-input">
+                    </div>
+                    <div class="kyc-field">
+                        <label>Nome da Mãe</label>
+                        <input type="text" id="kycNomeMae" class="kyc-input">
+                    </div>
+                    <div class="kyc-fields-row">
+                        <div class="kyc-field">
+                            <label id="kycDocNumLabel">NIF / Nº do Bilhete</label>
+                            <input type="text" id="kycDocNumero" class="kyc-input mono">
+                        </div>
+                        <div class="kyc-field">
+                            <label>Data de Emissão</label>
+                            <input type="text" id="kycDataEmissao" class="kyc-input mono">
+                        </div>
+                    </div>
+                    <div class="kyc-field">
+                        <label>Morada</label>
+                        <input type="text" id="kycMorada" class="kyc-input">
+                    </div>
+                </div>
+
+                <div class="auth-error" id="kycConfirmError"></div>
+
+                <div class="kyc-step-actions">
+                    <button class="btn btn-ghost" onclick="kycGoToStep(2)">← Rever fotos</button>
+                    <button class="btn btn-primary" id="btnKycConfirm" onclick="confirmKYC()">
+                        <svg><use href="#i-shield"/></svg>
+                        <span>Confirmar e Ativar Carteira</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============ MODAL: NOVA META DE POUPANÇA ============ -->
+    <div class="modal-overlay" id="modalNewGoal" style="display:none">
+        <div class="confirm-transfer-modal">
+            <div class="confirm-modal-header">
+                <div class="confirm-modal-icon" style="background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(99,102,241,0.2));color:#38BDF8;">
+                    <svg><use href="#i-target"/></svg>
+                </div>
+                <div class="confirm-header-text">
+                    <h3>Criar Nova Meta de Poupança</h3>
+                    <p class="confirm-subtitle">Defina o seu objetivo e poupe automaticamente com juros</p>
+                </div>
+                <button type="button" class="confirm-close-btn" onclick="closeNewGoalModal()" aria-label="Fechar">
+                    <svg><use href="#i-x"/></svg>
+                </button>
+            </div>
+
+            <form id="formNewGoal" onsubmit="handleCreateGoal(event)">
+                <div class="confirm-modal-body">
+                    <div class="form-row">
+                        <label class="form-label" for="goalName">Nome do Objetivo</label>
+                        <input type="text" class="input" id="goalName" placeholder="Ex: Viagem de Férias, Carro Novo, Casa" required>
+                    </div>
+
+                    <div class="form-row" style="margin-top:14px;">
+                        <label class="form-label">Ícone do Objetivo</label>
+                        <div class="goal-icon-picker" id="goalIconPicker">
+                            <button type="button" class="goal-ico-btn active" data-icon="✈️">✈️</button>
+                            <button type="button" class="goal-ico-btn" data-icon="🏠">🏠</button>
+                            <button type="button" class="goal-ico-btn" data-icon="🚗">🚗</button>
+                            <button type="button" class="goal-ico-btn" data-icon="💻">💻</button>
+                            <button type="button" class="goal-ico-btn" data-icon="🎓">🎓</button>
+                            <button type="button" class="goal-ico-btn" data-icon="💍">💍</button>
+                            <button type="button" class="goal-ico-btn" data-icon="🛡️">🛡️</button>
+                            <button type="button" class="goal-ico-btn" data-icon="🏖️">🏖️</button>
+                        </div>
+                    </div>
+
+                    <div class="fields-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
+                        <div class="form-row">
+                            <label class="form-label" for="goalTarget">Valor da Meta (KZ)</label>
+                            <input type="text" inputmode="numeric" class="input" id="goalTarget" placeholder="Ex: 100.000" required>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label" for="goalMonthly">Depósito Mensal (KZ)</label>
+                            <input type="text" inputmode="numeric" class="input" id="goalMonthly" placeholder="Ex: 10.000" required>
+                        </div>
+                    </div>
+
+                    <div class="fields-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
+                        <div class="form-row">
+                            <label class="form-label" for="goalInitial">Saldo Inicial (KZ)</label>
+                            <input type="text" inputmode="numeric" class="input" id="goalInitial" placeholder="0" value="0">
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label" for="goalDeadline">Prazo Estimado</label>
+                            <input type="month" class="input" id="goalDeadline" required>
+                        </div>
+                    </div>
+
+                    <div class="confirm-details-card" style="margin-top:16px;">
+                        <div class="confirm-row">
+                            <span class="c-label">Rendimento anual garantido</span>
+                            <strong class="c-val" style="color:#4ADE80;">4,5% ao ano</strong>
+                        </div>
+                        <div class="confirm-row">
+                            <span class="c-label">Segurança</span>
+                            <span class="c-val-sub">Fundo de Garantia BankAO</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="confirm-modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeNewGoalModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span>Criar meta</span>
+                        <svg><use href="#i-check"/></svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: REGISTAR NOVA DESPESA ============ -->
+    <div class="modal-overlay" id="modalNewExpense" style="display:none">
+        <div class="confirm-transfer-modal">
+            <div class="confirm-modal-header">
+                <div class="confirm-modal-icon" style="background:linear-gradient(135deg,rgba(236,72,153,0.2),rgba(129,140,248,0.2));color:#F472B6;">
+                    <svg><use href="#i-receipt"/></svg>
+                </div>
+                <div class="confirm-header-text">
+                    <h3>Registar Nova Despesa</h3>
+                    <p class="confirm-subtitle">Identifique o seu gasto para alimentar o gráfico donut de despesas</p>
+                </div>
+                <button type="button" class="confirm-close-btn" onclick="closeNewExpenseModal()" aria-label="Fechar">
+                    <svg><use href="#i-x"/></svg>
+                </button>
+            </div>
+
+            <form id="formNewExpense" onsubmit="handleCreateExpense(event)">
+                <div class="confirm-modal-body">
+                    <div class="form-row">
+                        <label class="form-label" for="expName">Nome da Despesa / Estabelecimento</label>
+                        <input type="text" class="input" id="expName" placeholder="Ex: Supermercado Candando, Sonangol, Renda" required>
+                    </div>
+
+                    <div class="form-row" style="margin-top:14px;">
+                        <label class="form-label" for="expCategory">Categoria do Gasto</label>
+                        <select class="input select-custom" id="expCategory" required>
+                            <option value="Alimentação">🛒 Alimentação & Supermercado</option>
+                            <option value="Transporte">🚗 Transporte & Combustível</option>
+                            <option value="Habitação">🏠 Habitação, Renda & Contas de Casa</option>
+                            <option value="Telecomunicações">📱 Telecomunicações, Internet & TV</option>
+                            <option value="Lazer">🍽️ Lazer, Restaurantes & Saídas</option>
+                            <option value="Saúde">💊 Saúde, Farmácia & Bem-Estar</option>
+                            <option value="Outros">📦 Outras Despesas Diversas</option>
+                        </select>
+                    </div>
+
+                    <div class="fields-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
+                        <div class="form-row">
+                            <label class="form-label" for="expAmount">Valor do Gasto (KZ)</label>
+                            <input type="text" inputmode="numeric" class="input" id="expAmount" placeholder="Ex: 25.000" required>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label" for="expDate">Data</label>
+                            <input type="date" class="input" id="expDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row" style="margin-top:14px;">
+                        <label class="form-label" for="expNotes">Notas Adicionais (opcional)</label>
+                        <input type="text" class="input" id="expNotes" placeholder="Ex: Multicaixa POS, pago com cartão virtual">
+                    </div>
+                </div>
+
+                <div class="confirm-modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeNewExpenseModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span>Guardar despesa</span>
+                        <svg><use href="#i-check"/></svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: EDITAR DESPESA REGISTADA ============ -->
+    <div class="modal-overlay" id="modalEditExpense" style="display:none">
+        <div class="confirm-transfer-modal">
+            <div class="confirm-modal-header">
+                <div class="confirm-modal-icon" style="background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(99,102,241,0.2));color:#38BDF8;">
+                    <svg><use href="#i-edit"/></svg>
+                </div>
+                <div class="confirm-header-text">
+                    <h3>Editar Despesa Registada</h3>
+                    <p class="confirm-subtitle">Altere os dados da despesa para recalcular o gráfico e histórico</p>
+                </div>
+                <button type="button" class="confirm-close-btn" onclick="closeEditExpenseModal()" aria-label="Fechar">
+                    <svg><use href="#i-x"/></svg>
+                </button>
+            </div>
+
+            <form id="formEditExpense" onsubmit="handleUpdateExpense(event)">
+                <input type="hidden" id="editExpId">
+                <div class="confirm-modal-body">
+                    <div class="form-row">
+                        <label class="form-label" for="editExpName">Nome da Despesa / Estabelecimento</label>
+                        <input type="text" class="input" id="editExpName" placeholder="Ex: Supermercado Candando, Sonangol" required>
+                    </div>
+
+                    <div class="form-row" style="margin-top:14px;">
+                        <label class="form-label" for="editExpCategory">Categoria do Gasto</label>
+                        <select class="input select-custom" id="editExpCategory" required>
+                            <option value="Alimentação">🛒 Alimentação & Supermercado</option>
+                            <option value="Transporte">🚗 Transporte & Combustível</option>
+                            <option value="Habitação">🏠 Habitação, Renda & Contas de Casa</option>
+                            <option value="Telecomunicações">📱 Telecomunicações, Internet & TV</option>
+                            <option value="Lazer">🍽️ Lazer, Restaurantes & Saídas</option>
+                            <option value="Saúde">💊 Saúde, Farmácia & Bem-Estar</option>
+                            <option value="Outros">📦 Outras Despesas Diversas</option>
+                        </select>
+                    </div>
+
+                    <div class="fields-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
+                        <div class="form-row">
+                            <label class="form-label" for="editExpAmount">Valor do Gasto (KZ)</label>
+                            <input type="text" inputmode="numeric" class="input" id="editExpAmount" placeholder="Ex: 25.000" required>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label" for="editExpDate">Data</label>
+                            <input type="date" class="input" id="editExpDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row" style="margin-top:14px;">
+                        <label class="form-label" for="editExpNotes">Notas Adicionais (opcional)</label>
+                        <input type="text" class="input" id="editExpNotes" placeholder="Ex: Multicaixa POS, notas">
+                    </div>
+                </div>
+
+                <div class="confirm-modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditExpenseModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span>Atualizar despesa</span>
+                        <svg><use href="#i-check"/></svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: EDITAR META DE POUPANÇA ============ -->
+    <div class="modal-overlay" id="modalEditGoal" style="display:none">
+        <div class="confirm-transfer-modal">
+            <div class="confirm-modal-header">
+                <div class="confirm-modal-icon" style="background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(56,189,248,0.2));color:#10B981;">
+                    <svg><use href="#i-target"/></svg>
+                </div>
+                <div class="confirm-header-text">
+                    <h3>Editar Meta de Poupança</h3>
+                    <p class="confirm-subtitle">Ajuste o objetivo, valor poupado ou contribuição mensal</p>
+                </div>
+                <button type="button" class="confirm-close-btn" onclick="closeEditGoalModal()" aria-label="Fechar">
+                    <svg><use href="#i-x"/></svg>
+                </button>
+            </div>
+
+            <form id="formEditGoal" onsubmit="handleUpdateGoal(event)">
+                <input type="hidden" id="editGoalId">
+                <div class="confirm-modal-body">
+                    <div class="form-row">
+                        <label class="form-label" for="editGoalName">Nome do Objetivo</label>
+                        <input type="text" class="input" id="editGoalName" placeholder="Ex: Viagem de Férias, Carro Novo" required>
+                    </div>
+
+                    <div class="form-row" style="margin-top:14px;">
+                        <label class="form-label">Ícone do Objetivo</label>
+                        <div class="goal-icon-picker" id="editGoalIconPicker">
+                            <button type="button" class="goal-ico-btn" data-icon="✈️">✈️</button>
+                            <button type="button" class="goal-ico-btn" data-icon="🏠">🏠</button>
+                            <button type="button" class="goal-ico-btn" data-icon="🚗">🚗</button>
+                            <button type="button" class="goal-ico-btn" data-icon="💻">💻</button>
+                            <button type="button" class="goal-ico-btn" data-icon="🎓">🎓</button>
+                            <button type="button" class="goal-ico-btn" data-icon="💍">💍</button>
+                            <button type="button" class="goal-ico-btn" data-icon="🛡️">🛡️</button>
+                            <button type="button" class="goal-ico-btn" data-icon="🏖️">🏖️</button>
+                        </div>
+                    </div>
+
+                    <div class="fields-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
+                        <div class="form-row">
+                            <label class="form-label" for="editGoalTarget">Valor da Meta (KZ)</label>
+                            <input type="text" inputmode="numeric" class="input" id="editGoalTarget" placeholder="Ex: 100.000" required>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label" for="editGoalSaved">Saldo Poupado Atual (KZ)</label>
+                            <input type="text" inputmode="numeric" class="input" id="editGoalSaved" placeholder="Ex: 25.000" required>
+                        </div>
+                    </div>
+
+                    <div class="fields-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
+                        <div class="form-row">
+                            <label class="form-label" for="editGoalMonthly">Depósito Mensal (KZ)</label>
+                            <input type="text" inputmode="numeric" class="input" id="editGoalMonthly" placeholder="Ex: 10.000" required>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label" for="editGoalDeadline">Prazo (Mês/Ano ou Texto)</label>
+                            <input type="text" class="input" id="editGoalDeadline" placeholder="Ex: Junho 2027" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row" style="margin-top:14px;">
+                        <label class="form-label" for="editGoalStatus">Estado do Cumprimento</label>
+                        <select class="input select-custom" id="editGoalStatus">
+                            <option value="on-track">🟢 No prazo (dentro do ritmo planeado)</option>
+                            <option value="at-risk">🟡 Em risco (contribuições em atraso)</option>
+                            <option value="completed">🏆 Concluído (meta 100% atingida)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="confirm-modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditGoalModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span>Guardar alterações</span>
+                        <svg><use href="#i-check"/></svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Editar Orçamento / Meta da Despesa -->
+    <div class="modal-overlay" id="modalEditCategoryBudget" style="display:none;">
+        <div class="modal-card budget-edit-modal-card">
+            <div class="modal-head">
+                <div class="qr-modal-head-titles">
+                    <span class="qr-eyebrow">Personalizar Meta Financeira</span>
+                    <h3>Ajustar Limite da Despesa</h3>
+                </div>
+                <button type="button" class="modal-close" onclick="closeEditCategoryBudgetModal()" aria-label="Fechar">
+                    <svg><use href="#i-x"/></svg>
+                </button>
+            </div>
+            <form id="formEditCategoryBudget" onsubmit="handleSaveCategoryBudget(event)">
+                <div class="confirm-modal-body">
+                    <div class="budget-modal-cat-preview">
+                        <span class="budget-cat-icon" id="budgetEditCatIcon">🛒</span>
+                        <div>
+                            <strong id="budgetEditCatName">Alimentação</strong>
+                            <p>Defina o valor habitual ou limite mensal que considera saudável para esta categoria.</p>
+                        </div>
+                    </div>
+
+                    <div class="form-row" style="margin-top:16px;">
+                        <label class="form-label" for="budgetEditInputAmount">Gasto Habitual / Limite Mensal (KZ)</label>
+                        <div class="input-affix">
+                            <input type="number" id="budgetEditInputAmount" min="1000" step="500" required placeholder="Ex: 50.000">
+                            <span>KZ</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="confirm-modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditCategoryBudgetModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span>Guardar Limite</span>
+                        <svg><use href="#i-check"/></svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Ajuda com as Despesas (Copilot Assistente) -->
+    <div class="modal-overlay" id="modalExpenseAssistantHelp" style="display:none;">
+        <div class="modal-card exp-help-modal-card">
+            <div class="modal-head">
+                <div class="qr-modal-head-titles">
+                    <span class="qr-eyebrow">BankAO Copilot IA</span>
+                    <h3>Consultoria Inteligente de Despesas</h3>
+                </div>
+                <button type="button" class="modal-close" onclick="closeExpenseAssistantHelpModal()" aria-label="Fechar">
+                    <svg><use href="#i-x"/></svg>
+                </button>
+            </div>
+            <div class="exp-help-modal-body">
+                <p class="exp-help-intro">Com base no processamento dos seus gastos, aqui estão 3 recomendações imediatas para economizar:</p>
+
+                <div class="exp-help-tips-stack">
+                    <div class="exp-help-tip-card">
+                        <div class="exp-tip-badge green">💡 Dica 1</div>
+                        <h4>Consolidação de Compras Essenciais</h4>
+                        <p>Agrupar compras de supermercado para dias promocionais pode reduzir os seus gastos em Alimentação em cerca de <strong>12% a 15%</strong>.</p>
+                    </div>
+
+                    <div class="exp-help-tip-card">
+                        <div class="exp-tip-badge amber">⚡ Dica 2</div>
+                        <h4>Auditoria de Telecom & Subscrições</h4>
+                        <p>Verifique planos de internet e TV para garantir que não está a pagar por largura de banda excedente ou canais que não consome.</p>
+                    </div>
+
+                    <div class="exp-help-tip-card">
+                        <div class="exp-tip-badge blue">🎯 Dica 3</div>
+                        <h4>Meta Automática de Poupança</h4>
+                        <p>Ao definir uma poupança programada de 5% no início do mês, protege os seus fundos antes que sejam absorvidos por gastos imprevistos.</p>
+                    </div>
+                </div>
+
+                <div class="exp-help-footer">
+                    <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;" onclick="startCopilotExpenseConversation()">
+                        <svg class="ic-spark"><use href="#i-spark"/></svg>
+                        <span>Falar com o Copilot sobre os Meus Gastos</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Receber Transferência / Código QR & Chave da Conta -->
+    <div class="modal-overlay" id="modalReceiveQr" style="display:none;">
+        <div class="modal-card qr-modal-card">
+            <div class="modal-head">
+                <div class="qr-modal-head-titles">
+                    <span class="qr-eyebrow">BankAO Pay · Instantâneo</span>
+                    <h3>Receber Transferência</h3>
+                </div>
+                <button type="button" class="modal-close" onclick="closeReceiveQrModal()" aria-label="Fechar">
+                    <svg><use href="#i-x"/></svg>
+                </button>
+            </div>
+            
+            <div class="qr-modal-body">
+                <p class="qr-modal-desc">Apresente este código QR ou partilhe a sua Chave para receber dinheiro instantaneamente sem comissões.</p>
+
+                <!-- Área Central do QR Code -->
+                <div class="qr-display-box">
+                    <div class="qr-canvas-wrap" id="qrCanvasContainer">
+                        <!-- QR Code SVG/Canvas gerado dinamicamente -->
+                    </div>
+                    <div class="qr-user-tag">
+                        <div class="avatar qr-avatar" id="qrModalUserAvatar">?</div>
+                        <div class="qr-user-texts">
+                            <strong id="qrModalUserName">Cliente BankAO</strong>
+                            <span id="qrModalUserStatus">Conta Verificada BankAO</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalhes da Chave & Contas -->
+                <div class="qr-info-stack">
+                    <div class="qr-key-row">
+                        <div class="qr-key-meta">
+                            <span class="qr-key-lbl">Chave da Conta (E-mail):</span>
+                            <strong class="qr-key-value mono" id="qrModalUserEmail">carregando...</strong>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline qr-copy-btn" id="btnCopyQrEmail" onclick="copyQrAccountEmail()">
+                            <svg><use href="#i-copy"/></svg>
+                            <span>Copiar Chave</span>
+                        </button>
+                    </div>
+
+                    <div class="qr-key-row">
+                        <div class="qr-key-meta">
+                            <span class="qr-key-lbl">IBAN Principal (AOA):</span>
+                            <strong class="qr-key-value mono" id="qrModalUserIban">carregando...</strong>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline qr-copy-btn" id="btnCopyQrIban" onclick="copyQrAccountIban()">
+                            <svg><use href="#i-copy"/></svg>
+                            <span>Copiar IBAN</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="qr-modal-footer-actions">
+                    <button type="button" class="btn btn-primary qr-share-btn" onclick="shareQrDetails()">
+                        <svg><use href="#i-send"/></svg>
+                        <span>Copiar Dados Completos para Envio</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>

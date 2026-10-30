@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gerador de passaportes fictícios – Nova Atlântida</title>
+    <style>
+        :root {
+            --bg: #eef1f6;
+            --panel: #ffffff;
+            --ink: #142039;
+            --mut: #5a6881;
+            --line: #d8dfeb;
+            --acc: #17357a;
+            --acc-ink: #ffffff;
+            --soft: #e6ecf9;
+            --warn: #8a5a00;
+            --warnbg: #fff4d6;
+        }
+
+        @media (prefers-color-scheme:dark) {
+            :root {
+                --bg: #0d1320;
+                --panel: #151d2e;
+                --ink: #e7ecf6;
+                --mut: #91a0b9;
+                --line: #26314b;
+                --acc: #7b9cf2;
+                --acc-ink: #0d1320;
+                --soft: #1c2842;
+                --warn: #f0c765;
+                --warnbg: #2a2412;
+            }
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            margin: 0
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--ink);
+            font: 16px/1.5 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            padding: 24px 16px 64px
+        }
+
+        .wrap {
+            max-width: 1180px;
+            margin: 0 auto
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            line-height: 1.2;
+            margin: 0 0 4px;
+            letter-spacing: -.01em
+        }
+
+        .sub {
+            color: var(--mut);
+            margin: 0 0 20px;
+            max-width: 70ch
+        }
+
+        .notice {
+            background: var(--warnbg);
+            color: var(--warn);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: .92rem;
+            margin-bottom: 20px
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 18px
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: minmax(260px, 1.6fr) minmax(130px, .6fr) minmax(150px, .8fr) auto;
+            gap: 16px;
+            align-items: end
+        }
+
+        label {
+            display: block;
+            font-size: .88rem;
+            color: var(--mut);
+            margin-bottom: 6px
+        }
+
+        input,
+        select {
+            font: inherit;
+            color: var(--ink);
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 9px 11px;
+            width: 100%
+        }
+
+        input:focus-visible,
+        select:focus-visible,
+        button:focus-visible {
+            outline: 3px solid var(--acc);
+            outline-offset: 2px
+        }
+
+        .agebox {
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+
+        .agebox input[type=number] {
+            width: 84px;
+            flex: none
+        }
+
+        .agebox input[type=range] {
+            padding: 0;
+            border: none;
+            background: none;
+            accent-color: var(--acc)
+        }
+
+        button {
+            font: inherit;
+            cursor: pointer;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            background: var(--panel);
+            color: var(--ink);
+            padding: 9px 14px
+        }
+
+        button:hover {
+            background: var(--soft)
+        }
+
+        button.primary {
+            background: var(--acc);
+            color: var(--acc-ink);
+            border-color: var(--acc);
+            font-weight: 600;
+            padding: 10px 20px
+        }
+
+        button.primary:hover {
+            filter: brightness(1.1)
+        }
+
+        .meta {
+            color: var(--mut);
+            font-size: .88rem;
+            margin-top: 10px
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+            align-items: start
+        }
+
+        .card h2 {
+            font-size: 1.05rem;
+            margin: 0 0 12px
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            background: transparent;
+            filter: drop-shadow(0 6px 14px rgba(10, 20, 50, .25))
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px
+        }
+
+        .data {
+            margin-top: 20px
+        }
+
+        .data header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px
+        }
+
+        .data h2 {
+            font-size: 1.05rem;
+            margin: 0
+        }
+
+        pre {
+            margin: 0;
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 14px;
+            overflow: auto;
+            font: 13px/1.5 'Roboto Mono', 'DejaVu Sans Mono', Consolas, monospace;
+            max-height: 340px
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 22px;
+            transform: translateX(-50%);
+            background: var(--ink);
+            color: var(--bg);
+            padding: 9px 16px;
+            border-radius: 8px;
+            font-size: .92rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s
+        }
+
+        .toast.on {
+            opacity: 1
+        }
+
+        @media (max-width:860px) {
+            .controls {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .controls .agecol {
+                grid-column: 1/-1
+            }
+
+            .grid {
+                grid-template-columns: 1fr
+            }
+        }
+
+        @media (prefers-reduced-motion:reduce) {
+            .toast {
+                transition: none
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <h1>Gerador de passaportes fictícios</h1>
+        <p class="sub">Cria pessoas inventadas da República de Nova Atlântida (país fictício) com passaporte: página de
+            dados e página de assinatura e impressão digital. Escolhe a idade; o resto é gerado ao acaso.</p>
+        <div class="notice">Todos os dados, o país e o passaporte são inventados e cada página leva uma marca de água
+            “AMOSTRA”. Servem apenas para testes de sistemas e nunca representam documentos reais.</div>
+
+        <section class="panel" aria-label="Opções de geração">
+            <div class="controls">
+                <div class="agecol">
+                    <label for="age">Idade (15 a 80 anos)</label>
+                    <div class="agebox">
+                        <input id="age" type="number" min="15" max="80" value="30" inputmode="numeric">
+                        <input id="ageRange" type="range" min="15" max="80" value="30" aria-label="Idade">
+                    </div>
+                </div>
+                <div>
+                    <label for="sex">Sexo</label>
+                    <select id="sex">
+                        <option value="A">Aleatório</option>
+                        <option value="F">Feminino</option>
+                        <option value="M">Masculino</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="seed">Semente (opcional)</label>
+                    <input id="seed" type="text" placeholder="repete a mesma pessoa" autocomplete="off">
+                </div>
+                <button id="gen" class="primary" type="button">Gerar pessoa</button>
+            </div>
+            <div class="meta" id="meta"></div>
+        </section>
+
+        <div class="grid">
+            <section class="panel card">
+                <h2>Página de dados</h2>
+                <canvas id="cvData" aria-label="Página de dados do passaporte"></canvas>
+                <div class="actions">
+                    <button type="button" data-side="data" data-fmt="png">Guardar PNG</button>
+                    <button type="button" data-side="data" data-fmt="jpg">Guardar JPG</button>
+                    <button type="button" data-side="data" data-fmt="pdf">Guardar PDF</button>
+                </div>
+            </section>
+            <section class="panel card">
+                <h2>Assinatura e impressão digital</h2>
+                <canvas id="cvSign" aria-label="Página de assinatura e impressão digital"></canvas>
+                <div class="actions">
+                    <button type="button" data-side="sign" data-fmt="png">Guardar PNG</button>
+                    <button type="button" data-side="sign" data-fmt="jpg">Guardar JPG</button>
+                    <button type="button" data-side="sign" data-fmt="pdf">Guardar PDF</button>
+                </div>
+            </section>
+        </div>
+
+        <section class="panel data">
+            <header>
+                <h2>Dados da pessoa</h2>
+                <button type="button" id="copy">Copiar JSON</button>
+            </header>
+            <pre id="json"></pre>
+        </section>
+    </div>
+    <div class="toast" id="toast" role="status"></div>
+
+    <script>
+        (function () {
+            'use strict';
+
+            /* ---------- constantes ---------- */
+            const S = 2;
+            const DW = 1000, DH = 704;      // página de dados (125 x 88 mm)
+            const NAVY = '#16336b', INK = '#0d0d0d';
+            const SANS = "'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif";
+            const MONO = "'Roboto Mono','DejaVu Sans Mono','Courier New',monospace";
+            const SCRIPT = "'Segoe Script','Brush Script MT','Snell Roundhand','Lucida Handwriting',cursive";
+            const MM2PT = 72 / 25.4;
+
+            const MESES3 = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+            const NOMES_F = ['Maria', 'Ana', 'Beatriz', 'Carla', 'Daniela', 'Elisa', 'Filipa', 'Helena', 'Inês', 'Joana', 'Laura', 'Marta', 'Núria', 'Olívia', 'Paula', 'Rita', 'Sara', 'Teresa', 'Vera', 'Luísa', 'Mariana', 'Catarina', 'Isabel', 'Leonor', 'Sofia', 'Clara'];
+            const NOMES_M = ['João', 'Pedro', 'Carlos', 'Daniel', 'Eduardo', 'Fábio', 'Gonçalo', 'Hugo', 'Ivo', 'José', 'Luís', 'Miguel', 'Nuno', 'Paulo', 'Rafael', 'Rui', 'Sérgio', 'Tiago', 'Vítor', 'André', 'Bruno', 'Diogo', 'Henrique', 'Manuel', 'Ricardo', 'Tomás'];
+            const APELIDOS = ['Silva', 'Santos', 'Ferreira', 'Costa', 'Pereira', 'Oliveira', 'Rodrigues', 'Martins', 'Sousa', 'Gomes', 'Lopes', 'Marques', 'Almeida', 'Ribeiro', 'Carvalho', 'Teixeira', 'Moreira', 'Correia', 'Mendes', 'Nunes', 'Pinto', 'Fonseca', 'Cardoso', 'Barros', 'Neves', 'Matos'];
+            const RUAS = ['Rua das Acácias', 'Avenida do Mar', 'Travessa do Sol', 'Rua dos Pescadores', 'Largo da Fonte', 'Rua da Esperança', 'Avenida Central', 'Rua do Farol', 'Rua das Palmeiras', 'Alameda dos Pinheiros', 'Rua do Comércio', 'Rua das Flores', 'Rua Nova', 'Avenida dos Navegantes'];
+            const CIDADES = ['Vila do Mar', 'Porto Azul', 'Monte Alto', 'Cabo Sereno', 'Baía Nova', 'Vale Verde', 'Ilha Dourada', 'Santa Aurora'];
+
+            /* ---------- aleatório com semente ---------- */
+            function hashStr(s) { let h = 1779033703 ^ s.length; for (let i = 0; i < s.length; i++) { h = Math.imul(h ^ s.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; } return h >>> 0; }
+            function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+            /* ---------- utilitários ---------- */
+            const pad2 = n => String(n).padStart(2, '0');
+            const strip = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+            const addYears = (d, n) => { const x = new Date(d); x.setFullYear(x.getFullYear() + n); return x; };
+            const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+            const fmt = d => `${pad2(d.getDate())} ${MESES3[d.getMonth()]} ${d.getFullYear()}`;
+            const iso = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+            const yymmdd = d => `${pad2(d.getFullYear() % 100)}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}`;
+
+            function chk(s) { const w = [7, 3, 1]; let t = 0; for (let i = 0; i < s.length; i++) { const c = s[i]; const v = c === '<' ? 0 : /\d/.test(c) ? +c : c.charCodeAt(0) - 55; t += v * w[i % 3]; } return t % 10; }
+
+            function buildMRZ(p) {
+                const sur = strip(p.apelidos.join(' ')).replace(/ /g, '<');
+                const giv = strip(p.nomes.join(' ')).replace(/ /g, '<');
+                const l1 = ('P<NAT' + sur + '<<' + giv + '<'.repeat(44)).slice(0, 44);
+                const doc = p.passaporte, dc = chk(doc);
+                const b = yymmdd(p.nascimento), e = yymmdd(p.validade);
+                const pers = (p.numero + '<'.repeat(14)).slice(0, 14);
+                let l2 = doc + dc + 'NAT' + b + chk(b) + p.sexo + e + chk(e) + pers + chk(pers);
+                l2 += chk(doc + dc + b + chk(b) + e + chk(e) + pers + chk(pers));
+                return [l1, l2];
+            }
+
+            /* ---------- geração da pessoa ---------- */
+            function gerarPessoa(idade, sexoPref, semente) {
+                const rnd = mulberry(hashStr(semente + '|' + idade + '|' + sexoPref));
+                const pick = a => a[Math.floor(rnd() * a.length)];
+                const ri = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+                const sexo = sexoPref === 'A' ? (rnd() < .5 ? 'F' : 'M') : sexoPref;
+
+                const nomesDe = (pool, dois) => { const a = pick(pool); if (!dois) return [a]; let b = pick(pool); let n = 0; while (b === a && n++ < 10) b = pick(pool); return [a, b]; };
+                const nomes = nomesDe(sexo === 'F' ? NOMES_F : NOMES_M, rnd() < .55);
+                const apMae = pick(APELIDOS); let apPai = pick(APELIDOS); let n = 0; while (apPai === apMae && n++ < 10) apPai = pick(APELIDOS);
+
+                const hoje = new Date(); hoje.setHours(12, 0, 0, 0);
+                const y = hoje.getFullYear(), m = hoje.getMonth(), d = hoje.getDate();
+                const lo = new Date(y - idade - 1, m, d + 1, 12), hi = new Date(y - idade, m, d, 12);
+                const nascimento = new Date(lo.getTime() + Math.floor(rnd() * (hi - lo + 1)));
+                nascimento.setHours(12, 0, 0, 0);
+
+                // passaporte: 5 anos para menores de 18, 10 anos para adultos; sempre em vigor
+                const anos = idade < 18 ? 5 : 10;
+                const minE = new Date(Math.max(nascimento.getTime(), addDays(addYears(hoje, -anos), 30).getTime()));
+                const maxE = addDays(hoje, -5);
+                const emissao = minE < maxE ? new Date(minE.getTime() + Math.floor(rnd() * (maxE - minE))) : minE;
+                emissao.setHours(12, 0, 0, 0);
+                const validade = addDays(addYears(emissao, anos), -1);
+
+                const numero = String(ri(1, 9)) + Array.from({ length: 9 }, () => ri(0, 9)).join('');
+                const passaporte = 'NA' + Array.from({ length: 7 }, () => ri(0, 9)).join('');
+
+                const p = {
+                    idade, sexo, nomes, apelidos: [apMae, apPai], nascimento, emissao, validade, numero, passaporte,
+                    localNasc: pick(CIDADES)
+                };
+                p.nomeCompleto = [...nomes, apMae, apPai].join(' ');
+                p.mrz = buildMRZ(p);
+                return p;
+            }
+
+            /* ---------- desenho ---------- */
+            function rr(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+            function txt(c, s, x, y, size, weight, color, font, align) { c.font = `${weight} ${size}px ${font || SANS}`; c.fillStyle = color; c.textAlign = align || 'left'; c.textBaseline = 'alphabetic'; c.fillText(s, x, y); }
+            function fit(c, s, weight, font, target, max) { c.font = `${weight} 100px ${font}`; const w = c.measureText(s).width; return Math.min(100 * target / w, max || 999); }
+            function fitTxt(c, s, x, y, target, max, weight, color, font, align) { txt(c, s, x, y, fit(c, s, weight, font, target, max), weight, color, font, align); }
+            function setup(cv, w, h) { cv.width = w * S; cv.height = h * S; const c = cv.getContext('2d'); c.setTransform(S, 0, 0, S, 0, 0); c.clearRect(0, 0, w, h); return c; }
+
+            function paperBase(c, w, h, r) {
+                c.save(); rr(c, 0, 0, w, h, r); c.clip();
+                const g = c.createLinearGradient(0, 0, w, h);
+                g.addColorStop(0, '#f5f9fb'); g.addColorStop(.5, '#e6eff3'); g.addColorStop(1, '#dbe7ee');
+                c.fillStyle = g; c.fillRect(0, 0, w, h);
+                const rg = c.createRadialGradient(240, 140, 10, 240, 140, 560);
+                rg.addColorStop(0, 'rgba(255,255,255,.7)'); rg.addColorStop(1, 'rgba(255,255,255,0)');
+                c.fillStyle = rg; c.fillRect(0, 0, w, h);
+                c.lineWidth = 1;
+                for (let k = 0; k < 18; k++) {
+                    c.beginPath();
+                    for (let x = 0; x <= w; x += 8) {
+                        const yy = h * 0.5 + Math.sin(x / 80 + k * .4) * 80 + Math.sin(x / 31 + k) * 12 + (k - 9) * 17;
+                        x ? c.lineTo(x, yy) : c.moveTo(x, yy);
+                    }
+                    c.strokeStyle = 'rgba(20,110,140,.06)'; c.stroke();
+                }
+                // linhas finas de segurança
+                for (let k = 0; k < 40; k++) { c.beginPath(); c.moveTo(0, 110 + k * 3.2); c.lineTo(w, 110 + k * 3.2); c.strokeStyle = 'rgba(22,51,107,.035)'; c.stroke(); }
+                const r2 = mulberry(91);
+                for (let i = 0; i < 900; i++) { c.fillStyle = `rgba(90,100,120,${r2() * .07})`; c.fillRect(r2() * w, r2() * h, 1.4, 1.4); }
+                c.save(); c.translate(w / 2, h / 2); c.rotate(-.33);
+                c.font = `700 34px ${SANS}`; c.fillStyle = 'rgba(22,51,107,.055)'; c.textAlign = 'center';
+                for (let row = -6; row <= 6; row++) { for (let col = -2; col <= 2; col++) { c.fillText('AMOSTRA · FICTÍCIO', col * 400 + (row % 2 ? 200 : 0), row * 86); } }
+                c.restore();
+                c.restore();
+            }
+            function paperEdge(c, w, h, r) {
+                c.save();
+                rr(c, 1, 1, w - 2, h - 2, r); c.strokeStyle = 'rgba(20,30,60,.25)'; c.lineWidth = 2; c.stroke();
+                rr(c, 3.5, 3.5, w - 7, h - 7, r - 3); c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = 1.5; c.stroke();
+                c.restore();
+            }
+
+            function crest(c, cx, cy, sc, style) {
+                const cover = style === 'cover';
+                const navy = cover ? '#0b1f48' : NAVY, gold = cover ? '#d9b866' : '#c9a24a', leaf = cover ? '#d9b866' : '#1f4a8c';
+                c.save(); c.translate(cx, cy); c.scale(sc, sc);
+                if (cover) { c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 5; c.shadowOffsetX = 2; c.shadowOffsetY = 3; }
+                for (let side = -1; side <= 1; side += 2) {
+                    for (let i = 0; i < 9; i++) {
+                        const t = i / 8;
+                        c.save(); c.translate(side * (40 + 8 * Math.sin(t * 3)), 48 - t * 88); c.rotate(side * (.5 - t * 1.2));
+                        c.beginPath(); c.ellipse(0, 0, 4.2, 10, 0, 0, Math.PI * 2); c.fillStyle = leaf; c.fill(); c.restore();
+                    }
+                }
+                c.fillStyle = gold;
+                c.beginPath(); c.moveTo(-78, -34); c.bezierCurveTo(-96, -8, -80, 36, -44, 46); c.bezierCurveTo(-60, 28, -66, 6, -56, -14); c.bezierCurveTo(-52, -28, -66, -44, -78, -34); c.fill();
+                c.beginPath(); c.moveTo(-44, 46); c.lineTo(-62, 58); c.lineTo(-34, 56); c.closePath(); c.fill();
+                c.beginPath(); c.moveTo(46, 50); c.bezierCurveTo(40, 20, 50, -20, 62, -48); c.bezierCurveTo(70, -70, 92, -72, 96, -60);
+                c.bezierCurveTo(84, -56, 86, -44, 92, -34); c.bezierCurveTo(78, -34, 80, -20, 88, -8); c.bezierCurveTo(74, -10, 72, 6, 78, 18);
+                c.bezierCurveTo(66, 16, 64, 36, 58, 50); c.closePath(); c.fill();
+                c.beginPath(); c.arc(70, -62, 6, 0, Math.PI * 2); c.fill();
+                c.beginPath(); c.moveTo(-34, -40); c.lineTo(34, -40); c.lineTo(34, 2); c.bezierCurveTo(34, 28, 14, 42, 0, 52); c.bezierCurveTo(-14, 42, -34, 28, -34, 2); c.closePath();
+                c.fillStyle = navy; c.fill(); c.lineWidth = 3.5; c.strokeStyle = gold; c.stroke();
+                c.strokeStyle = gold; c.lineWidth = 2;
+                c.beginPath(); c.moveTo(0, -32); c.lineTo(0, 38); c.stroke();
+                for (let i = 0; i < 4; i++) {
+                    const yy = -24 + i * 15;
+                    c.beginPath(); c.ellipse(-8, yy, 3.2, 7, -.7, 0, Math.PI * 2); c.fillStyle = gold; c.fill();
+                    c.beginPath(); c.ellipse(8, yy, 3.2, 7, .7, 0, Math.PI * 2); c.fill();
+                }
+                c.beginPath(); c.moveTo(-24, -44); c.lineTo(-28, -68); c.lineTo(-14, -58); c.lineTo(0, -76); c.lineTo(14, -58); c.lineTo(28, -68); c.lineTo(24, -44); c.closePath();
+                c.fillStyle = gold; c.fill(); c.fillRect(-26, -48, 52, 7);
+                [[-28, -70], [0, -78], [28, -70]].forEach(q => { c.beginPath(); c.arc(q[0], q[1], 3.2, 0, Math.PI * 2); c.fill(); });
+                c.restore();
+            }
+
+            function flagBox(c, x, y, w, h) {
+                c.save(); c.strokeStyle = 'rgba(30,30,30,.8)'; c.lineWidth = 1; c.strokeRect(x, y, w, h);
+                const cols = 4, rows = 2, cw = w / cols, ch = h / rows;
+                for (let r = 0; r < rows; r++)for (let k = 0; k < cols; k++) {
+                    const i = r * cols + k, cx = x + k * cw, cy = y + r * ch;
+                    c.strokeRect(cx, cy, cw, ch);
+                    c.save(); c.beginPath(); c.rect(cx, cy, cw, ch); c.clip(); c.lineWidth = .8;
+                    switch (i % 6) {
+                        case 0: for (let t = -ch; t < cw; t += 7) { c.beginPath(); c.moveTo(cx + t, cy + ch); c.lineTo(cx + t + ch, cy); c.stroke(); } break;
+                        case 1: c.beginPath(); c.arc(cx + cw / 2, cy + ch / 2, ch * .35, 0, Math.PI * 2); c.moveTo(cx + cw / 2 - ch * .35, cy + ch / 2); c.lineTo(cx + cw / 2 + ch * .35, cy + ch / 2); c.moveTo(cx + cw / 2, cy + ch * .15); c.lineTo(cx + cw / 2, cy + ch * .85); c.stroke(); break;
+                        case 2: c.beginPath(); for (let s = 0; s < 10; s++) { const a = -Math.PI / 2 + s * Math.PI / 5, rad = s % 2 ? ch * .14 : ch * .34; c.lineTo(cx + cw / 2 + Math.cos(a) * rad, cy + ch / 2 + Math.sin(a) * rad); } c.closePath(); c.stroke(); break;
+                        case 3: for (let q = 1; q <= 4; q++) { c.beginPath(); c.arc(cx + cw, cy + ch, q * ch * .28, Math.PI, Math.PI * 1.5); c.stroke(); } break;
+                        case 4: for (let t = 4; t < ch; t += 5) { c.beginPath(); c.moveTo(cx, cy + t); c.lineTo(cx + cw, cy + t); c.stroke(); } break;
+                        default: c.beginPath(); c.moveTo(cx + cw * .5, cy + ch * .15); c.lineTo(cx + cw * .85, cy + ch * .85); c.lineTo(cx + cw * .15, cy + ch * .85); c.closePath(); c.stroke();
+                    }
+                    c.restore();
+                }
+                c.restore();
+            }
+
+            function photo(c, x, y, w, h) {
+                c.save();
+                c.fillStyle = '#f4f5f7'; c.fillRect(x - 3, y - 3, w + 6, h + 6);
+                c.beginPath(); c.rect(x, y, w, h); c.clip();
+                const g = c.createLinearGradient(x, y, x, y + h); g.addColorStop(0, '#dfe5ee'); g.addColorStop(1, '#c3ccd9');
+                c.fillStyle = g; c.fillRect(x, y, w, h);
+                c.fillStyle = '#6a7a90';
+                c.beginPath(); c.ellipse(x + w / 2, y + h + 34, w * .52, h * .36, 0, 0, Math.PI * 2); c.fill();
+                c.fillStyle = '#8996a8'; c.fillRect(x + w / 2 - 20, y + h * .58, 40, h * .2);
+                c.beginPath(); c.ellipse(x + w / 2, y + h * .42, w * .2, h * .215, 0, 0, Math.PI * 2); c.fillStyle = '#98a5b6'; c.fill();
+                c.restore();
+                c.strokeStyle = '#8a929e'; c.lineWidth = 1.5; c.strokeRect(x, y, w, h);
+            }
+
+            function drawData(cv, p) {
+                const c = setup(cv, DW, DH);
+                paperBase(c, DW, DH, 16);
+                crest(c, 84, 72, .5, 'doc');
+                fitTxt(c, 'REPÚBLICA DE NOVA ATLÂNTIDA', 150, 66, 600, 36, '800', NAVY);
+                fitTxt(c, 'PASSAPORTE / PASSPORT', 150, 98, 340, 24, '600', NAVY);
+                flagBox(c, 800, 36, 150, 70);
+                c.fillStyle = 'rgba(20,30,60,.35)'; c.fillRect(40, 120, 920, 1.5);
+
+                photo(c, 40, 140, 230, 290);
+
+                const lbl = (s, x, y) => txt(c, s, x, y, 14, '400', '#34405e');
+                const val = (s, x, y, maxW, size) => fitTxt(c, s, x, y, maxW, size || 28, '700', INK);
+
+                lbl('Tipo / Type', 300, 150); val('P', 300, 180, 60);
+                lbl('Código do país / Code', 400, 150); val('NAT', 400, 180, 100);
+                lbl('N.º do passaporte / Passport No.', 600, 150); val(p.passaporte, 600, 180, 300);
+
+                lbl('Apelidos / Surname', 300, 212); val(p.apelidos.join(' ').toUpperCase(), 300, 242, 640);
+                lbl('Nomes / Given names', 300, 274); val(p.nomes.join(' ').toUpperCase(), 300, 304, 640);
+
+                lbl('Nacionalidade / Nationality', 300, 336); val('NOVA-ATLANTE', 300, 366, 270);
+                lbl('Data de nascimento / Date of birth', 600, 336); val(fmt(p.nascimento), 600, 366, 330);
+
+                lbl('Sexo / Sex', 300, 398); val(p.sexo, 300, 428, 40);
+                lbl('Local de nascimento / Place of birth', 400, 398); val(p.localNasc.toUpperCase(), 400, 428, 380);
+
+                lbl('Data de emissão / Date of issue', 300, 460); val(fmt(p.emissao), 300, 490, 280);
+                lbl('Data de validade / Date of expiry', 600, 460); val(fmt(p.validade), 600, 490, 330);
+
+                lbl('Autoridade / Authority', 300, 522);
+                val('SERVIÇO DE IDENTIFICAÇÃO DE NOVA ATLÂNTIDA', 300, 550, 640, 22);
+
+                // zona legível por máquina
+                c.save(); rr(c, 0, 0, DW, DH, 16); c.clip();
+                c.fillStyle = 'rgba(255,255,255,.62)'; c.fillRect(0, 574, DW, DH - 574);
+                p.mrz.forEach((l, i) => fitTxt(c, l, 40, 626 + i * 46, 920, 34, '500', '#111', MONO));
+                c.restore();
+                paperEdge(c, DW, DH, 16);
+            }
+
+            function fingerprint(c, cx, cy, rw, rh, seed) {
+                const r = mulberry(hashStr(seed));
+                const ph = [r() * 6.28, r() * 6.28, r() * 6.28, r() * 6.28];
+                c.save();
+                c.beginPath(); c.ellipse(cx, cy, rw, rh, 0, 0, Math.PI * 2); c.clip();
+                c.strokeStyle = 'rgba(28,26,48,.88)'; c.lineWidth = 3.1; c.lineCap = 'round';
+                const N = 44;
+                for (let k = 2; k <= N; k++) {
+                    const f = k / N;
+                    c.setLineDash([60 + r() * 90, 2 + r() * 6]);
+                    c.lineDashOffset = r() * 100;
+                    c.beginPath();
+                    for (let a = 0; a <= Math.PI * 2 + .06; a += .05) {
+                        const wob = 1 + .07 * Math.sin(3 * a + ph[0] + f * 5) + .05 * Math.sin(5 * a + ph[1] - f * 3) + .03 * Math.sin(9 * a + ph[2] + f * 8);
+                        const x = cx + Math.cos(a) * rw * f * wob * 1.08 + Math.sin(ph[3]) * (1 - f) * 14;
+                        const y = cy + Math.sin(a) * rh * f * wob * 1.08 + (1 - f) * rh * .22;
+                        a ? c.lineTo(x, y) : c.moveTo(x, y);
+                    }
+                    c.stroke();
+                }
+                c.setLineDash([]);
+                const g = c.createRadialGradient(cx, cy, rw * .3, cx, cy, rw * 1.2);
+                g.addColorStop(0, 'rgba(240,244,248,0)'); g.addColorStop(1, 'rgba(240,244,248,.75)');
+                c.fillStyle = g; c.fillRect(cx - rw - 5, cy - rh - 5, rw * 2 + 10, rh * 2 + 10);
+                c.restore();
+            }
+
+            function drawSign(cv, p) {
+                const c = setup(cv, DW, DH);
+                paperBase(c, DW, DH, 16);
+                crest(c, 84, 72, .5, 'doc');
+                fitTxt(c, 'REPÚBLICA DE NOVA ATLÂNTIDA', 150, 66, 600, 36, '800', NAVY);
+                fitTxt(c, 'ASSINATURA E IMPRESSÃO DIGITAL', 150, 98, 470, 24, '600', NAVY);
+                flagBox(c, 800, 36, 150, 70);
+                c.fillStyle = 'rgba(20,30,60,.35)'; c.fillRect(40, 120, 920, 1.5);
+
+                const lbl = (s, x, y) => txt(c, s, x, y, 14, '400', '#34405e');
+
+                c.strokeStyle = 'rgba(60,70,90,.6)'; c.lineWidth = 1.5;
+                c.strokeRect(40, 150, 540, 330);
+                lbl('Assinatura do titular / Holder’s signature', 58, 178);
+                fitTxt(c, `${p.nomes[0]} ${p.apelidos[1]}`, 70, 350, 450, 96, '400', NAVY, SCRIPT);
+                c.save(); c.setLineDash([2, 3]); c.strokeStyle = 'rgba(20,30,60,.5)'; c.lineWidth = 1; c.beginPath(); c.moveTo(60, 376); c.lineTo(560, 376); c.stroke(); c.restore();
+                fitTxt(c, p.nomeCompleto.toUpperCase(), 60, 408, 500, 18, '500', '#34405e');
+
+                c.strokeRect(620, 150, 340, 330);
+                lbl('Impressão digital / Fingerprint', 638, 178);
+                lbl('Polegar direito / Right thumb', 638, 198);
+                fingerprint(c, 790, 350, 100, 125, p.passaporte + p.numero);
+
+                lbl('N.º do passaporte / Passport No.', 40, 530);
+                fitTxt(c, p.passaporte, 40, 560, 260, 28, '700', INK);
+                lbl('Data de validade / Date of expiry', 360, 530);
+                fitTxt(c, fmt(p.validade), 360, 560, 300, 28, '700', INK);
+                txt(c, 'DOCUMENTO FICTÍCIO PARA TESTES · NÃO VÁLIDO', 500, 664, 16, '500', 'rgba(22,51,107,.6)', SANS, 'center');
+                paperEdge(c, DW, DH, 16);
+            }
+
+            /* ---------- estado e interface ---------- */
+            const $ = id => document.getElementById(id);
+            const cvD = $('cvData'), cvS = $('cvSign');
+            let pessoa = null;
+
+            function dadosJSON(p) {
+                return {
+                    aviso: 'DADOS FICTÍCIOS – apenas para testes',
+                    pais: 'República de Nova Atlântida',
+                    tipo: 'P',
+                    codigo_pais: 'NAT',
+                    numero_passaporte: p.passaporte,
+                    apelidos: p.apelidos.join(' '),
+                    nomes: p.nomes.join(' '),
+                    nacionalidade: 'NOVA-ATLANTE',
+                    sexo: p.sexo,
+                    idade: p.idade,
+                    data_nascimento: iso(p.nascimento),
+                    local_nascimento: p.localNasc,
+                    data_emissao: iso(p.emissao),
+                    data_validade: iso(p.validade),
+                    autoridade: 'Serviço de Identificação de Nova Atlântida',
+                    numero_pessoal: p.numero + '-NAT',
+                    mrz: p.mrz
+                };
+            }
+
+            function gerar() {
+                let idade = parseInt($('age').value, 10);
+                if (isNaN(idade)) idade = 30;
+                idade = Math.min(80, Math.max(15, idade));
+                $('age').value = idade; $('ageRange').value = idade;
+                const semente = $('seed').value.trim();
+                const usada = semente || Math.random().toString(36).slice(2, 10);
+                pessoa = gerarPessoa(idade, $('sex').value, usada);
+                drawData(cvD, pessoa);
+                drawSign(cvS, pessoa);
+                $('json').textContent = JSON.stringify(dadosJSON(pessoa), null, 2);
+                $('meta').textContent = `${pessoa.nomeCompleto} · ${idade} anos · semente: ${usada}`;
+            }
+
+            /* ---------- exportar ---------- */
+            function toBlob(cv, type, q) { return new Promise(r => cv.toBlob(r, type, q)); }
+            function flat(cv) { const t = document.createElement('canvas'); t.width = cv.width; t.height = cv.height; const c = t.getContext('2d'); c.fillStyle = '#fff'; c.fillRect(0, 0, t.width, t.height); c.drawImage(cv, 0, 0); return t; }
+            function download(blob, name) { const a = document.createElement('a'); const u = URL.createObjectURL(blob); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); }
+
+            function buildPDF(jpeg, iw, ih, pw, ph) {
+                const enc = new TextEncoder(), chunks = [], offs = []; let pos = 0;
+                const w = d => { const b = typeof d === 'string' ? enc.encode(d) : d; chunks.push(b); pos += b.length; };
+                const obj = (n, body) => { offs[n] = pos; w(`${n} 0 obj\n${body}\nendobj\n`); };
+                w('%PDF-1.4\n');
+                obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+                obj(2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+                obj(3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pw} ${ph}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`);
+                offs[4] = pos;
+                w(`4 0 obj\n<< /Type /XObject /Subtype /Image /Width ${iw} /Height ${ih} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`);
+                w(jpeg); w('\nendstream\nendobj\n');
+                const cs = `q ${pw} 0 0 ${ph} 0 0 cm /Im0 Do Q`;
+                obj(5, `<< /Length ${cs.length} >>\nstream\n${cs}\nendstream`);
+                const xr = pos; let x = 'xref\n0 6\n0000000000 65535 f \n';
+                for (let i = 1; i <= 5; i++)x += String(offs[i]).padStart(10, '0') + ' 00000 n \n';
+                w(x + `trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF`);
+                return new Blob(chunks, { type: 'application/pdf' });
+            }
+
+            async function exportar(side, fmtName) {
+                if (!pessoa) return;
+                const cv = side === 'data' ? cvD : cvS;
+                const slug = strip(pessoa.nomeCompleto).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+                const nome = `${slug}_passaporte_${side === 'data' ? 'dados' : 'assinatura'}`;
+                if (fmtName === 'png') { download(await toBlob(cv, 'image/png'), nome + '.png'); }
+                else if (fmtName === 'jpg') { download(await toBlob(flat(cv), 'image/jpeg', .95), nome + '.jpg'); }
+                else {
+                    const f = flat(cv);
+                    const url = f.toDataURL('image/jpeg', .95);
+                    const bin = atob(url.split(',')[1]); const bytes = new Uint8Array(bin.length);
+                    for (let i = 0; i < bin.length; i++)bytes[i] = bin.charCodeAt(i);
+                    const mmW = 125, mmH = 88;
+                    download(buildPDF(bytes, f.width, f.height, +(mmW * MM2PT).toFixed(2), +(mmH * MM2PT).toFixed(2)), nome + '.pdf');
+                }
+                toast('Ficheiro guardado: ' + nome + '.' + fmtName);
+            }
+
+            let tt; function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 2200); }
+
+            /* ---------- eventos ---------- */
+            $('gen').addEventListener('click', gerar);
+            $('age').addEventListener('input', e => { const v = parseInt(e.target.value, 10); if (!isNaN(v) && v >= 15 && v <= 80) $('ageRange').value = v; });
+            $('age').addEventListener('change', gerar);
+            $('ageRange').addEventListener('input', e => { $('age').value = e.target.value; });
+            $('ageRange').addEventListener('change', gerar);
+            $('sex').addEventListener('change', gerar);
+            $('seed').addEventListener('keydown', e => { if (e.key === 'Enter') gerar(); });
+            document.querySelectorAll('.actions button').forEach(b => b.addEventListener('click', () => exportar(b.dataset.side, b.dataset.fmt)));
+            $('copy').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('json').textContent); toast('JSON copiado'); } catch (e) { toast('Não foi possível copiar'); } });
+
+            gerar();
+        })();
+    </script>
+</body>
+
+</html>

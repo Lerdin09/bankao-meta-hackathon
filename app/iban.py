@@ -1,4 +1,4 @@
-"""
+﻿"""
 Validador e gerador de IBAN com conformidade ao algoritmo Mod 97 (ISO 7064).
 Suporte a Angola (AO - 25 caracteres) e Portugal (PT - 25 caracteres).
 """

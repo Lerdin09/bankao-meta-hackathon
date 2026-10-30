@@ -1,4 +1,4 @@
-# Banco Digital — Documentação e Guia do Projeto
+﻿# Banco Digital — Documentação e Guia do Projeto
 
 *Versão 0.1 · 27 de outubro de 2026 · Projeto para o Meta Global AI Developer Hackathon*
 
