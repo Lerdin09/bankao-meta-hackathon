@@ -1,0 +1,79 @@
+/* ==========================================================================
+   Olho de ocultar/mostrar saldos — animação de abrir e fechar
+   Aberto  : contorno do olho + pupila
+   Fechado : pálpebra desce (o olho achata), pupila some e o risco é desenhado
+   Estado controlado por  body.balances-hidden
+   ========================================================================== */
+.eye-anim { overflow: visible; }
+.eye-anim * {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.eye-anim .eye-shape,
+.eye-anim .eye-pupil {
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+/* ---- ABRIR (estado normal): risco recolhe → pálpebra sobe com leve overshoot → pupila surge ---- */
+.eye-anim .eye-shape {
+    transform: scaleY(1);
+    transition: transform .42s cubic-bezier(.34, 1.56, .64, 1) .1s;
+}
+.eye-anim .eye-pupil {
+    transform: scale(1);
+    opacity: 1;
+    transition: transform .34s cubic-bezier(.34, 1.56, .64, 1) .22s, opacity .2s ease .22s;
+}
+.eye-anim .eye-slash {
+    stroke-dasharray: 24;
+    stroke-dashoffset: 24;
+    opacity: 0;
+    transition: stroke-dashoffset .2s ease-in, opacity .05s linear .2s;
+}
+
+/* ---- FECHAR: pupila encolhe → pálpebra desce → risco é traçado ---- */
+body.balances-hidden .eye-anim .eye-shape {
+    transform: scaleY(.16);
+    transition: transform .3s cubic-bezier(.55, 0, .75, .3) .04s;
+}
+body.balances-hidden .eye-anim .eye-pupil {
+    transform: scale(0);
+    opacity: 0;
+    transition: transform .2s ease-in, opacity .16s ease-in;
+}
+body.balances-hidden .eye-anim .eye-slash {
+    stroke-dashoffset: 0;
+    opacity: 1;
+    transition: stroke-dashoffset .28s cubic-bezier(.3, .7, .2, 1) .22s, opacity .01s linear .22s;
+}
+
+/* Botões: feedback ao toque + "pop" quando o estado muda */
+#btnToggleBalance,
+.nb-eye-btn { -webkit-tap-highlight-color: transparent; transition: color .25s, background .25s, border-color .25s, transform .15s; }
+#btnToggleBalance:active,
+.nb-eye-btn:active { transform: scale(.9); }
+#btnToggleBalance .eye-anim { width: 21px; height: 21px; }
+.nb-eye-btn .eye-anim { width: 17px; height: 17px; }
+body.balances-hidden #btnToggleBalance { color: var(--gold); border-color: rgba(230, 184, 92, .35); }
+.eye-btn-pop { animation: eyePop .4s cubic-bezier(.34, 1.56, .64, 1); }
+@keyframes eyePop { 0% { transform: scale(1); } 40% { transform: scale(.82); } 100% { transform: scale(1); } }
+
+/* Os valores também "respiram" ao mostrar/ocultar (o display alterna, a animação repete-se) */
+.dash-balance-num,
+.dash-balance-curr,
+.dash-balance-masked,
+.nb-acc-val,
+.nb-acc-val-masked,
+.acc-bal-val,
+.acc-bal-masked { animation: balSwap .42s cubic-bezier(.2, .8, .2, 1); }
+@keyframes balSwap { from { opacity: 0; transform: translateY(6px) scale(.97); filter: blur(6px); } }
+.tx-amount, .balance-amount, .txd-amount { transition: filter .35s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+    .eye-anim *, .dash-balance-num, .dash-balance-curr, .dash-balance-masked,
+    .nb-acc-val, .nb-acc-val-masked, .acc-bal-val, .acc-bal-masked, .eye-btn-pop { animation: none !important; transition-duration: .01s !important; transition-delay: 0s !important; }
+}

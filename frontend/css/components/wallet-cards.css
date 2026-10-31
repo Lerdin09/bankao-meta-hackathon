@@ -1,0 +1,526 @@
+/* ==========================================================================
+   Cartões de carteira
+   Cartões de saldo, chave da conta, botões de ação, acordeão de carteiras e hero (estilos base).
+   ========================================================================== */
+
+/* ---------- Cartões de carteira ---------- */
+.cards-row {
+    display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory;
+    margin: 0 -16px 20px; padding: 4px 16px 12px; scrollbar-width: none;
+}
+.cards-row::-webkit-scrollbar { display: none; }
+.card-wallet {
+    position: relative; flex: 0 0 min(86%, 380px); scroll-snap-align: center;
+    min-height: 212px; padding: 20px 22px; border-radius: var(--r-xl);
+    display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, .14);
+    box-shadow: 0 24px 50px -22px rgba(0, 0, 0, .8), inset 0 1px 0 rgba(255, 255, 255, .16);
+    isolation: isolate;
+}
+.card-wallet::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background:
+        radial-gradient(280px 200px at 100% 0%, rgba(255, 255, 255, .2), transparent 65%),
+        repeating-linear-gradient(115deg, rgba(255, 255, 255, .035) 0 1px, transparent 1px 14px);
+}
+.card-wallet::after {
+    content: ""; position: absolute; right: -60px; bottom: -80px; width: 240px; height: 240px; z-index: -1;
+    border-radius: 50%; border: 1px solid rgba(255, 255, 255, .1); box-shadow: 0 0 0 36px rgba(255, 255, 255, .025), 0 0 0 72px rgba(255, 255, 255, .02);
+}
+.card-aoa { background: linear-gradient(140deg, #0E6B57 0%, #0A3F4A 55%, #0B2338 100%); }
+.card-eur { background: linear-gradient(140deg, #2B4FD1 0%, #1B2E7E 55%, #0F1A45 100%); }
+.card-usd { background: linear-gradient(140deg, #C28E28 0%, #855B14 55%, #2B1E06 100%); }
+
+.card-top { display: flex; justify-content: space-between; align-items: center; }
+.card-currency-tag { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 4px 11px; border-radius: 99px; background: rgba(255, 255, 255, .14); backdrop-filter: blur(6px); }
+.card-chip {
+    width: 38px; height: 28px; border-radius: 7px;
+    background: linear-gradient(135deg, #F7DFA0, #C99B3F 60%, #F1D58E);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .15);
+    position: relative;
+}
+.card-chip::after { content: ""; position: absolute; inset: 6px 9px; border: 1px solid rgba(0, 0, 0, .22); border-radius: 3px; }
+.balance-label { display: block; font-size: .75rem; color: rgba(255, 255, 255, .7); font-weight: 500; margin-bottom: 2px; }
+.balance-amount { font-size: clamp(1.7rem, 6.5vw, 2.25rem); font-weight: 800; letter-spacing: -.035em; font-variant-numeric: tabular-nums; line-height: 1.1; transition: filter .25s; }
+.balance-amount .curr { font-size: .5em; font-weight: 600; color: rgba(255, 255, 255, .75); margin-left: 2px; letter-spacing: 0; }
+body.balances-hidden .balance-amount { filter: blur(11px); user-select: none; }
+
+.card-footer { display: grid; gap: 10px; }
+.card-account-info { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; min-width: 0; }
+.acc-label { font-size: .65rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: rgba(255, 255, 255, .55); }
+.acc-val { font-size: .85rem; font-weight: 600; text-align: left; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acc-val.mono { font-size: .76rem; }
+.copyable { position: relative; border-radius: 6px; padding: 1px 0; transition: .15s; }
+.copyable:hover { color: #fff; text-shadow: 0 0 12px rgba(255, 255, 255, .5); }
+.copyable.copied::after { content: "Copiado"; position: absolute; right: -4px; top: -20px; font-size: .65rem; padding: 2px 7px; border-radius: 6px; background: #fff; color: #0B1120; font-weight: 700; }
+
+/* ==========================================================================
+   NOVO DASHBOARD HERO (Chave, Saldo da moeda de preferência, 3 Ações, etc.)
+   ========================================================================== */
+.dash-hero-container {
+    display: grid;
+    grid-template-columns: 1.45fr 1fr;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+@media (max-width: 900px) {
+    .dash-hero-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+.dash-main-card {
+    background: linear-gradient(145deg, rgba(17, 24, 39, 0.95) 0%, rgba(11, 16, 28, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--r-xl);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 20px;
+    box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    position: relative;
+    overflow: hidden;
+}
+
+.dash-main-card::after {
+    content: "";
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, rgba(230, 184, 92, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+    border-radius: 50%;
+}
+
+/* Chave da conta (E-mail) */
+.dash-key-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.dash-key-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gold);
+}
+
+.dash-key-icon {
+    width: 14px;
+    height: 14px;
+}
+
+.dash-key-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 8px 14px;
+    gap: 12px;
+    transition: border-color .2s;
+}
+
+.dash-key-content:hover {
+    border-color: rgba(230, 184, 92, 0.3);
+}
+
+.dash-key-val {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+.dash-key-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gold);
+    background: var(--gold-soft);
+    border: 1px solid rgba(230, 184, 92, 0.25);
+    border-radius: 8px;
+    padding: 5px 10px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all .2s;
+}
+
+.dash-key-copy-btn svg {
+    width: 13px;
+    height: 13px;
+}
+
+.dash-key-copy-btn:hover {
+    background: rgba(230, 184, 92, 0.25);
+    transform: translateY(-1px);
+}
+
+/* Saldo & Moeda de preferência */
+.dash-balance-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.dash-balance-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.dash-balance-label {
+    font-size: 0.8rem;
+    color: var(--text-2);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.dash-currency-selector {
+    display: flex;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.35);
+    padding: 3px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.dash-curr-tag {
+    background: transparent;
+    border: none;
+    color: var(--text-3);
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all .18s;
+}
+
+.dash-curr-tag:hover {
+    color: var(--text-2);
+}
+
+.dash-curr-tag.active {
+    background: var(--surface-3);
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.dash-balance-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.dash-balance-display {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font-size: clamp(2rem, 5.5vw, 2.75rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.035em;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+    min-height: 48px;
+}
+
+.dash-balance-num {
+    font-weight: 800;
+}
+
+.dash-balance-curr {
+    font-size: 0.55em;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0;
+}
+
+.dash-balance-masked {
+    display: none;
+    font-size: 1.6rem;
+    letter-spacing: 4px;
+    color: var(--text-3);
+    vertical-align: middle;
+}
+
+body.balances-hidden .dash-balance-masked {
+    display: inline-block;
+}
+
+body.balances-hidden .dash-balance-num,
+body.balances-hidden .dash-balance-curr {
+    display: none !important;
+}
+
+/* Botão do Olho (posicionado no lado direito do número) */
+.dash-eye-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    display: grid;
+    place-items: center;
+    background: var(--surface-2);
+    border: 1px solid var(--line-2);
+    color: var(--text-2);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all .2s;
+}
+
+.dash-eye-btn:hover {
+    color: var(--gold);
+    border-color: rgba(230, 184, 92, 0.4);
+    background: var(--surface-3);
+    transform: scale(1.05);
+}
+
+.dash-eye-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.dash-eye-btn .ic-eye-off { display: none; }
+.dash-eye-btn .ic-eye { display: block; }
+body.balances-hidden .dash-eye-btn .ic-eye { display: none; }
+body.balances-hidden .dash-eye-btn .ic-eye-off { display: block; }
+
+/* 4 Botoes de Acao ao Lado (Depositar, Transferir, Pagar, Mais) */
+.dash-actions-col {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+@media (max-width: 900px) {
+    .dash-actions-col {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+}
+
+@media (max-width: 640px) {
+    .dash-actions-col {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+}
+
+.dash-action-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: var(--r-lg);
+    background: linear-gradient(135deg, rgba(20, 27, 45, 0.75), rgba(13, 19, 33, 0.85));
+    border: 1px solid var(--line);
+    text-align: left;
+    cursor: pointer;
+    transition: all .22s cubic-bezier(0.16, 1, 0.3, 1);
+    min-height: 64px;
+}
+
+.dash-action-card:hover {
+    background: linear-gradient(135deg, rgba(28, 38, 62, 0.9), rgba(18, 26, 46, 0.95));
+    border-color: var(--line-2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.4);
+}
+
+.dash-action-card:active {
+    transform: scale(0.98);
+}
+
+.action-card-ic {
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    transition: transform .2s;
+}
+
+.dash-action-card:hover .action-card-ic {
+    transform: scale(1.08);
+}
+
+.action-card-ic svg {
+    width: 22px;
+    height: 22px;
+}
+
+.qa-deposit .action-card-ic {
+    background: var(--green-soft);
+    color: var(--green);
+}
+
+.qa-transfer .action-card-ic {
+    background: var(--blue-soft);
+    color: var(--blue);
+}
+
+.qa-pay .action-card-ic {
+    background: var(--gold-soft);
+    color: var(--gold);
+}
+
+.qa-more .action-card-ic {
+    background: rgba(168, 85, 247, 0.16);
+    color: #C084FC;
+}
+
+.action-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.action-card-info strong {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.action-card-info span {
+    font-size: 0.76rem;
+    color: var(--text-3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Accordion de Carteiras */
+.wallets-accordion {
+    margin-bottom: 22px;
+}
+
+.wallets-details {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    transition: all .2s;
+}
+
+.wallets-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-2);
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+}
+
+.wallets-summary::-webkit-details-marker {
+    display: none;
+}
+
+.wallets-summary:hover {
+    color: var(--gold);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.summary-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.summary-ic {
+    width: 16px;
+    height: 16px;
+    color: var(--gold);
+}
+
+.summary-arrow {
+    width: 16px;
+    height: 16px;
+    transition: transform .25s ease;
+}
+
+.wallets-details[open] .summary-arrow {
+    transform: rotate(180deg);
+}
+
+.wallets-cards-row {
+    padding: 16px;
+    margin-bottom: 0 !important;
+}
+
+/* Rodapé dos movimentos com botão para todas as transações */
+.panel-foot-action {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+}
+
+.btn-more-transactions {
+    width: 100%;
+    min-height: 48px;
+    border-radius: 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--line-2);
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all .2s;
+}
+
+.btn-more-transactions:hover {
+    background: var(--gold-soft);
+    border-color: rgba(230, 184, 92, 0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px -4px rgba(230, 184, 92, 0.2);
+}
+
+.btn-more-transactions:active {
+    transform: scale(0.99);
+}
+
+.btn-arr-ic {
+    width: 16px;
+    height: 16px;
+    transition: transform .2s ease;
+}
+
+.btn-more-transactions:hover .btn-arr-ic {
+    transform: translateX(4px);
+}

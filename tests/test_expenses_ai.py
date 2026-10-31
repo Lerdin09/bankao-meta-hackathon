@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from app.ai.assistant import extract_action_intent
+from backend.ai.assistant import extract_action_intent
 
 def test_extract_expense_intent_supermarket():
     action = extract_action_intent("gastei 15000 kz no supermercado maxi")

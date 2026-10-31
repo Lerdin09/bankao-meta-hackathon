@@ -1,0 +1,29 @@
+/* ==========================================================================
+   Reset e estilos base
+   Reset, corpo da página, tipografia e utilitários globais.
+   ========================================================================== */
+
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+    background:
+        radial-gradient(900px 500px at 85% -10%, rgba(108, 155, 255, .10), transparent 60%),
+        radial-gradient(700px 420px at -5% 5%, rgba(230, 184, 92, .07), transparent 60%),
+        var(--bg);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100dvh;
+    overflow-x: hidden;
+}
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+input { font: inherit; color: inherit; }
+svg { width: 20px; height: 20px; flex-shrink: 0; }
+.mono { font-family: var(--mono); letter-spacing: -.01em; }
+.text-muted { color: var(--text-3); }
+.text-center { text-align: center; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }

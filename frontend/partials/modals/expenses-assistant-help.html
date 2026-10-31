@@ -1,0 +1,44 @@
+<!-- Modal: Ajuda com as Despesas (Copilot Assistente) -->
+<div class="modal-overlay" id="modalExpenseAssistantHelp" style="display:none;">
+    <div class="modal-card exp-help-modal-card">
+        <div class="modal-head">
+            <div class="qr-modal-head-titles">
+                <span class="qr-eyebrow">BankAO Copilot IA</span>
+                <h3>Consultoria Inteligente de Despesas</h3>
+            </div>
+            <button type="button" class="modal-close" onclick="closeExpenseAssistantHelpModal()" aria-label="Fechar">
+                <svg><use href="#i-x"/></svg>
+            </button>
+        </div>
+        <div class="exp-help-modal-body">
+            <p class="exp-help-intro">Com base no processamento dos seus gastos, aqui estão 3 recomendações imediatas para economizar:</p>
+
+            <div class="exp-help-tips-stack">
+                <div class="exp-help-tip-card">
+                    <div class="exp-tip-badge green">💡 Dica 1</div>
+                    <h4>Consolidação de Compras Essenciais</h4>
+                    <p>Agrupar compras de supermercado para dias promocionais pode reduzir os seus gastos em Alimentação em cerca de <strong>12% a 15%</strong>.</p>
+                </div>
+
+                <div class="exp-help-tip-card">
+                    <div class="exp-tip-badge amber">⚡ Dica 2</div>
+                    <h4>Auditoria de Telecom & Subscrições</h4>
+                    <p>Verifique planos de internet e TV para garantir que não está a pagar por largura de banda excedente ou canais que não consome.</p>
+                </div>
+
+                <div class="exp-help-tip-card">
+                    <div class="exp-tip-badge blue">🎯 Dica 3</div>
+                    <h4>Meta Automática de Poupança</h4>
+                    <p>Ao definir uma poupança programada de 5% no início do mês, protege os seus fundos antes que sejam absorvidos por gastos imprevistos.</p>
+                </div>
+            </div>
+
+            <div class="exp-help-footer">
+                <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;" onclick="startCopilotExpenseConversation()">
+                    <svg class="ic-spark"><use href="#i-spark"/></svg>
+                    <span>Falar com o Copilot sobre os Meus Gastos</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

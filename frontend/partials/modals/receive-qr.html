@@ -1,0 +1,64 @@
+<!-- Modal: Receber Transferência / Código QR & Chave da Conta -->
+<div class="modal-overlay" id="modalReceiveQr" style="display:none;">
+    <div class="modal-card qr-modal-card">
+        <div class="modal-head">
+            <div class="qr-modal-head-titles">
+                <span class="qr-eyebrow">BankAO Pay · Instantâneo</span>
+                <h3>Receber Transferência</h3>
+            </div>
+            <button type="button" class="modal-close" onclick="closeReceiveQrModal()" aria-label="Fechar">
+                <svg><use href="#i-x"/></svg>
+            </button>
+        </div>
+
+        <div class="qr-modal-body">
+            <p class="qr-modal-desc">Apresente este código QR ou partilhe a sua Chave para receber dinheiro instantaneamente sem comissões.</p>
+
+            <!-- Área Central do QR Code -->
+            <div class="qr-display-box">
+                <div class="qr-canvas-wrap" id="qrCanvasContainer">
+                    <!-- QR Code SVG/Canvas gerado dinamicamente -->
+                </div>
+                <div class="qr-user-tag">
+                    <div class="avatar qr-avatar" id="qrModalUserAvatar">?</div>
+                    <div class="qr-user-texts">
+                        <strong id="qrModalUserName">Cliente BankAO</strong>
+                        <span id="qrModalUserStatus">Conta Verificada BankAO</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detalhes da Chave & Contas -->
+            <div class="qr-info-stack">
+                <div class="qr-key-row">
+                    <div class="qr-key-meta">
+                        <span class="qr-key-lbl">Chave da Conta (E-mail):</span>
+                        <strong class="qr-key-value mono" id="qrModalUserEmail">carregando...</strong>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline qr-copy-btn" id="btnCopyQrEmail" onclick="copyQrAccountEmail()">
+                        <svg><use href="#i-copy"/></svg>
+                        <span>Copiar Chave</span>
+                    </button>
+                </div>
+
+                <div class="qr-key-row">
+                    <div class="qr-key-meta">
+                        <span class="qr-key-lbl">IBAN Principal (AOA):</span>
+                        <strong class="qr-key-value mono" id="qrModalUserIban">carregando...</strong>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline qr-copy-btn" id="btnCopyQrIban" onclick="copyQrAccountIban()">
+                        <svg><use href="#i-copy"/></svg>
+                        <span>Copiar IBAN</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="qr-modal-footer-actions">
+                <button type="button" class="btn btn-primary qr-share-btn" onclick="shareQrDetails()">
+                    <svg><use href="#i-send"/></svg>
+                    <span>Copiar Dados Completos para Envio</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

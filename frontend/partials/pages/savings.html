@@ -1,0 +1,92 @@
+<!-- ============ POUPANÇA ============ -->
+<section class="view" id="view-savings">
+    <div class="page-head">
+        <div>
+            <p class="eyebrow">O meu futuro financeiro</p>
+            <h1>Poupança</h1>
+        </div>
+        <button class="btn btn-primary" onclick="openNewGoalModal()">
+            <svg><use href="#i-target"/></svg><span>Nova meta</span>
+        </button>
+    </div>
+
+    <!-- Hero: Resumo geral da poupança -->
+    <div class="sav-hero-card">
+        <div class="sav-hero-left">
+            <span class="sav-hero-label">Total poupado</span>
+            <div class="sav-hero-amount">
+                <span class="acc-bal-masked">••••••••</span>
+                <span class="sav-hero-val" id="savTotalBalance">50.000 KZ</span>
+            </div>
+            <span class="sav-hero-sub">Taxa de retorno anual: <strong class="sav-hero-rate">4,5%</strong></span>
+        </div>
+        <div class="sav-hero-right">
+            <div class="sav-ring-wrap">
+                <svg viewBox="0 0 100 100" class="sav-ring-chart">
+                    <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
+                    <circle cx="50" cy="50" r="38" fill="none" stroke="url(#savGrad)" stroke-width="10"
+                        stroke-dasharray="120 239" stroke-dashoffset="0" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="savGrad" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#38BDF8"/>
+                            <stop offset="100%" stop-color="#4ADE80"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <div class="sav-ring-center">
+                    <strong>50%</strong>
+                    <span>das metas</span>
+                </div>
+            </div>
+            <div class="sav-hero-stats">
+                <div class="sav-hero-stat">
+                    <svg><use href="#i-target"/></svg>
+                    <div>
+                        <strong id="savGoalCountHero">3</strong>
+                        <span>Metas ativas</span>
+                    </div>
+                </div>
+                <div class="sav-hero-stat">
+                    <svg><use href="#i-trending"/></svg>
+                    <div>
+                        <strong class="sg-money" id="savMonthDeposits">+0 KZ</strong>
+                        <span>Este mês</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cabeçalho da secção de metas -->
+    <div class="sav-section-head">
+        <div>
+            <h3>As suas metas</h3>
+            <p class="sav-section-sub">Acompanhe o progresso e deposite diretamente em cada meta.</p>
+        </div>
+        <span class="sav-count-badge" id="savGoalCount">3 metas ativas</span>
+    </div>
+
+    <!-- Lista de metas (gerada dinamicamente via JS) -->
+    <div class="sav-goals-list" id="savGoalsList">
+        <!-- JS render: sav-goal-card com deposit button -->
+    </div>
+
+    <!-- Copilot: análise das metas -->
+    <section class="sgc" id="savCopilot">
+        <div class="sgc-head">
+            <div class="sgc-orb"><svg><use href="#i-spark"/></svg><i></i></div>
+            <div class="sgc-title">
+                <span class="sgc-tag">BankAO Copilot</span>
+                <h3>Análise das suas poupanças</h3>
+            </div>
+        </div>
+        <div class="sgc-list" id="savCopilotInsights"></div>
+        <div class="sgc-ask">
+            <span class="sgc-ask-lbl">Pergunte ao Copilot</span>
+            <div class="sgc-chips" id="savCopilotChips"></div>
+            <button type="button" class="sgc-open" onclick="showView('view-copilot')">
+                <span>Abrir conversa</span><svg><use href="#i-chevron-right"/></svg>
+            </button>
+        </div>
+    </section>
+</section>

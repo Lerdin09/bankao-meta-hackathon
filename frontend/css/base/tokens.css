@@ -1,0 +1,45 @@
+/* ==========================================================================
+   BankAO — Design system "private banking"
+   Responsivo: telemóvel · tablet · iPad · desktop
+   ========================================================================== */
+
+:root {
+    --bg: #070B14;
+    --bg-2: #0B1120;
+    --surface: #0F1729;
+    --surface-2: #131D33;
+    --surface-3: #18243D;
+    --line: rgba(255, 255, 255, .07);
+    --line-2: rgba(255, 255, 255, .12);
+
+    --gold: #E6B85C;
+    --gold-2: #C8963A;
+    --gold-soft: rgba(230, 184, 92, .12);
+    --green: #34D399;
+    --green-soft: rgba(52, 211, 153, .12);
+    --red: #F87171;
+    --red-soft: rgba(248, 113, 113, .12);
+    --blue: #6C9BFF;
+    --blue-soft: rgba(108, 155, 255, .12);
+
+    --text: #F3F5F9;
+    --text-2: #A3AEC2;
+    --text-3: #6C788F;
+
+    --font: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    --r-sm: 10px;
+    --r-md: 16px;
+    --r-lg: 22px;
+    --r-xl: 28px;
+
+    --banner-h: 34px;
+    --top-h: 64px;
+    --bottom-h: 68px;
+    --sidebar-w: 248px;
+    --copilot-w: 380px;
+
+    --safe-b: env(safe-area-inset-bottom, 0px);
+    --safe-t: env(safe-area-inset-top, 0px);
+}

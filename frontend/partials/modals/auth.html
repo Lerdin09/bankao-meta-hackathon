@@ -1,0 +1,85 @@
+<!-- ============ MODAL: AUTENTICAÇÃO ============ -->
+<div class="modal-overlay auth-overlay" id="modalAuth" style="display:none">
+    <div class="auth-modal">
+        <button class="auth-close" id="btnCloseAuth" onclick="closeAuthModal()" aria-label="Fechar">
+            <svg><use href="#i-x"/></svg>
+        </button>
+
+        <div class="auth-brand">
+            <span class="brand-mark">B</span>
+            <span class="brand-name">Bank<span class="accent">AO</span></span>
+        </div>
+
+        <!-- Tabs -->
+        <div class="auth-tabs" role="tablist">
+            <button class="auth-tab active" id="tabLogin" role="tab" onclick="switchAuthTab('login')">Iniciar Sessão</button>
+            <button class="auth-tab" id="tabRegister" role="tab" onclick="switchAuthTab('register')">Criar Conta</button>
+        </div>
+
+        <!-- Login Form -->
+        <form class="auth-form" id="formLogin" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="loginEmail">E-mail</label>
+                <input type="email" id="loginEmail" placeholder="o.seu@email.com" required autocomplete="email">
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Palavra-passe</label>
+                <div class="input-eye-wrap">
+                    <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+                    <button type="button" class="btn-eye" onclick="togglePasswordVis('loginPassword', this)" aria-label="Mostrar/ocultar">
+                        <svg class="ic-eye"><use href="#i-eye"/></svg>
+                        <svg class="ic-eye-off" style="display:none"><use href="#i-eye-off"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="auth-error" id="loginError"></div>
+            <button type="submit" class="btn btn-primary btn-full" id="btnLoginSubmit">
+                <svg><use href="#i-arrow-right"/></svg>
+                <span>Entrar na minha carteira</span>
+            </button>
+            <p class="auth-switch">Não tem conta? <button type="button" class="link-btn" onclick="switchAuthTab('register')">Criar conta grátis</button></p>
+        </form>
+
+        <!-- Register Form -->
+        <form class="auth-form" id="formRegister" style="display:none" onsubmit="handleRegister(event)">
+            <div class="form-group">
+                <label for="regEmail">E-mail</label>
+                <input type="email" id="regEmail" placeholder="o.seu@email.com" required autocomplete="email">
+            </div>
+            <div class="form-group">
+                <label for="regPhone">Número de telefone</label>
+                <input type="tel" id="regPhone" placeholder="+244 9XX XXX XXX" required autocomplete="tel">
+            </div>
+            <div class="form-group">
+                <label for="regPassword">Palavra-passe</label>
+                <div class="input-eye-wrap">
+                    <input type="password" id="regPassword" placeholder="Mínimo 6 caracteres" required minlength="6" autocomplete="new-password">
+                    <button type="button" class="btn-eye" onclick="togglePasswordVis('regPassword', this)" aria-label="Mostrar/ocultar">
+                        <svg class="ic-eye"><use href="#i-eye"/></svg>
+                        <svg class="ic-eye-off" style="display:none"><use href="#i-eye-off"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="regConfirmPassword">Confirmar palavra-passe</label>
+                <div class="input-eye-wrap">
+                    <input type="password" id="regConfirmPassword" placeholder="Repita a palavra-passe" required autocomplete="new-password">
+                    <button type="button" class="btn-eye" onclick="togglePasswordVis('regConfirmPassword', this)" aria-label="Mostrar/ocultar">
+                        <svg class="ic-eye"><use href="#i-eye"/></svg>
+                        <svg class="ic-eye-off" style="display:none"><use href="#i-eye-off"/></svg>
+                    </button>
+                </div>
+            </div>
+            <label class="terms-check">
+                <input type="checkbox" id="regTerms" required>
+                <span>Aceito os <a href="#" class="link-accent" onclick="return false">Termos e Condições</a> e a <a href="#" class="link-accent" onclick="return false">Política de Privacidade</a> da BankAO</span>
+            </label>
+            <div class="auth-error" id="registerError"></div>
+            <button type="submit" class="btn btn-primary btn-full" id="btnRegisterSubmit">
+                <svg><use href="#i-arrow-right"/></svg>
+                <span>Criar conta BankAO</span>
+            </button>
+            <p class="auth-switch">Já tem conta? <button type="button" class="link-btn" onclick="switchAuthTab('login')">Iniciar sessão</button></p>
+        </form>
+    </div>
+</div>

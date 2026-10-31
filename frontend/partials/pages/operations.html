@@ -1,0 +1,268 @@
+<!-- ============ OPERAÇÕES ============ -->
+<section class="view" id="view-ops">
+    <div class="page-head">
+        <div>
+            <p class="eyebrow">Mover dinheiro</p>
+            <h1>Operações</h1>
+        </div>
+    </div>
+
+    <section class="operations-section panel">
+        <div class="tabs-nav" role="tablist">
+            <button class="tab-btn active" data-tab="tab-deposit" role="tab"><svg><use href="#i-down"/></svg><span>Depositar</span></button>
+            <button class="tab-btn" data-tab="tab-transfer-internal" role="tab"><svg><use href="#i-bolt"/></svg><span>Transferência de conta</span></button>
+            <button class="tab-btn" data-tab="tab-transfer-iban" role="tab"><svg><use href="#i-globe"/></svg><span>Transferência bancária</span></button>
+        </div>
+
+        <!-- Depósito -->
+        <div class="tab-pane active" id="tab-deposit">
+            <div class="operation-card">
+                <div class="method-selector">
+                    <label class="method-card active">
+                        <input type="radio" name="depositMethod" value="express" checked>
+                        <span class="method-ic"><svg><use href="#i-phone"/></svg></span>
+                        <div class="method-body">
+                            <div class="method-title">Multicaixa Express</div>
+                            <div class="method-desc">Autorize na hora pelo telemóvel</div>
+                        </div>
+                    </label>
+                    <label class="method-card">
+                        <input type="radio" name="depositMethod" value="referencia">
+                        <span class="method-ic"><svg><use href="#i-receipt"/></svg></span>
+                        <div class="method-body">
+                            <div class="method-title">Pagamento por referência</div>
+                            <div class="method-desc">ATM Multicaixa ou Internet Banking</div>
+                        </div>
+                    </label>
+                </div>
+
+                <form id="formDepositExpress" class="deposit-subform active">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="expressPhone">Telemóvel Multicaixa Express</label>
+                            <input type="tel" id="expressPhone" value="923 456 789" required placeholder="923 000 000" inputmode="tel" autocomplete="tel">
+                        </div>
+                        <div class="form-group">
+                            <label for="expressAmount">Valor a depositar</label>
+                            <div class="input-affix"><input type="number" id="expressAmount" value="50000" min="500" step="100" required inputmode="decimal"><span>Kz</span></div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="btnSubmitExpress"><span>Solicitar aprovação no telemóvel</span><svg><use href="#i-send"/></svg></button>
+                    </div>
+                </form>
+
+                <form id="formDepositReferencia" class="deposit-subform">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="refAmount">Valor a depositar</label>
+                            <div class="input-affix"><input type="number" id="refAmount" value="25000" min="500" step="100" required inputmode="decimal"><span>Kz</span></div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="btnSubmitReferencia"><span>Gerar dados de pagamento</span><svg><use href="#i-receipt"/></svg></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Transferência de conta (E-mail do cliente) -->
+        <div class="tab-pane" id="tab-transfer-internal">
+            <div class="operation-card">
+                <div class="op-header-info">
+                    <div class="op-badge-tag"><svg style="width:14px;height:14px"><use href="#i-bolt"/></svg><span>Entre Contas BankAO</span></div>
+                    <h3>Transferência de conta</h3>
+                    <p>Envie dinheiro instantaneamente usando apenas o e-mail do cliente cadastrado. Taxa de apenas 1%.</p>
+                </div>
+
+                <form id="formTransferInternal">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="internalDestEmail">E-mail do cliente destinatário</label>
+                            <div class="input-with-validation">
+                                <input type="email" id="internalDestEmail" placeholder="cliente@bankao.ao ou outro e-mail" required autocomplete="email">
+                                <span class="iban-status-badge" id="recipientLookupStatus">Verificar</span>
+                            </div>
+                            <div class="recipient-live-name" id="internalRecipientLiveName" style="display:none">
+                                <svg style="width:14px;height:14px"><use href="#i-check"/></svg> <span id="recipientLiveNameText"></span>
+                            </div>
+                            <span class="input-hint">Insira o e-mail do cliente que receberá a quantia.</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="internalAmount">Quantia a enviar (Mínimo: $0.01)</label>
+                            <div class="amount-currency-group">
+                                <div class="input-affix amount-input-wrap">
+                                    <input type="number" id="internalAmount" placeholder="100" min="0.01" step="any" required inputmode="decimal">
+                                    <span id="internalCurrencySymbol" class="affix-label">$</span>
+                                </div>
+                                <div class="currency-select-wrap">
+                                    <select id="internalSendCurrency" class="currency-pill-select" aria-label="Moeda de envio">
+                                        <option value="USD" selected>USD ($)</option>
+                                        <option value="AOA">AOA (Kz)</option>
+                                        <option value="EUR">EUR (€)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <span class="input-hint">Escolha a moeda que deseja debitar da sua conta.</span>
+                        </div>
+                    </div>
+
+                    <!-- Resumo em Tempo Real (Taxa 1%) -->
+                    <div class="realtime-calc-box" id="internalRealtimeBox">
+                        <div class="rt-head">
+                            <div class="rt-tag"><svg><use href="#i-bolt"/></svg><span>Cálculo em tempo real (Taxa de 1%)</span></div>
+                        </div>
+                        <div class="rt-grid">
+                            <div class="rt-item">
+                                <span class="rt-lbl">Quantia a enviar</span>
+                                <div class="rt-val-stack">
+                                    <strong class="rt-val primary" id="rtInternalSent">100,00 $</strong>
+                                    <span class="rt-val-sub" id="rtInternalSentSub">100.000,00 Kz</span>
+                                </div>
+                            </div>
+                            <div class="rt-item">
+                                <span class="rt-lbl">Taxa BankAO (1%)</span>
+                                <div class="rt-val-stack">
+                                    <strong class="rt-val fee primary" id="rtInternalFee">- 1,00 $</strong>
+                                    <span class="rt-val-sub fee" id="rtInternalFeeSub">- 1.000,00 Kz</span>
+                                </div>
+                            </div>
+                            <div class="rt-item highlight">
+                                <span class="rt-lbl">Dinheiro que vai chegar</span>
+                                <div class="rt-val-stack">
+                                    <strong class="rt-val arrive primary" id="rtInternalArrive">99,00 $</strong>
+                                    <span class="rt-val-sub arrive" id="rtInternalArriveSub">99.000,00 Kz</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rt-footer-badge">
+                            <span class="route-pill send"><span class="flag" id="internalRouteFromFlag">🇺🇸</span> Envia: <strong id="internalRouteFrom">USD ($)</strong></span>
+                            <span class="route-arrow">➔</span>
+                            <span class="route-pill dest"><span class="flag" id="internalRouteToFlag">🇦🇴</span> Destino: <strong id="internalRouteTo">Angola (AOA · Kz)</strong></span>
+                            <span class="route-rate" id="internalRouteRate">Câmbio: 1 $ = 1.000 Kz</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label for="internalDesc">Descrição (opcional)</label>
+                        <input type="text" id="internalDesc" placeholder="Ex.: Pagamento de serviços, almoço...">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="btnSubmitInternal">
+                            <span>Confirmar transferência</span>
+                            <svg><use href="#i-arrow-right"/></svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Transferência bancária (IBAN) -->
+        <div class="tab-pane" id="tab-transfer-iban">
+            <div class="operation-card">
+                <div class="op-header-info">
+                    <div class="op-badge-tag"><svg style="width:14px;height:14px"><use href="#i-globe"/></svg><span>Rede Bancária & Internacional</span></div>
+                    <h3>Transferência bancária (IBAN)</h3>
+                    <p>Envie dinheiro para qualquer banco nacional (Angola) ou internacional (SEPA / Europa). Taxa de 2.5%.</p>
+                </div>
+
+                <form id="formTransferIban">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ibanInput">IBAN do beneficiário (Angola ou SEPA)</label>
+                            <div class="input-with-validation">
+                                <input type="text" id="ibanInput" placeholder="AO06 0040 0000 0000 0000 0000 0" class="mono" required autocapitalize="characters" autocomplete="off" spellcheck="false">
+                                <span class="iban-status-badge" id="ibanValidationStatus">Aguardando</span>
+                            </div>
+                            <span class="input-hint" id="ibanFeedbackText">Validado com algoritmo Mod 97 (ISO 7064).</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="beneficiaryName">Nome do titular</label>
+                            <input type="text" id="beneficiaryName" placeholder="Ex.: Maria António Silva" required autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ibanSendAmount">Quantia a debitar (Mínimo: $1.00)</label>
+                            <div class="amount-currency-group">
+                                <div class="input-affix amount-input-wrap">
+                                    <input type="number" id="ibanSendAmount" value="100" min="1.00" step="any" required inputmode="decimal">
+                                    <span id="ibanCurrencySymbol" class="affix-label">$</span>
+                                </div>
+                                <div class="currency-select-wrap">
+                                    <select id="ibanSendCurrency" class="currency-pill-select" aria-label="Moeda de envio">
+                                        <option value="USD" selected>USD ($)</option>
+                                        <option value="AOA">AOA (Kz)</option>
+                                        <option value="EUR">EUR (€)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <span class="input-hint">Escolha a moeda em que envia o dinheiro.</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="ibanDestCurrency">País / Moeda de destino (Automático pelo IBAN)</label>
+                            <select id="ibanDestCurrency" class="select-field">
+                                <option value="AOA" selected>AO - Angola (Kz - Bancos Nacionais)</option>
+                                <option value="EUR">PT/EU - Portugal & SEPA (€ - Europa)</option>
+                                <option value="USD">US/INT - Internacional ($ - Dólar)</option>
+                            </select>
+                            <span class="input-hint" id="ibanDestHint">Detectado automaticamente pelo prefixo do IBAN.</span>
+                        </div>
+                    </div>
+
+                    <!-- Resumo em Tempo Real (Taxa 2.5%) -->
+                    <div class="realtime-calc-box" id="ibanRealtimeBox">
+                        <div class="rt-head">
+                            <div class="rt-tag"><svg><use href="#i-globe"/></svg><span>Cálculo em tempo real (Taxa bancária: 2.5%)</span></div>
+                        </div>
+                        <div class="rt-grid">
+                            <div class="rt-item">
+                                <span class="rt-lbl">Quantia enviada</span>
+                                <div class="rt-val-stack">
+                                    <strong class="rt-val primary" id="rtIbanSent">100,00 $</strong>
+                                    <span class="rt-val-sub" id="rtIbanSentSub">100.000,00 Kz</span>
+                                </div>
+                            </div>
+                            <div class="rt-item">
+                                <span class="rt-lbl">Taxa bancária (2.5%)</span>
+                                <div class="rt-val-stack">
+                                    <strong class="rt-val fee primary" id="rtIbanFee">- 2,50 $</strong>
+                                    <span class="rt-val-sub fee" id="rtIbanFeeSub">- 2.500,00 Kz</span>
+                                </div>
+                            </div>
+                            <div class="rt-item highlight">
+                                <span class="rt-lbl">Dinheiro que vai chegar</span>
+                                <div class="rt-val-stack">
+                                    <strong class="rt-val arrive primary" id="rtIbanArrive">97,50 $</strong>
+                                    <span class="rt-val-sub arrive" id="rtIbanArriveSub">97.500,00 Kz</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rt-footer-badge">
+                            <span class="route-pill send"><span class="flag" id="ibanRouteFromFlag">🇺🇸</span> Envia: <strong id="ibanRouteFrom">USD ($)</strong></span>
+                            <span class="route-arrow">➔</span>
+                            <span class="route-pill dest"><span class="flag" id="ibanRouteToFlag">🇦🇴</span> Destino: <strong id="ibanRouteTo">Angola (AOA · Kz)</strong></span>
+                            <span class="route-rate" id="ibanRouteRate">Câmbio: 1 $ = 1.000 Kz · Rede Bancária</span>
+                        </div>
+                    </div>
+
+                    <div class="ai-suggestion-box" id="aiTransferHelperBox">
+                        <div class="ai-box-header">
+                            <span class="ai-box-title"><svg><use href="#i-spark"/></svg>Análise do Copilot</span>
+                            <button type="button" class="btn-text" id="btnAskAiExplain">Explicação completa</button>
+                        </div>
+                        <p class="ai-box-text" id="aiTransferSummaryText">O câmbio atual para Portugal (SEPA) é favorável. O valor cai em cêntimos sem dedução para o beneficiário.</p>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="btnSubmitIban">
+                            <span>Confirmar transferência</span>
+                            <svg><use href="#i-arrow-right"/></svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+</section>

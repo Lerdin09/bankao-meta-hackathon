@@ -1,0 +1,61 @@
+/* ==========================================================================
+   Despesas — modais específicos (limite da categoria e ajuda do assistente)
+   A página em si está em features/expenses-page.css
+   ========================================================================== */
+
+/* Modais específicos de despesas */
+.budget-edit-modal-card { max-width: 420px; width: 100%; }
+
+.budget-modal-cat-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 12px 14px;
+}
+
+.budget-cat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-size: 1rem;
+    background: rgba(56, 189, 248, 0.12);
+    color: #38BDF8;
+}
+
+.budget-cat-icon svg { width: 20px; height: 20px; }
+.budget-modal-cat-preview strong { display: block; color: #F8FAFC; font-size: 0.95rem; }
+.budget-modal-cat-preview p { font-size: 0.78rem; color: #94A3B8; margin: 2px 0 0 0; }
+
+.exp-help-modal-card { max-width: 500px; width: 100%; }
+.exp-help-modal-body { padding: 18px 22px 22px; }
+.exp-help-intro { font-size: 0.88rem; color: #CBD5E1; margin-bottom: 14px; line-height: 1.45; }
+
+.exp-help-tips-stack { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+
+.exp-help-tip-card {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 12px 14px;
+}
+
+.exp-tip-badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+}
+
+.exp-tip-badge.green { background: rgba(74, 222, 128, 0.12); color: #4ADE80; }
+.exp-tip-badge.amber { background: rgba(245, 158, 11, 0.12); color: #F59E0B; }
+.exp-tip-badge.blue  { background: rgba(56, 189, 248, 0.12); color: #38BDF8; }
+
+.exp-help-tip-card h4 { font-size: 0.9rem; font-weight: 800; color: #FFFFFF; margin: 0 0 3px 0; }
+.exp-help-tip-card p  { font-size: 0.8rem; color: #94A3B8; margin: 0; line-height: 1.4; }

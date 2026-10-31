@@ -1,0 +1,134 @@
+<!-- ============ CONTAS ============ -->
+<section class="view" id="view-accounts">
+    <div class="page-head">
+        <div>
+            <p class="eyebrow">Gestão de contas</p>
+            <h1>As suas contas</h1>
+        </div>
+        <button class="btn btn-outline" data-goto="view-ops" data-goto-tab="tab-deposit">
+            <svg><use href="#i-down"/></svg><span>Depositar</span>
+        </button>
+    </div>
+
+    <!-- Resumo geral -->
+    <div class="acc-summary-grid">
+        <div class="acc-summary-card acc-aoa">
+            <div class="acc-summary-top">
+                <div class="acc-summary-icon">
+                    <svg><use href="#i-wallet"/></svg>
+                </div>
+                <span class="acc-summary-label">Conta Principal</span>
+                <span class="acc-badge">AOA · Kwanza</span>
+            </div>
+            <div class="acc-summary-balance">
+                <span class="acc-bal-masked">••••••••</span>
+                <span class="acc-bal-val" id="accViewBalanceAoa">0,00 KZ</span>
+            </div>
+            <div class="acc-summary-details">
+                <div class="acc-detail-row">
+                    <span class="acc-detail-label">Número de conta</span>
+                    <button class="acc-detail-val copyable" id="accViewNumAoa">0040 8291 9410</button>
+                </div>
+                <div class="acc-detail-row">
+                    <span class="acc-detail-label">IBAN Virtual</span>
+                    <button class="acc-detail-val mono copyable" id="accViewIbanAoa">AO06 9999 0000 0000 0000 0000 0</button>
+                </div>
+            </div>
+            <div class="acc-summary-actions">
+                <button class="acc-act-btn" data-goto="view-ops" data-goto-tab="tab-deposit">
+                    <svg><use href="#i-down"/></svg> Depositar
+                </button>
+                <button class="acc-act-btn" data-goto="view-ops" data-goto-tab="tab-transfer-internal">
+                    <svg><use href="#i-swap"/></svg> Transferir
+                </button>
+            </div>
+        </div>
+
+        <div class="acc-summary-card acc-eur">
+            <div class="acc-summary-top">
+                <div class="acc-summary-icon">
+                    <svg><use href="#i-globe"/></svg>
+                </div>
+                <span class="acc-summary-label">Conta Multimoeda</span>
+                <span class="acc-badge">EUR · Euro</span>
+            </div>
+            <div class="acc-summary-balance">
+                <span class="acc-bal-masked">••••••••</span>
+                <span class="acc-bal-val" id="accViewBalanceEur">0,00 €</span>
+            </div>
+            <div class="acc-summary-details">
+                <div class="acc-detail-row">
+                    <span class="acc-detail-label">Número de conta</span>
+                    <button class="acc-detail-val copyable" id="accViewNumEur">0050 1928 4719</button>
+                </div>
+                <div class="acc-detail-row">
+                    <span class="acc-detail-label">IBAN SEPA</span>
+                    <button class="acc-detail-val mono copyable" id="accViewIbanEur">PT50 9999 0000 0000 0000 0000 3</button>
+                </div>
+            </div>
+            <div class="acc-summary-actions">
+                <button class="acc-act-btn" data-goto="view-ops" data-goto-tab="tab-transfer-iban">
+                    <svg><use href="#i-globe"/></svg> Transferência IBAN
+                </button>
+            </div>
+        </div>
+
+        <div class="acc-summary-card acc-usd">
+            <div class="acc-summary-top">
+                <div class="acc-summary-icon">
+                    <svg><use href="#i-globe"/></svg>
+                </div>
+                <span class="acc-summary-label">Conta Multimoeda</span>
+                <span class="acc-badge">USD · Dólar</span>
+            </div>
+            <div class="acc-summary-balance">
+                <span class="acc-bal-masked">••••••••</span>
+                <span class="acc-bal-val" id="accViewBalanceUsd">0,00 $</span>
+            </div>
+            <div class="acc-summary-details">
+                <div class="acc-detail-row">
+                    <span class="acc-detail-label">Número de conta</span>
+                    <button class="acc-detail-val copyable" id="accViewNumUsd">0060 8472 9182</button>
+                </div>
+                <div class="acc-detail-row">
+                    <span class="acc-detail-label">IBAN Virtual</span>
+                    <button class="acc-detail-val mono copyable" id="accViewIbanUsd">AO06 9999 0060 0000 0000 0000 4</button>
+                </div>
+            </div>
+            <div class="acc-summary-actions">
+                <button class="acc-act-btn" data-goto="view-ops" data-goto-tab="tab-transfer-iban">
+                    <svg><use href="#i-globe"/></svg> Transferência IBAN
+                </button>
+            </div>
+        </div>
+
+        <div class="acc-summary-card acc-savings">
+            <div class="acc-summary-top">
+                <div class="acc-summary-icon">
+                    <svg><use href="#i-lock"/></svg>
+                </div>
+                <span class="acc-summary-label">Conta Poupança</span>
+                <span class="acc-badge">AOA · Automática</span>
+            </div>
+            <div class="acc-summary-balance">
+                <span class="acc-bal-masked">••••••••</span>
+                <span class="acc-bal-val" id="accViewBalanceSavings">50.000,00 KZ</span>
+            </div>
+            <div class="acc-summary-details">
+                <div class="acc-detail-row">
+                    <span class="acc-detail-label">Taxa de juro anual</span>
+                    <span class="acc-detail-val" style="color:#4ADE80;font-weight:700;">4,5% ao ano</span>
+                </div>
+                <div class="acc-detail-row">
+                    <span class="acc-detail-label">Próxima capitalização</span>
+                    <span class="acc-detail-val">01 Dez 2026</span>
+                </div>
+            </div>
+            <div class="acc-summary-actions">
+                <button class="acc-act-btn" data-goto="view-savings">
+                    <svg><use href="#i-target"/></svg> Ver metas
+                </button>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,121 @@
+/* ==========================================================================
+   Poupança — aparência (cartões das metas, Copilot) e modal de edição
+   ========================================================================== */
+
+/* Valores monetários dentro de textos respeitam o modo "saldos ocultos" */
+body.balances-hidden .sg-money { font-size: 0; }
+body.balances-hidden .sg-money::after { content: "•••• KZ"; font-size: .85rem; letter-spacing: 1px; color: var(--text-3); }
+
+/* ───────── Lista de metas ───────── */
+.sav-goals-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 14px; }
+.sg-card { display: flex; flex-direction: column; gap: 14px; min-width: 0; padding: 18px; border-radius: var(--r-lg); background: linear-gradient(180deg, rgba(19, 29, 51, .72), rgba(13, 20, 36, .72)); border: 1px solid var(--line); transition: border-color .2s; }
+.sg-card:hover { border-color: var(--line-2); }
+.sg-card.at-risk { border-color: rgba(245, 158, 11, .32); }
+.sg-card.done { border-color: rgba(74, 222, 128, .32); }
+.sg-head { display: flex; align-items: center; gap: 12px; }
+.sg-icon { width: 46px; height: 46px; flex-shrink: 0; display: grid; place-items: center; border-radius: 14px; color: #fff; }
+.sg-icon svg { width: 22px; height: 22px; }
+.sg-title { flex: 1; min-width: 0; }
+.sg-title h4 { margin: 0; font-size: 1rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sg-title span { display: flex; align-items: center; gap: 5px; margin-top: 3px; font-size: .76rem; color: var(--text-3); }
+.sg-title svg { width: 13px; height: 13px; flex-shrink: 0; }
+.sg-status { flex-shrink: 0; padding: 4px 10px; border-radius: 99px; font-size: .7rem; font-weight: 800; letter-spacing: .02em; border: 1px solid; }
+.sg-status.on-track { color: #4ADE80; background: rgba(74, 222, 128, .1); border-color: rgba(74, 222, 128, .28); }
+.sg-status.at-risk { color: #F59E0B; background: rgba(245, 158, 11, .1); border-color: rgba(245, 158, 11, .3); }
+.sg-status.done { color: #38BDF8; background: rgba(56, 189, 248, .1); border-color: rgba(56, 189, 248, .3); }
+.sg-amounts { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; }
+.sg-card .sav-prog-saved { font-size: 1.3rem; font-weight: 800; letter-spacing: -.02em; color: var(--text); }
+.sg-card .sav-prog-target { font-size: .82rem; color: var(--text-3); }
+.sg-pct { margin-left: auto; font-size: .9rem; font-weight: 800; color: #38BDF8; }
+.sg-track { height: 8px; border-radius: 99px; background: rgba(255, 255, 255, .08); overflow: hidden; }
+.sg-track i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #38BDF8, #6366F1); transition: width .4s; }
+.sg-card.done .sg-track i { background: linear-gradient(90deg, #38BDF8, #4ADE80); }
+.sg-card.at-risk .sg-track i { background: linear-gradient(90deg, #F59E0B, #FB923C); }
+.sg-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.sg-chips span { padding: 5px 10px; border-radius: 99px; font-size: .74rem; color: var(--text-2); background: rgba(255, 255, 255, .04); border: 1px solid var(--line); }
+.sg-chips b { color: var(--text); font-weight: 700; }
+.sg-actions { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; margin-top: auto; }
+.sg-btn { min-height: 44px; padding: 0 14px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border-radius: 12px; font-size: .84rem; font-weight: 700; color: var(--text-2); background: rgba(255, 255, 255, .04); border: 1px solid var(--line-2); transition: all .15s; }
+.sg-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+.sg-btn:hover { color: var(--text); background: rgba(255, 255, 255, .08); }
+.sg-btn.primary { color: #fff; border-color: transparent; background: linear-gradient(135deg, #38BDF8, #6366F1); }
+.sg-btn.primary:hover { filter: brightness(1.1); }
+.sg-btn.danger:hover { color: #FB7185; border-color: rgba(251, 113, 133, .4); background: rgba(251, 113, 133, .1); }
+@media (max-width: 639px) {
+    .sg-card { padding: 16px; border-radius: 20px; }
+    .sg-actions { grid-template-columns: 1fr 1fr; }
+    .sg-btn.primary { grid-column: 1 / -1; min-height: 50px; font-size: .92rem; }
+    .sg-btn { min-height: 46px; }
+}
+
+/* ───────── Copilot ───────── */
+.sgc { margin-top: 24px; padding: 20px; border-radius: var(--r-lg); background: linear-gradient(160deg, rgba(56, 189, 248, .09), rgba(99, 102, 241, .07) 45%, rgba(13, 20, 36, .72)); border: 1px solid rgba(56, 189, 248, .22); }
+.sgc-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.sgc-orb { position: relative; width: 44px; height: 44px; flex-shrink: 0; display: grid; place-items: center; border-radius: 14px; color: #fff; background: linear-gradient(135deg, #38BDF8, #6366F1); box-shadow: 0 8px 20px -8px rgba(56, 189, 248, .7); }
+.sgc-orb svg { width: 22px; height: 22px; }
+.sgc-orb i { position: absolute; right: -3px; bottom: -3px; width: 12px; height: 12px; border-radius: 50%; background: #4ADE80; border: 2px solid #0B1324; }
+.sgc-tag { font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #38BDF8; }
+.sgc-title h3 { margin: 0; font-size: 1.05rem; font-weight: 800; line-height: 1.2; }
+.sgc-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 8px; margin-bottom: 16px; }
+.sgc-row { --t: #38BDF8; display: flex; gap: 12px; padding: 12px; min-width: 0; background: rgba(8, 13, 25, .5); border: 1px solid var(--line); border-left: 3px solid var(--t); border-radius: 12px; }
+.sgc-row[data-tone="warn"] { --t: #F59E0B; }
+.sgc-row[data-tone="good"] { --t: #4ADE80; }
+.sgc-row[data-tone="tip"] { --t: #A78BFA; }
+.sgc-ico { width: 32px; height: 32px; flex-shrink: 0; display: grid; place-items: center; border-radius: 10px; color: var(--t); background: color-mix(in srgb, var(--t) 14%, transparent); }
+.sgc-ico svg { width: 17px; height: 17px; }
+.sgc-row h5 { margin: 0 0 2px; font-size: .74rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--t); }
+.sgc-row p { margin: 0; font-size: .86rem; line-height: 1.5; color: #CBD5E1; overflow-wrap: anywhere; }
+.sgc-row p b { color: #F8FAFC; font-weight: 700; }
+.sgc-ask { padding-top: 14px; border-top: 1px solid var(--line); }
+.sgc-ask-lbl { display: block; margin-bottom: 8px; font-size: .78rem; font-weight: 700; color: var(--text-2); }
+.sgc-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.sgc-chips button { min-height: 40px; padding: 0 14px; border-radius: 99px; font-size: .8rem; font-weight: 600; color: var(--text-2); text-align: left; background: rgba(255, 255, 255, .04); border: 1px solid var(--line-2); transition: all .15s; }
+.sgc-chips button:hover { color: #38BDF8; border-color: rgba(56, 189, 248, .4); background: rgba(56, 189, 248, .08); }
+.sgc-open { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; min-height: 40px; font-size: .82rem; font-weight: 700; color: #38BDF8; }
+.sgc-open svg { width: 14px; height: 14px; }
+@media (max-width: 639px) {
+    .sgc { padding: 16px; border-radius: 20px; }
+    .sgc-chips { flex-direction: column; }
+    .sgc-chips button { width: 100%; min-height: 46px; border-radius: 14px; }
+}
+
+/* ───────── Modal de edição: secções, pré-visualização, estado ───────── */
+.confirm-transfer-modal.form-modal-wide { max-width: 560px; }
+.form-modal .fm-section { display: flex; flex-direction: column; gap: 14px; padding: 14px; border-radius: 16px; background: rgba(255, 255, 255, .02); border: 1px solid var(--line); }
+.fm-section-title { font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+.fm-preview { padding: 12px 14px; border-radius: 12px; background: rgba(56, 189, 248, .06); border: 1px solid rgba(56, 189, 248, .18); }
+.fm-preview-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 8px; font-size: .82rem; color: var(--text-2); }
+.fm-preview-top strong { font-size: 1rem; font-weight: 800; color: #38BDF8; }
+.fm-preview-track { height: 7px; border-radius: 99px; background: rgba(255, 255, 255, .08); overflow: hidden; }
+.fm-preview-track i { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #38BDF8, #6366F1); transition: width .25s; }
+.fm-seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.fm-seg button { min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 8px; border-radius: 12px; font-size: .84rem; font-weight: 700; color: var(--text-2); background: rgba(255, 255, 255, .03); border: 1px solid var(--line-2); transition: all .15s; }
+.fm-seg button i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex-shrink: 0; }
+.fm-seg button.active { color: var(--c); border-color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); }
+@media (max-width: 639px) {
+    .form-modal .fm-section { padding: 14px 12px; }
+    .fm-seg button { font-size: .8rem; gap: 5px; }
+}
+
+/* ───────── Cartões compactos (sem esticar na vertical) ───────── */
+.sav-goals-list { grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); align-items: start; }
+.sg-card { gap: 12px; padding: 16px; height: auto; }
+.sg-icon { width: 42px; height: 42px; border-radius: 13px; }
+.sg-icon svg { width: 20px; height: 20px; }
+.sg-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; margin: 0; font-size: .78rem; color: var(--text-3); line-height: 1.4; }
+.sg-meta b { color: var(--text-2); font-weight: 700; }
+.sg-meta i { width: 3px; height: 3px; border-radius: 50%; background: var(--text-3); }
+.sg-actions { grid-template-columns: 1fr 44px 44px; margin-top: 0; }
+.sg-btn.icon { width: 44px; padding: 0; }
+.sg-btn.icon svg { width: 17px; height: 17px; }
+.sg-btn.primary { grid-column: auto; min-height: 44px; font-size: .86rem; }
+@media (max-width: 639px) {
+    .sg-card { gap: 10px; padding: 14px; border-radius: 18px; }
+    .sg-head { gap: 10px; }
+    .sg-status { padding: 3px 8px; font-size: .66rem; }
+    .sg-card .sav-prog-saved { font-size: 1.15rem; }
+    .sg-track { height: 6px; }
+    .sg-actions { grid-template-columns: 1fr 46px 46px; }
+    .sg-btn, .sg-btn.primary { min-height: 46px; }
+    .sg-btn.icon { width: 46px; }
+}

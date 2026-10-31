@@ -1,0 +1,66 @@
+<!-- Barra lateral (estilo NovaBank / BankAO) -->
+<aside class="sidebar" aria-label="Navegação principal">
+    <div class="sidebar-top">
+        <a class="brand" href="/">
+            <span class="brand-mark-gradient">
+                <svg viewBox="0 0 24 24"><path d="M4 4h4l8 12V4h4v16h-4L8 8v12H4V4z" fill="currentColor"/></svg>
+            </span>
+            <span class="brand-name">Bank<span class="accent">AO</span></span>
+        </a>
+    </div>
+
+    <nav class="side-nav">
+        <button class="nav-item active" data-view="view-home">
+            <span class="nav-item-icon"><svg><use href="#i-home"/></svg></span>
+            <span class="nav-item-text">Início</span>
+            <span class="nav-item-chevron"><svg><use href="#i-chevron-right"/></svg></span>
+        </button>
+        <button class="nav-item" data-view="view-accounts">
+            <span class="nav-item-icon"><svg><use href="#i-wallet"/></svg></span>
+            <span class="nav-item-text">Contas</span>
+        </button>
+        <button class="nav-item" data-view="view-ops" data-goto-tab="tab-transfer-internal">
+            <span class="nav-item-icon"><svg><use href="#i-swap"/></svg></span>
+            <span class="nav-item-text">Transferências</span>
+        </button>
+        <button class="nav-item" data-view="view-payments">
+            <span class="nav-item-icon"><svg><use href="#i-receipt"/></svg></span>
+            <span class="nav-item-text">Pagamentos</span>
+        </button>
+        <button class="nav-item" data-view="view-expenses">
+            <span class="nav-item-icon"><svg><use href="#i-pie"/></svg></span>
+            <span class="nav-item-text">Despesas</span>
+        </button>
+        <button class="nav-item" onclick="toast('Módulo de Cartões em breve', 'info')">
+            <span class="nav-item-icon"><svg><use href="#i-card"/></svg></span>
+            <span class="nav-item-text">Cartões</span>
+        </button>
+        <button class="nav-item" onclick="toast('Módulo de Investimentos em breve', 'info')">
+            <span class="nav-item-icon"><svg><use href="#i-trending"/></svg></span>
+            <span class="nav-item-text">Investimentos</span>
+        </button>
+        <button class="nav-item" data-view="view-savings">
+            <span class="nav-item-icon"><svg><use href="#i-lock"/></svg></span>
+            <span class="nav-item-text">Poupança</span>
+        </button>
+        <button class="nav-item" data-view="view-statement">
+            <span class="nav-item-icon"><svg><use href="#i-list"/></svg></span>
+            <span class="nav-item-text">Extrato</span>
+        </button>
+        <button class="nav-item nav-copilot" data-view="view-copilot">
+            <span class="nav-item-icon"><svg class="ic-spark"><use href="#i-spark"/></svg></span>
+            <span class="nav-item-text">Copilot IA</span>
+        </button>
+    </nav>
+
+    <div class="sidebar-user-card" id="sidebarUserProfileArea">
+        <div class="avatar sidebar-avatar" id="sidebarUserAvatar">AS</div>
+        <div class="sidebar-user-details">
+            <span class="sidebar-user-name" id="sidebarUserNameDisplay">Avelino Simão</span>
+            <span class="sidebar-user-badge" id="sidebarUserKycBadge">Cliente Premium</span>
+        </div>
+        <button class="sidebar-settings-btn" id="sidebarBtnSettings" title="Definições / Sair" onclick="openAuthModal()">
+            <svg><use href="#i-gear"/></svg>
+        </button>
+    </div>
+</aside>

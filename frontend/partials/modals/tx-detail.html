@@ -1,0 +1,21 @@
+<!-- Detalhe de um movimento do extrato (bottom-sheet no telemóvel, cartão centrado no desktop) -->
+<div class="txd-overlay" id="txDetailOverlay" aria-hidden="true" onclick="if(event.target===this) closeTxDetail()">
+    <div class="txd-sheet" id="txDetailSheet" role="dialog" aria-modal="true" aria-labelledby="txdTitle">
+        <div class="txd-drag" id="txdDrag">
+            <div class="txd-grab"><span></span></div>
+            <button type="button" class="txd-eye" onclick="document.getElementById('btnToggleBalance')?.click()" aria-label="Mostrar ou ocultar valores" title="Mostrar/ocultar valores">
+                <svg class="eye-anim" viewBox="0 0 24 24" aria-hidden="true">
+                    <path class="eye-shape" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/>
+                    <circle class="eye-pupil" cx="12" cy="12" r="3"/>
+                    <path class="eye-slash" d="M4 4l16 16"/>
+                </svg>
+            </button>
+            <button type="button" class="txd-close" onclick="closeTxDetail()" aria-label="Fechar detalhe">
+                <svg><use href="#i-x"/></svg>
+            </button>
+        </div>
+        <div class="txd-scroll" id="txdScroll">
+            <div class="txd-content" id="txdContent"></div>
+        </div>
+    </div>
+</div>

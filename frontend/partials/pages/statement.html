@@ -1,0 +1,75 @@
+<!-- ============ EXTRATO ============ -->
+<section class="view" id="view-statement">
+    <div class="page-head">
+        <div>
+            <p class="eyebrow">Livro-razão</p>
+            <h1>Extrato</h1>
+        </div>
+    </div>
+    <section class="panel stmt">
+        <!-- 1. Nome  2. Nº de movimentos -->
+        <header class="stmt-head">
+            <h2>Todos os movimentos</h2>
+            <span class="statement-count-badge" id="statementCountBadge">A processar…</span>
+        </header>
+
+        <!-- 3. Intervalo de datas -->
+        <div class="stmt-block">
+            <span class="stmt-block-lbl">Intervalo</span>
+            <!-- Atalhos de período (scroll horizontal) -->
+            <div class="hs" data-hs>
+                <div class="hs-track stmt-chips stmt-quick" id="statementQuickRanges" role="group" aria-label="Atalhos de período"></div>
+            </div>
+            <div class="statement-toolbar">
+                <div class="statement-range-wrap">
+                    <div class="statement-date-field">
+                        <label for="statementDateFrom" class="statement-date-label"><svg><use href="#i-calendar"/></svg><span>De</span></label>
+                        <input type="date" id="statementDateFrom" class="statement-date-input"
+                               title="Data de início (mínimo: criação da conta)"
+                               onchange="applyStatementDateRange()" oninput="applyStatementDateRange()">
+                    </div>
+                    <span class="statement-range-arrow">→</span>
+                    <div class="statement-date-field">
+                        <label for="statementDateTo" class="statement-date-label"><svg><use href="#i-calendar"/></svg><span>Até</span></label>
+                        <input type="date" id="statementDateTo" class="statement-date-input"
+                               title="Data de fim (máximo: hoje)"
+                               onchange="applyStatementDateRange()" oninput="applyStatementDateRange()">
+                    </div>
+                    <button type="button" class="btn-see-all-statement" id="btnSeeAllStatement" onclick="clearStatementDateFilter()">
+                        <svg><use href="#i-list"/></svg><span>Ver tudo</span>
+                    </button>
+                </div>
+                <div class="statement-active-range-badge" id="statementActiveBadge" style="display:none;">
+                    <svg><use href="#i-calendar"/></svg>
+                    <span id="statementActiveBadgeText"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Filtros por tipo -->
+        <div class="stmt-block">
+            <span class="stmt-block-lbl">Tipo de movimento</span>
+            <div class="hs" data-hs>
+                <div class="hs-track stmt-chips" id="statementTypeFilters" role="group" aria-label="Filtrar por tipo"></div>
+            </div>
+        </div>
+
+        <div class="tx-list" id="transactionsList">
+            <div class="empty">A carregar movimentos…</div>
+        </div>
+
+        <!-- Indicador de Processamento Progressivo -->
+        <div class="statement-processing-wrap" id="statementProcessingIndicator" style="display:none;">
+            <div class="statement-spinner-ring"></div>
+            <span>A processar mais movimentos…</span>
+        </div>
+
+        <div class="statement-end-badge" id="statementEndBadge" style="display:none;">
+            <svg><use href="#i-shield"/></svg>
+            <span id="statementEndBadgeText">Todos os movimentos foram processados.</span>
+        </div>
+
+        <!-- Sentinela para Scroll Infinito -->
+        <div id="statementScrollSentinel" style="height:1px;width:100%;pointer-events:none;"></div>
+    </section>
+</section>

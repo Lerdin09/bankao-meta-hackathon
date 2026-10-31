@@ -1,0 +1,64 @@
+<!-- ============ MODAL: CONFIRMAÇÃO DE TRANSFERÊNCIA ============ -->
+<div class="modal-overlay" id="modalTransferConfirm" style="display:none">
+    <div class="confirm-transfer-modal">
+        <div class="confirm-modal-header">
+            <div class="confirm-modal-icon">
+                <svg><use href="#i-shield"/></svg>
+            </div>
+            <div class="confirm-header-text">
+                <h3>Confirmar Transferência</h3>
+                <p class="confirm-subtitle">Confira os detalhes antes de concluir o envio</p>
+            </div>
+            <button type="button" class="confirm-close-btn" id="btnCloseConfirmTransfer" aria-label="Fechar">
+                <svg><use href="#i-x"/></svg>
+            </button>
+        </div>
+
+        <div class="confirm-modal-body">
+            <div class="confirm-beneficiary-card">
+                <div class="confirm-avatar" id="confirmRecipientAvatar">👤</div>
+                <div class="confirm-beneficiary-info">
+                    <span class="confirm-tag" id="confirmTransferTypeBadge">Transferência de Conta</span>
+                    <h4 id="confirmRecipientName">Nome do Beneficiário</h4>
+                    <span class="confirm-dest-id mono" id="confirmRecipientDest">cliente@email.com</span>
+                </div>
+            </div>
+
+            <div class="confirm-details-card">
+                <div class="confirm-row">
+                    <span class="c-label">Quantia a ser enviada</span>
+                    <div class="confirm-val-stack">
+                        <strong class="c-val primary" id="confirmAmountSent">100,00 $</strong>
+                        <span class="c-val-sub" id="confirmAmountSentSub">100.000,00 Kz</span>
+                    </div>
+                </div>
+                <div class="confirm-row">
+                    <span class="c-label" id="confirmFeeLabel">Taxa aplicada</span>
+                    <div class="confirm-val-stack">
+                        <span class="c-val fee-text primary" id="confirmAmountFee">- 2,50 $ (2.5%)</span>
+                        <span class="c-val-sub fee" id="confirmAmountFeeSub">- 2.500,00 Kz</span>
+                    </div>
+                </div>
+                <div class="confirm-divider"></div>
+                <div class="confirm-row highlight">
+                    <span class="c-label">Quantia que vai chegar</span>
+                    <div class="confirm-val-stack">
+                        <strong class="c-val total-arrive primary" id="confirmAmountArrive">97,50 $</strong>
+                        <span class="c-val-sub arrive" id="confirmAmountArriveSub">97.500,00 Kz</span>
+                    </div>
+                </div>
+                <div class="confirm-rate-note" id="confirmRateNote" style="display:none">
+                    Câmbio aplicado: 1 $ = 1.000 Kz · Rede Bancária
+                </div>
+            </div>
+        </div>
+
+        <div class="confirm-modal-actions">
+            <button type="button" class="btn btn-secondary" id="btnCancelTransferConfirm">Voltar</button>
+            <button type="button" class="btn btn-primary" id="btnExecuteTransferConfirm">
+                <span>Confirmar e enviar</span>
+                <svg><use href="#i-check"/></svg>
+            </button>
+        </div>
+    </div>
+</div>

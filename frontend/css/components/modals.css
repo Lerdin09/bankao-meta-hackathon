@@ -1,0 +1,46 @@
+/* ==========================================================================
+   Modais
+   Overlay e cartão de modal base.
+   ========================================================================== */
+
+/* ---------- Modais ---------- */
+.modal-overlay { position: fixed; inset: 0; z-index: 110; display: none; align-items: flex-end; justify-content: center; padding: 0; background: rgba(3, 6, 12, .72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.modal-overlay.active { display: flex; animation: fade .25s ease; }
+@keyframes fade { from { opacity: 0; } }
+@keyframes sheetUp { from { transform: translateY(40px); opacity: 0; } }
+
+.receipt-modal { width: 100%; max-width: 440px; background: var(--surface); border: 1px solid var(--line-2); border-radius: 26px 26px 0 0; padding: 26px 22px calc(22px + var(--safe-b)); animation: sheetUp .35s cubic-bezier(.2, .8, .2, 1); }
+.receipt-header { text-align: center; margin-bottom: 20px; }
+.receipt-icon { width: 54px; height: 54px; margin: 0 auto 12px; border-radius: 18px; display: grid; place-items: center; background: var(--gold-soft); color: var(--gold); }
+.receipt-icon svg { width: 26px; height: 26px; }
+.receipt-header h3 { font-size: 1.15rem; font-weight: 800; }
+.receipt-header p { color: var(--text-3); font-size: .82rem; }
+.receipt-body { border-radius: var(--r-md); background: var(--bg); border: 1px dashed var(--line-2); padding: 6px 16px; margin-bottom: 18px; }
+.receipt-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); gap: 12px; }
+.receipt-row:last-child { border: 0; }
+.receipt-row .label { color: var(--text-3); font-size: .82rem; }
+.receipt-row .val { font-size: .95rem; text-align: right; }
+.receipt-row .val.highlight { color: var(--gold); font-size: 1.15rem; letter-spacing: .04em; }
+.receipt-actions { display: grid; gap: 10px; }
+
+.phone-simulator { position: relative; width: min(340px, 100%); margin: 0 auto; padding: 10px; border-radius: 44px 44px 0 0; background: #05070C; border: 2px solid #2A3348; border-bottom: 0; animation: sheetUp .35s cubic-bezier(.2, .8, .2, 1); }
+.phone-notch { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); width: 92px; height: 24px; border-radius: 99px; background: #05070C; z-index: 2; }
+.phone-screen { border-radius: 34px 34px 0 0; overflow: hidden; background: #F4F6FA; color: #0F172A; padding-bottom: calc(18px + var(--safe-b)); }
+.phone-header { display: flex; justify-content: space-between; padding: 14px 24px 8px; font-size: .74rem; font-weight: 700; }
+.express-app-header { padding: 14px 20px 18px; background: linear-gradient(135deg, #E8312F, #B3151A); color: #fff; }
+.express-logo { font-weight: 800; letter-spacing: .04em; font-size: 1.05rem; }
+.express-logo span { font-weight: 500; opacity: .9; }
+.express-sub { font-size: .78rem; opacity: .85; }
+.express-body { padding: 16px 18px 6px; }
+.express-card-art { height: 92px; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; justify-content: space-between; color: #fff; background: linear-gradient(135deg, #1F2937, #0B1220); margin-bottom: 14px; }
+.express-card-art .bank-name { font-size: .66rem; letter-spacing: .14em; opacity: .75; font-weight: 700; }
+.express-card-art .card-num { font-family: var(--mono); font-size: .9rem; }
+.express-tx-info { display: flex; flex-direction: column; gap: 2px; font-size: .8rem; color: #475569; margin-bottom: 14px; }
+.express-tx-info strong { color: #0F172A; }
+.tx-price-tag { font-size: 1.85rem; font-weight: 800; letter-spacing: -.03em; color: #0F172A; margin-top: 4px; }
+.express-pin-mock { text-align: center; padding: 12px; border-radius: 14px; background: #fff; border: 1px solid #E2E8F0; font-size: .76rem; color: #64748B; margin-bottom: 14px; }
+.pin-dots { font-size: 1rem; letter-spacing: .3em; color: #0F172A; margin-top: 4px; }
+.express-actions { display: grid; grid-template-columns: 1fr 1.5fr; gap: 10px; }
+.btn-mcx-reject, .btn-mcx-approve { height: 50px; border-radius: 14px; font-weight: 700; font-size: .9rem; }
+.btn-mcx-reject { background: #E2E8F0; color: #334155; }
+.btn-mcx-approve { background: linear-gradient(180deg, #EF4444, #C81E1E); color: #fff; box-shadow: 0 10px 20px -10px rgba(200, 30, 30, .8); }

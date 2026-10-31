@@ -1,0 +1,59 @@
+<!-- ============ PAGAMENTOS ============ -->
+<section class="view" id="view-payments">
+    <div class="page-head">
+        <div>
+            <p class="eyebrow">Histórico de gastos</p>
+            <h1>Pagamentos</h1>
+        </div>
+    </div>
+
+    <!-- Resumo de gastos do mês -->
+    <div class="pay-summary-row">
+        <div class="pay-stat-card">
+            <div class="pay-stat-icon pink"><svg><use href="#i-up"/></svg></div>
+            <div class="pay-stat-info">
+                <span class="pay-stat-label">Total gasto este mês</span>
+                <strong class="pay-stat-val" id="payTotalMonth">0,00 KZ</strong>
+            </div>
+        </div>
+        <div class="pay-stat-card">
+            <div class="pay-stat-icon amber"><svg><use href="#i-receipt"/></svg></div>
+            <div class="pay-stat-info">
+                <span class="pay-stat-label">Compras este mês</span>
+                <strong class="pay-stat-val" id="payCountMonth">0 transações</strong>
+            </div>
+        </div>
+        <div class="pay-stat-card">
+            <div class="pay-stat-icon blue"><svg><use href="#i-trending"/></svg></div>
+            <div class="pay-stat-info">
+                <span class="pay-stat-label">Média diária</span>
+                <strong class="pay-stat-val" id="payAvgDay">0,00 KZ</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros de período e Seletor de Mês a partir da criação da conta -->
+    <div class="pay-filter-bar">
+        <div class="pay-filters">
+            <button class="pay-filter-btn active" data-period="month">Este mês</button>
+            <button class="pay-filter-btn" data-period="3months">3 meses</button>
+            <button class="pay-filter-btn" data-period="all">Todos</button>
+        </div>
+        <div class="filter-month-container">
+            <label for="payMonthSelect" class="filter-month-label">
+                <svg><use href="#i-calendar"/></svg>
+                <span>Escolher mês:</span>
+            </label>
+            <select id="payMonthSelect" class="month-pill-select" aria-label="Mês de pagamentos" onchange="handlePaymentMonthChange(this.value)">
+                <!-- Preenchido dinamicamente via JS a partir do mês de criação da conta até meses posteriores -->
+            </select>
+        </div>
+    </div>
+
+    <!-- Lista de pagamentos/compras -->
+    <div class="panel">
+        <div class="tx-list" id="paymentsList">
+            <div class="empty">Nenhum pagamento registado ainda.</div>
+        </div>
+    </div>
+</section>

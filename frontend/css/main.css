@@ -1,0 +1,50 @@
+/* ==========================================================================
+   BankAO — folha de estilos principal
+   --------------------------------------------------------------------------
+   ATENÇÃO À ORDEM: a cascata do CSS depende da ordem dos @import.
+   Os ficheiros abaixo estão pela ordem em que as regras foram escritas;
+   estilos posteriores sobrepõem os anteriores quando têm a mesma especificidade.
+
+   Onde adicionar código novo:
+     • nova vista/funcionalidade  → css/features/<nome>.css  (importar antes de
+                                     "layout/responsive-polish.css")
+     • componente reutilizável    → css/components/<nome>.css
+     • variável (cor, raio, ...)  → css/base/tokens.css
+   ========================================================================== */
+
+@import url("base/tokens.css");
+@import url("base/reset.css");
+@import url("layout/shell.css");
+@import url("components/wallet-cards.css");
+@import url("components/panels-and-forms.css");
+@import url("components/rich-forms.css");
+@import url("components/copilot.css");
+@import url("layout/bottom-nav.css");
+@import url("components/toasts.css");
+@import url("components/modals.css");
+@import url("layout/responsive-breakpoints.css");
+@import url("components/copilot-actions.css");
+@import url("features/auth.css");
+@import url("features/kyc.css");
+@import url("features/operations.css");
+@import url("features/transfer-confirm.css");
+@import url("layout/sidebar.css");
+@import url("dashboard/layout.css");
+@import url("dashboard/balance-card.css");
+@import url("dashboard/quick-actions.css");
+@import url("dashboard/home-sections.css");
+@import url("dashboard/side-widgets.css");
+@import url("dashboard/overrides.css");
+@import url("features/accounts-view.css");
+@import url("features/payments-view.css");
+@import url("features/savings-view.css");
+@import url("features/expenses-view.css");
+@import url("features/expenses-page.css");
+@import url("components/period-filter.css");
+@import url("features/statement.css");
+@import url("components/eye-toggle.css");
+@import url("features/tx-detail.css");
+@import url("features/receive-qr.css");
+@import url("components/confirm-dialog.css");
+@import url("features/savings-polish.css");
+@import url("layout/responsive-polish.css");

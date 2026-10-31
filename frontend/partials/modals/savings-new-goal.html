@@ -1,0 +1,138 @@
+<!-- ============ MODAL: NOVA META DE POUPANÇA ============ -->
+<div class="modal-overlay" id="modalNewGoal" style="display:none">
+    <div class="confirm-transfer-modal form-modal" style="max-width:540px;">
+        <div class="confirm-modal-header">
+            <div class="confirm-modal-icon" style="background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(99,102,241,0.2));color:#38BDF8;">
+                <svg><use href="#i-target"/></svg>
+            </div>
+            <div class="confirm-header-text">
+                <h3>Criar Nova Meta de Poupança</h3>
+                <p class="confirm-subtitle">Defina o seu objetivo e poupe com juro anual garantido de 4,5%</p>
+            </div>
+            <button type="button" class="confirm-close-btn" onclick="closeNewGoalModal()" aria-label="Fechar">
+                <svg><use href="#i-x"/></svg>
+            </button>
+        </div>
+
+        <form id="formNewGoal" onsubmit="handleCreateGoal(event)">
+            <div class="confirm-modal-body">
+                <div class="form-row">
+                    <label class="form-label" for="goalName">Nome do Objetivo</label>
+                    <input type="text" class="input" id="goalName" placeholder="Ex: Viagem de Férias, Carro Novo, Casa Própria" required autocomplete="off">
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">Ícone do Objetivo</label>
+                    <div class="goal-icon-grid-rich" id="goalIconPicker">
+                        <button type="button" class="goal-ico-rich-btn active" data-icon="travel">
+                            <div class="ico-box"><svg><use href="#i-plane"/></svg></div>
+                            <span class="lbl">Viagem</span>
+                        </button>
+                        <button type="button" class="goal-ico-rich-btn" data-icon="home">
+                            <div class="ico-box"><svg><use href="#i-home"/></svg></div>
+                            <span class="lbl">Habitação</span>
+                        </button>
+                        <button type="button" class="goal-ico-rich-btn" data-icon="car">
+                            <div class="ico-box"><svg><use href="#i-car"/></svg></div>
+                            <span class="lbl">Automóvel</span>
+                        </button>
+                        <button type="button" class="goal-ico-rich-btn" data-icon="laptop">
+                            <div class="ico-box"><svg><use href="#i-laptop"/></svg></div>
+                            <span class="lbl">Tecnologia</span>
+                        </button>
+                        <button type="button" class="goal-ico-rich-btn" data-icon="education">
+                            <div class="ico-box"><svg><use href="#i-book"/></svg></div>
+                            <span class="lbl">Educação</span>
+                        </button>
+                        <button type="button" class="goal-ico-rich-btn" data-icon="target">
+                            <div class="ico-box"><svg><use href="#i-target"/></svg></div>
+                            <span class="lbl">Objetivo</span>
+                        </button>
+                        <button type="button" class="goal-ico-rich-btn" data-icon="shield">
+                            <div class="ico-box"><svg><use href="#i-shield"/></svg></div>
+                            <span class="lbl">Reserva</span>
+                        </button>
+                        <button type="button" class="goal-ico-rich-btn" data-icon="award">
+                            <div class="ico-box"><svg><use href="#i-award"/></svg></div>
+                            <span class="lbl">Conquista</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-row">
+                        <label class="form-label" for="goalTarget">Valor da Meta (KZ)</label>
+                        <div class="input-affix">
+                            <input type="text" inputmode="numeric" class="input js-money" id="goalTarget" placeholder="Ex: 250.000" required oninput="calculateSavingsSimulation()">
+                            <span>KZ</span>
+                        </div>
+                        <div class="form-quick-chips">
+                            <button type="button" class="chip-btn" onclick="setGoalFieldValue('goalTarget', 100000)">100K</button>
+                            <button type="button" class="chip-btn" onclick="setGoalFieldValue('goalTarget', 250000)">250K</button>
+                            <button type="button" class="chip-btn" onclick="setGoalFieldValue('goalTarget', 500000)">500K</button>
+                            <button type="button" class="chip-btn" onclick="setGoalFieldValue('goalTarget', 1000000)">1M</button>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" for="goalMonthly">Depósito Mensal (KZ)</label>
+                        <div class="input-affix">
+                            <input type="text" inputmode="numeric" class="input js-money" id="goalMonthly" placeholder="Ex: 25.000" required oninput="calculateSavingsSimulation()">
+                            <span>KZ</span>
+                        </div>
+                        <div class="form-quick-chips">
+                            <button type="button" class="chip-btn" onclick="setGoalFieldValue('goalMonthly', 10000)">10K</button>
+                            <button type="button" class="chip-btn" onclick="setGoalFieldValue('goalMonthly', 25000)">25K</button>
+                            <button type="button" class="chip-btn" onclick="setGoalFieldValue('goalMonthly', 50000)">50K</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-row">
+                        <label class="form-label" for="goalInitial">Saldo Inicial (KZ)</label>
+                        <div class="input-affix">
+                            <input type="text" inputmode="numeric" class="input js-money" id="goalInitial" placeholder="0" value="0" oninput="calculateSavingsSimulation()">
+                            <span>KZ</span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" for="goalDeadline">Prazo Estimado</label>
+                        <input type="month" class="input" id="goalDeadline" required onchange="calculateSavingsSimulation()">
+                    </div>
+                </div>
+
+                <!-- Simulador inteligente com cálculo dinâmico -->
+                <div class="savings-smart-simulator">
+                    <div class="sim-header">
+                        <div class="sim-header-title">
+                            <svg><use href="#i-spark"/></svg>
+                            <span>Simulação Inteligente BankAO</span>
+                        </div>
+                        <span class="sim-rate-badge">4,5% ao ano</span>
+                    </div>
+                    <div class="sim-metrics-grid">
+                        <div class="sim-metric">
+                            <span class="sim-metric-lbl">Tempo estimado</span>
+                            <strong class="sim-metric-val" id="newGoalSimMonths">10 meses</strong>
+                        </div>
+                        <div class="sim-metric">
+                            <span class="sim-metric-lbl">Juros estimados</span>
+                            <strong class="sim-metric-val green" id="newGoalSimInterest">+9.375 KZ</strong>
+                        </div>
+                    </div>
+                    <p class="sim-advice-text" id="newGoalSimAdvice">
+                        Com base nas contribuições indicadas, atingirá o seu objetivo antes da data limite!
+                    </p>
+                </div>
+            </div>
+
+            <div class="confirm-modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeNewGoalModal()">Cancelar</button>
+                <button type="submit" class="btn btn-primary">
+                    <span>Criar meta</span>
+                    <svg><use href="#i-check"/></svg>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

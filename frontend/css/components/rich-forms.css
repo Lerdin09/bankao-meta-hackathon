@@ -1,0 +1,512 @@
+/* ==========================================================================
+   Formulários Ricos e Interativos (Poupança & Despesas)
+   Chips de montante rápido, grelha visual de categorias, simulador ao vivo, etc.
+   ========================================================================== */
+
+/* Linha de chips rápidos de valor / data */
+.form-quick-chips {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+.chip-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 11px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #94A3B8;
+    font-size: 0.74rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+    font-variant-numeric: tabular-nums;
+}
+
+.chip-btn:hover {
+    background: rgba(56, 189, 248, 0.12);
+    border-color: rgba(56, 189, 248, 0.3);
+    color: #38BDF8;
+    transform: translateY(-1px);
+}
+
+.chip-btn.active, .chip-btn:active {
+    background: rgba(56, 189, 248, 0.22);
+    border-color: #38BDF8;
+    color: #38BDF8;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+}
+
+.chip-btn.green:hover, .chip-btn.green.active {
+    background: rgba(74, 222, 128, 0.15);
+    border-color: #4ADE80;
+    color: #4ADE80;
+}
+
+/* Grelha visual de seleção de categorias */
+.form-cat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+}
+
+@media (max-width: 520px) {
+    .form-cat-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+}
+
+.form-cat-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    color: #94A3B8;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    text-align: left;
+    min-height: 42px;
+}
+
+.form-cat-btn svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    transition: transform 0.18s;
+}
+
+.form-cat-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.18);
+    color: #F8FAFC;
+    transform: translateY(-1px);
+}
+
+.form-cat-btn.active {
+    background: rgba(56, 189, 248, 0.12);
+    border-color: #38BDF8;
+    color: #38BDF8;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+}
+
+.form-cat-btn.active svg {
+    transform: scale(1.1);
+}
+
+/* Seletor visual de ícones de Meta de Poupança com subtítulos */
+.goal-icon-grid-rich {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+}
+
+@media (max-width: 520px) {
+    .goal-icon-grid-rich {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+    }
+}
+
+.goal-ico-rich-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 6px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    color: #94A3B8;
+    cursor: pointer;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.goal-ico-rich-btn .ico-box {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: inherit;
+    transition: all 0.18s;
+}
+
+.goal-ico-rich-btn .ico-box svg {
+    width: 17px;
+    height: 17px;
+}
+
+.goal-ico-rich-btn span.lbl {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: inherit;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.goal-ico-rich-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(56, 189, 248, 0.3);
+    color: #F8FAFC;
+    transform: translateY(-1px);
+}
+
+.goal-ico-rich-btn.active {
+    background: rgba(56, 189, 248, 0.1);
+    border-color: #38BDF8;
+    color: #38BDF8;
+    box-shadow: 0 0 14px rgba(56, 189, 248, 0.22);
+}
+
+.goal-ico-rich-btn.active .ico-box {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(99, 102, 241, 0.3));
+    border-color: #38BDF8;
+    color: #38BDF8;
+}
+
+/* Simulador Inteligente de Poupança (Cálculo em tempo real) */
+.savings-smart-simulator {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.06), rgba(99, 102, 241, 0.08), rgba(15, 23, 42, 0.6));
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-top: 14px;
+}
+
+.sim-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.sim-header-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #38BDF8;
+}
+
+.sim-header-title svg {
+    width: 14px;
+    height: 14px;
+}
+
+.sim-rate-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #4ADE80;
+    background: rgba(74, 222, 128, 0.12);
+    border: 1px solid rgba(74, 222, 128, 0.25);
+    border-radius: 99px;
+    padding: 2px 8px;
+}
+
+.sim-metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.sim-metric {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 10px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sim-metric-lbl {
+    font-size: 0.66rem;
+    color: #64748B;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.sim-metric-val {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #F8FAFC;
+    font-variant-numeric: tabular-nums;
+}
+
+.sim-metric-val.green {
+    color: #4ADE80;
+}
+
+.sim-advice-text {
+    margin: 8px 0 0;
+    font-size: 0.74rem;
+    color: #94A3B8;
+    line-height: 1.35;
+}
+
+/* Card de Conta Origem no Depósito */
+.dep-account-source-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    margin-bottom: 12px;
+}
+
+.dep-acc-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dep-acc-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    background: rgba(56, 189, 248, 0.12);
+    color: #38BDF8;
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    flex-shrink: 0;
+}
+
+.dep-acc-icon svg { width: 18px; height: 18px; }
+
+.dep-acc-meta strong {
+    display: block;
+    font-size: 0.86rem;
+    color: #F8FAFC;
+}
+
+.dep-acc-meta span {
+    font-size: 0.72rem;
+    color: #64748B;
+}
+
+.dep-acc-balance-badge {
+    text-align: right;
+}
+
+.dep-acc-balance-badge span {
+    display: block;
+    font-size: 0.66rem;
+    color: #64748B;
+    text-transform: uppercase;
+}
+
+.dep-acc-balance-badge strong {
+    font-size: 0.92rem;
+    color: #4ADE80;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Estrutura dos modais de formulário (Despesas & Poupança)
+   Aplica-se a .confirm-transfer-modal.form-modal. Os seletores levam o prefixo
+   .form-modal para ganhar a `.form-row {grid 2 colunas}` e `.btn {min-width}`
+   de responsive-breakpoints.css, que vem depois na cascata.
+   ========================================================================== */
+@keyframes modalPop { from { transform: translateY(14px) scale(.97); opacity: 0; } }
+@keyframes slideUp  { from { transform: translateY(40px); opacity: 0; } }
+
+/* Cartão: coluna flex com altura máxima — só o corpo faz scroll */
+.confirm-transfer-modal.form-modal {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - 40px);
+}
+.confirm-transfer-modal.form-modal > form {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+.form-modal .confirm-modal-header { flex-shrink: 0; padding-right: 64px; }
+.form-modal .confirm-modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    gap: 18px;
+}
+.form-modal .confirm-modal-actions { flex-shrink: 0; padding-bottom: calc(20px + var(--safe-b, 0px)); }
+.form-modal .confirm-modal-actions .btn { width: auto; min-width: 0; flex: 1 1 0; white-space: nowrap; }
+.form-modal .confirm-modal-actions .btn-primary { flex-grow: 1.4; }
+
+@media (max-width: 639px) {
+    .confirm-transfer-modal.form-modal { max-height: 94dvh; }
+    .form-modal .confirm-modal-header { padding: 16px 56px 16px 18px; }
+    .form-modal .confirm-modal-body { padding: 16px 18px; }
+    .form-modal .confirm-modal-actions { padding: 12px 18px calc(16px + var(--safe-b, 0px)); gap: 10px; }
+}
+
+/* Campo: rótulo por cima, em coluna (anula a grelha de 2 colunas ≥640px) */
+.form-modal .form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 0;
+    min-width: 0;
+}
+.form-modal .form-label {
+    display: block;
+    margin: 0 0 7px;
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    color: var(--text-2);
+}
+.form-modal .form-label-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 7px;
+}
+.form-modal .form-label-row .form-label { margin: 0; }
+.form-hint-badge { font-size: .72rem; font-weight: 600; color: #38BDF8; white-space: nowrap; }
+
+/* Duas colunas lado a lado (valor + data, etc.) */
+.form-modal .form-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    align-items: start;
+}
+@media (max-width: 459px) {
+    .form-modal .form-grid-2 { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+}
+
+/* Campos de texto / valor / data com o mesmo aspeto */
+.form-modal input.input,
+.form-modal select.input,
+.form-modal input[type="date"],
+.form-modal input[type="month"] {
+    display: block;
+    width: 100%;
+    height: 52px;
+    padding: 0 16px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-family: var(--font);
+    background-color: rgba(13, 20, 36, 0.75);
+    border: 1px solid var(--line-2);
+    color: var(--text);
+    color-scheme: dark;
+    transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.form-modal input[type="date"]::-webkit-calendar-picker-indicator,
+.form-modal input[type="month"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .75; }
+.form-modal input.input:focus,
+.form-modal select.input:focus,
+.form-modal input[type="date"]:focus,
+.form-modal input[type="month"]:focus {
+    outline: none;
+    border-color: var(--gold);
+    background-color: rgba(18, 28, 50, 0.95);
+    box-shadow: 0 0 0 4px rgba(230, 184, 92, .18);
+}
+.form-modal .input-affix input { padding-right: 52px; }
+.form-modal .input-affix span { right: 14px; font-size: .85rem; }
+
+/* Grelha de categorias: nunca transborda, passa a 2 colunas quando falta largura */
+.form-modal .form-cat-grid {
+    grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+    margin-top: 0;
+}
+.form-modal .form-cat-btn { min-width: 0; }
+.form-modal .form-cat-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.form-modal .goal-icon-grid-rich { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 0; }
+
+/* Restantes blocos dentro do corpo */
+.form-modal .form-quick-chips { margin-top: 9px; }
+.form-modal .savings-smart-simulator,
+.form-modal .dep-account-source-card,
+.form-modal .dep-goal-summary { margin: 0; }
+.form-modal .dep-account-source-card { flex-wrap: wrap; }
+.form-modal .confirm-details-card { margin: 0; }
+.form-modal .dep-hint { margin: 0; }
+.form-modal .sim-metric { min-width: 0; }
+
+/* ==========================================================================
+   Formulários em modal — experiência mobile (bottom-sheet)
+   ========================================================================== */
+.modal-overlay { overscroll-behavior: contain; }
+body:has(.modal-overlay[style*="display: flex"]),
+body:has(.modal-overlay.active) { overflow: hidden; }
+.confirm-transfer-modal.form-modal { background: var(--surface, #0F1729); }
+
+@media (max-width: 639px) {
+    .confirm-transfer-modal.form-modal {
+        width: 100%; max-height: 92dvh; margin: auto 0 0;
+        border-radius: 26px 26px 0 0; border-bottom: 0;
+    }
+    /* pega do sheet */
+    .confirm-transfer-modal.form-modal::before {
+        content: ""; position: absolute; top: 8px; left: 50%; z-index: 2;
+        width: 40px; height: 4px; margin-left: -20px; border-radius: 99px; background: rgba(255, 255, 255, .22);
+    }
+    .form-modal .confirm-modal-header { padding: 26px 64px 14px 18px; gap: 12px; }
+    .form-modal .confirm-modal-icon { width: 40px; height: 40px; }
+    .form-modal .confirm-header-text h3 { font-size: 1.05rem; }
+    .form-modal .confirm-subtitle {
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.35;
+    }
+    .form-modal .confirm-close-btn { top: 20px; right: 14px; width: 40px; height: 40px; }
+    .form-modal .confirm-modal-body { gap: 20px; padding: 16px 18px 20px; scroll-padding-bottom: 24px; }
+
+    /* campos: 16px evita o zoom automático do iOS; alvos de toque maiores */
+    .form-modal input.input, .form-modal select.input,
+    .form-modal input[type="date"], .form-modal input[type="month"] { height: 54px; font-size: 16px; padding: 0 16px; }
+    .form-modal input[type="date"], .form-modal input[type="month"] { -webkit-appearance: none; appearance: none; text-align: left; min-width: 0; }
+    .form-modal .js-money { font-size: 1.35rem; font-weight: 800; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+    .form-modal .form-label { font-size: .84rem; }
+
+    /* chips numa só linha deslizável */
+    .form-modal .form-quick-chips {
+        flex-wrap: nowrap; overflow-x: auto; gap: 8px; margin: 10px -18px 0; padding: 0 18px 2px;
+        scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    }
+    .form-modal .form-quick-chips::-webkit-scrollbar { display: none; }
+    .chip-btn { min-height: 38px; padding: 0 14px; font-size: .8rem; flex-shrink: 0; white-space: nowrap; }
+    .chip-btn:hover, .form-cat-btn:hover, .goal-ico-rich-btn:hover { transform: none; }
+
+    /* categorias: 2 colunas com alvos de 50px */
+    .form-modal .form-cat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .form-modal .form-cat-btn { min-height: 50px; padding: 0 12px; border-radius: 14px; font-size: .86rem; }
+    .form-modal .form-cat-btn svg { width: 20px; height: 20px; }
+    .form-modal .goal-icon-grid-rich { gap: 8px; }
+    .form-modal .goal-ico-rich-btn { min-height: 64px; }
+
+    /* rodapé fixo com botões grandes */
+    .form-modal .confirm-modal-actions {
+        padding: 12px 18px calc(14px + var(--safe-b, 0px)); gap: 10px;
+        background: var(--surface, #0F1729); box-shadow: 0 -12px 24px -12px rgba(0, 0, 0, .6);
+    }
+    .form-modal .confirm-modal-actions .btn { min-height: 52px; font-size: .95rem; border-radius: 14px; }
+}

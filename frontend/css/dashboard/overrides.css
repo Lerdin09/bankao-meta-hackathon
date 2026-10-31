@@ -1,0 +1,105 @@
+/* ==========================================================================
+   PATCHES — Corrigir conflitos entre estilos legacy e NovaBank
+   ========================================================================== */
+
+/* Sidebar: garantir que o bloco NovaBank prevalece sobre o legado */
+@media (min-width: 1024px) {
+    /* Anular estilos antigos de sidebar que conflituam */
+    .side-nav .nav-item.active {
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(99, 102, 241, 0.42)) !important;
+        border: 1px solid rgba(129, 140, 248, 0.4) !important;
+        color: #FFFFFF !important;
+        box-shadow: 0 8px 24px -6px rgba(99, 102, 241, 0.45) !important;
+        border-radius: 16px !important;
+    }
+
+    /* O .side-foot não existe no novo HTML mas não causa dano */
+    .sidebar { border-right: none !important; }
+}
+
+/* Padding do main-content e' definido em sidebar.css e responsive-breakpoints.css */
+
+
+/* Balance card: garantir que não fica cortado */
+.nb-balance-card {
+    min-height: 170px;
+    overflow: hidden;
+}
+
+/* Corrigir subtítulo / greeting */
+.nb-subtitle {
+    font-size: 0.88rem;
+    color: #94A3B8;
+    margin-top: 6px;
+    font-weight: 500;
+}
+
+/* Correção: cartão de saldo - valor e moeda alinhados corretamente */
+.nb-balance-amount-box {
+    align-items: baseline;
+    gap: 6px;
+    margin: 6px 0 0;
+}
+
+/* Tiles: garantir que ficam visíveis mesmo com espaço reduzido */
+@media (max-width: 420px) {
+    .nb-action-tiles {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+    .nb-tile {
+        padding: 12px 4px;
+        gap: 6px;
+    }
+    .nb-tile-ic {
+        width: 36px;
+        height: 36px;
+    }
+    .nb-tile-ic svg { width: 18px; height: 18px; }
+    .nb-tile-text { font-size: 0.72rem; }
+}
+
+/* Accordion de contas: esconder bem */
+.wallets-accordion {
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding-top: 8px;
+    margin-top: 4px;
+}
+
+/* Sidebar: garantir display none em mobile (override do flex !important) */
+@media (max-width: 1023px) {
+    aside.sidebar {
+        display: none !important;
+    }
+}
+
+/* Fix: view-home deve ter padding-bottom adequado */
+#view-home {
+    padding-bottom: 0;
+}
+
+/* Fix: secção de transferências recentes com espaçamento correto */
+.nb-tx-container.tx-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+.nb-tx-container.tx-list .tx-item {
+    border-radius: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.nb-tx-container.tx-list .tx-item:first-child {
+    border-radius: 14px 14px 0 0;
+}
+.nb-tx-container.tx-list .tx-item:last-child {
+    border-radius: 0 0 14px 14px;
+    border-bottom: none;
+}
+.nb-tx-container.tx-list .tx-item:only-child {
+    border-radius: 14px;
+}
+.nb-tx-container.tx-list .tx-item {
+    background: rgba(18, 26, 47, 0.55);
+    border-left: 1px solid rgba(255,255,255,0.05);
+    border-right: 1px solid rgba(255,255,255,0.05);
+}

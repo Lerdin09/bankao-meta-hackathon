@@ -1,0 +1,146 @@
+/* ==========================================================================
+   Dashboard — layout
+   Grelha geral, cabeçalho de boas-vindas e sino de notificações.
+   ========================================================================== */
+
+/* ---------- Layout Geral do Dashboard NovaBank ---------- */
+.nb-dash-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Dois colunas apenas quando o Copilot NÃO está visível */
+@media (min-width: 1100px) and (max-width: 1279px) {
+    .nb-dash-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.25fr) minmax(320px, 370px);
+        gap: 24px;
+        align-items: start;
+    }
+}
+
+/* A >=1280px o Copilot ocupa a coluna direita — dashboard fica coluna única */
+@media (min-width: 1280px) {
+    .nb-dash-layout {
+        display: block;
+    }
+    .nb-dash-side-widgets {
+        display: none !important;
+    }
+}
+
+.nb-dash-main {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    min-width: 0;
+}
+
+/* Header de Boas-vindas */
+.nb-dash-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.nb-user-greeting .nb-title {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #F8FAFC;
+    letter-spacing: -0.03em;
+    margin: 0;
+    line-height: 1.2;
+}
+.nb-user-greeting .wave-hand {
+    display: inline-block;
+    animation: waveBounce 2.5s infinite;
+    transform-origin: 70% 70%;
+}
+@keyframes waveBounce {
+    0%, 100% { transform: rotate(0deg); }
+    15% { transform: rotate(14deg); }
+    30% { transform: rotate(-8deg); }
+    45% { transform: rotate(14deg); }
+    60% { transform: rotate(-4deg); }
+    75% { transform: rotate(10deg); }
+}
+
+.nb-subtitle {
+    font-size: 0.92rem;
+    color: #94A3B8;
+    margin-top: 4px;
+}
+
+.nb-key-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 5px 12px;
+    border-radius: 99px;
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    font-size: 0.82rem;
+    color: #BAE6FD;
+}
+.nb-key-tag {
+    font-weight: 600;
+    color: #7DD3FC;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.nb-key-val {
+    font-weight: 600;
+    color: #F0F9FF;
+}
+.nb-key-copy-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    color: #7DD3FC;
+    background: rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.nb-key-copy-btn:hover {
+    color: #FFFFFF;
+    background: rgba(56, 189, 248, 0.3);
+}
+.nb-key-copy-btn svg { width: 14px; height: 14px; }
+
+/* Botão de Sino / Notificações */
+.nb-bell-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(18, 26, 47, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #E2E8F0;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+    backdrop-filter: blur(12px);
+}
+.nb-bell-btn:hover {
+    background: rgba(30, 41, 70, 0.9);
+    border-color: rgba(99, 102, 241, 0.4);
+    transform: translateY(-2px);
+}
+.nb-bell-btn svg { width: 20px; height: 20px; }
+.nb-bell-dot {
+    position: absolute;
+    top: 11px;
+    right: 12px;
+    width: 8px;
+    height: 8px;
+    background: #38BDF8;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #38BDF8;
+}

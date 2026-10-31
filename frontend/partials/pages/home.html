@@ -1,0 +1,345 @@
+<!-- ============ INÍCIO (Estilo NovaBank / BankAO) ============ -->
+<section class="view active" id="view-home">
+    <div class="nb-dash-layout">
+        <!-- Coluna Principal (Mobile & Desktop) -->
+        <div class="nb-dash-main">
+            <!-- Cabeçalho de Boas-vindas -->
+            <div class="nb-dash-header">
+                <div class="nb-user-greeting">
+                    <h1 class="nb-title">Olá, <span id="greetingName">Avelino</span> <span class="wave-hand">👋</span></h1>
+                    <p class="nb-subtitle" id="greetingLine">Aqui está o resumo da sua vida financeira.</p>
+                    <div class="nb-key-badge">
+                        <span class="nb-key-tag">Chave (E-mail):</span>
+                        <span class="nb-key-val mono" id="dashAccountEmail">carregando...</span>
+                        <button class="nb-key-copy-btn" id="btnCopyDashEmail" title="Copiar Chave">
+                            <svg><use href="#i-copy"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="nb-header-actions">
+                    <button class="nb-qr-btn" id="btnOpenReceiveQr" title="Receber por Código QR ou Chave" onclick="openReceiveQrModal()">
+                        <svg><use href="#i-qrcode"/></svg>
+                    </button>
+                    <button class="nb-bell-btn" title="Notificações" onclick="toast('Nenhuma notificação nova no momento', 'info')">
+                        <svg><use href="#i-bell"/></svg>
+                        <span class="nb-bell-dot"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card de Saldo Total (Aurora Glow + Neon Sparkline) -->
+            <div class="nb-balance-card">
+                <div class="nb-balance-card-inner">
+                    <div class="nb-balance-top">
+                        <span class="nb-balance-label">Saldo total</span>
+                        <!-- Seletor de moeda de preferência -->
+                        <div class="nb-currency-selector" role="group" aria-label="Moeda de preferência">
+                            <button type="button" class="dash-curr-tag active" data-curr="AOA">AOA</button>
+                            <button type="button" class="dash-curr-tag" data-curr="USD">USD</button>
+                            <button type="button" class="dash-curr-tag" data-curr="EUR">EUR</button>
+                        </div>
+                    </div>
+
+                    <div class="nb-balance-amount-box">
+                        <span class="dash-balance-masked">••••••••</span>
+                        <span class="dash-balance-num" id="dashPrefBalanceVal">1.250.000</span>
+                        <span class="dash-balance-curr" id="dashPrefBalanceCurr">KZ</span>
+                        <button class="nb-eye-btn" id="btnToggleDashBalance" title="Mostrar/Ocultar saldo" aria-label="Mostrar saldos" aria-pressed="true">
+                            <svg class="eye-anim" viewBox="0 0 24 24" aria-hidden="true">
+                                <path class="eye-shape" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/>
+                                <circle class="eye-pupil" cx="12" cy="12" r="3"/>
+                                <path class="eye-slash" d="M4 4l16 16"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="nb-balance-bottom">
+                        <span class="nb-trend-pill">
+                            <svg viewBox="0 0 12 12"><path d="M2 8l4-4 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            +12% este mês
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Gráfico Sparkline de fundo neon -->
+                <div class="nb-balance-chart-art">
+                    <svg class="nb-sparkline" viewBox="0 0 180 80" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="chartGlowGrad" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.3"/>
+                                <stop offset="60%" stop-color="#818CF8" stop-opacity="0.85"/>
+                                <stop offset="100%" stop-color="#C084FC" stop-opacity="1"/>
+                            </linearGradient>
+                        </defs>
+                        <path d="M 0 55 Q 35 65 60 40 T 110 35 T 150 15 L 175 10" fill="none" stroke="url(#chartGlowGrad)" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="175" cy="10" r="4.5" fill="#C084FC" filter="drop-shadow(0 0 6px #C084FC)"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Secção: As suas contas (logo após o saldo) -->
+            <div class="nb-section">
+                <div class="nb-section-head">
+                    <h3>As suas contas</h3>
+                    <button class="nb-head-link" data-goto="view-accounts">Ver todas <svg><use href="#i-chevron-right"/></svg></button>
+                </div>
+
+                <div class="nb-accounts-list">
+                    <div class="nb-account-card" data-goto="view-accounts">
+                        <div class="nb-acc-icon-wrap blue">
+                            <svg><use href="#i-wallet"/></svg>
+                        </div>
+                        <div class="nb-acc-details">
+                            <strong>Conta Principal (AOA)</strong>
+                            <span class="nb-acc-val-masked">••••••••</span>
+                            <span class="nb-acc-val" id="balanceAoaRow">0,00 KZ</span>
+                        </div>
+                        <svg class="nb-chevron"><use href="#i-chevron-right"/></svg>
+                    </div>
+
+                    <div class="nb-account-card" data-goto="view-savings">
+                        <div class="nb-acc-icon-wrap green">
+                            <svg><use href="#i-target"/></svg>
+                        </div>
+                        <div class="nb-acc-details">
+                            <strong>Conta Poupança</strong>
+                            <span class="nb-acc-val-masked">••••••••</span>
+                            <span class="nb-acc-val" id="balanceSavingsRow">50.000 KZ</span>
+                        </div>
+                        <svg class="nb-chevron"><use href="#i-chevron-right"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4 Botões Rápidos (Transferir, Pagar, Depositar, Mais) -->
+            <div class="nb-action-tiles">
+                <button class="nb-tile" data-goto="view-ops" data-goto-tab="tab-transfer-internal">
+                    <div class="nb-tile-ic blue"><svg><use href="#i-swap"/></svg></div>
+                    <span class="nb-tile-text">Transferir</span>
+                </button>
+                <button class="nb-tile" data-goto="view-payments">
+                    <div class="nb-tile-ic gold"><svg><use href="#i-receipt"/></svg></div>
+                    <span class="nb-tile-text">Pagamentos</span>
+                </button>
+                <button class="nb-tile" data-goto="view-ops" data-goto-tab="tab-deposit">
+                    <div class="nb-tile-ic green"><svg><use href="#i-phone"/></svg></div>
+                    <span class="nb-tile-text">Depositar</span>
+                </button>
+                <button class="nb-tile" data-goto="view-savings">
+                    <div class="nb-tile-ic purple"><svg><use href="#i-lock"/></svg></div>
+                    <span class="nb-tile-text">Poupança</span>
+                </button>
+            </div>
+
+            <!-- Banner: O seu futuro financeiro -->
+            <div class="nb-future-banner">
+                <div class="nb-banner-content">
+                    <div class="nb-banner-orb"><svg><use href="#i-target"/></svg></div>
+                    <div class="nb-banner-texts">
+                        <h4>O seu futuro financeiro</h4>
+                        <p>Defina os seus objetivos e converse com o BankAO Copilot.</p>
+                    </div>
+                </div>
+                <button class="nb-banner-action-btn" data-goto="view-copilot">
+                    <span>Falar com Copilot</span>
+                    <svg><use href="#i-chevron-right"/></svg>
+                </button>
+            </div>
+
+            <!-- Secção: Transferências recentes -->
+            <div class="nb-section">
+                <div class="nb-section-head">
+                    <h3>Transferências recentes</h3>
+                    <button class="nb-head-link" data-goto="view-statement">Ver todas <svg><use href="#i-chevron-right"/></svg></button>
+                </div>
+                <div class="nb-tx-container tx-list" id="recentTx">
+                    <div class="empty">A carregar movimentos…</div>
+                </div>
+            </div>
+
+            <!-- Detalhes de Carteiras Multi-Moeda (colapsável com IBANs detalhados) -->
+            <div class="wallets-accordion" id="walletsAccordionWrap">
+                <details class="wallets-details" id="walletsDetailsToggle">
+                    <summary class="wallets-summary">
+                        <span class="summary-title"><svg class="summary-ic"><use href="#i-swap"/></svg> Contas &amp; IBANs Detalhados (AOA, EUR, USD)</span>
+                        <svg class="summary-arrow"><use href="#i-down"/></svg>
+                    </summary>
+                    <div class="cards-row wallets-cards-row">
+                        <article class="card-wallet card-aoa">
+                            <div class="card-top">
+                                <span class="card-currency-tag">Kwanza · AOA</span>
+                                <span class="card-chip" aria-hidden="true"></span>
+                            </div>
+                            <div class="card-balance-block">
+                                <span class="balance-label">Saldo disponível</span>
+                                <div class="balance-amount" id="balanceAoa">100.000,00 <span class="curr">Kz</span></div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="card-account-info">
+                                    <span class="acc-label">Conta interna</span>
+                                    <button class="acc-val copyable" data-copy-target="accNumberAoa" id="accNumberAoa">0040 8291 9410</button>
+                                </div>
+                                <div class="card-account-info">
+                                    <span class="acc-label">IBAN virtual</span>
+                                    <button class="acc-val mono copyable" data-copy-target="ibanAoa" id="ibanAoa">AO06 9999 4810 2938 1029 4810 2</button>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="card-wallet card-eur">
+                            <div class="card-top">
+                                <span class="card-currency-tag">Euro · EUR</span>
+                                <span class="card-chip" aria-hidden="true"></span>
+                            </div>
+                            <div class="card-balance-block">
+                                <span class="balance-label">Saldo disponível</span>
+                                <div class="balance-amount" id="balanceEur">0,00 <span class="curr">€</span></div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="card-account-info">
+                                    <span class="acc-label">Conta interna</span>
+                                    <button class="acc-val copyable" data-copy-target="accNumberEur" id="accNumberEur">0050 1928 4719</button>
+                                </div>
+                                <div class="card-account-info">
+                                    <span class="acc-label">IBAN SEPA</span>
+                                    <button class="acc-val mono copyable" data-copy-target="ibanEur" id="ibanEur">PT50 9999 2819 4710 2938 1029 3</button>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="card-wallet card-usd">
+                            <div class="card-top">
+                                <span class="card-currency-tag">Dólar · USD</span>
+                                <span class="card-chip" aria-hidden="true"></span>
+                            </div>
+                            <div class="card-balance-block">
+                                <span class="balance-label">Saldo disponível</span>
+                                <div class="balance-amount" id="balanceUsd">0,00 <span class="curr">$</span></div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="card-account-info">
+                                    <span class="acc-label">Conta interna</span>
+                                    <button class="acc-val copyable" data-copy-target="accNumberUsd" id="accNumberUsd">0060 8472 9182</button>
+                                </div>
+                                <div class="card-account-info">
+                                    <span class="acc-label">IBAN virtual</span>
+                                    <button class="acc-val mono copyable" data-copy-target="ibanUsd" id="ibanUsd">AO06 9999 0060 2819 4710 8291 4</button>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- Coluna Lateral de Widgets (Estilo NovaBank para ecrãs médios/grandes) -->
+        <aside class="nb-dash-side-widgets">
+            <!-- Widget 1: O seu saldo gráfico detalhado -->
+            <div class="nb-widget-card">
+                <div class="nb-widget-head">
+                    <div>
+                        <span class="nb-widget-label">O seu saldo</span>
+                        <div class="nb-widget-amount" id="nbWidgetAmount">1.250.000 Kz</div>
+                        <span class="nb-trend-pill">↑ +12%</span>
+                    </div>
+                    <span class="nb-badge-time">Últimos 30 dias</span>
+                </div>
+                <div class="nb-chart-wrapper">
+                    <svg viewBox="0 0 280 120" class="nb-full-chart" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.35"/>
+                                <stop offset="100%" stop-color="#38BDF8" stop-opacity="0.0"/>
+                            </linearGradient>
+                            <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stop-color="#38BDF8"/>
+                                <stop offset="50%" stop-color="#60A5FA"/>
+                                <stop offset="100%" stop-color="#818CF8"/>
+                            </linearGradient>
+                        </defs>
+                        <path d="M 0 100 Q 30 110 50 85 T 100 80 T 150 65 T 200 45 T 250 25 L 280 15 L 280 120 L 0 120 Z" fill="url(#areaGrad)"/>
+                        <path d="M 0 100 Q 30 110 50 85 T 100 80 T 150 65 T 200 45 T 250 25 L 280 15" fill="none" stroke="url(#lineGrad)" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="250" cy="25" r="5" fill="#38BDF8" filter="drop-shadow(0 0 8px #38BDF8)"/>
+                    </svg>
+                    <div class="nb-chart-dates">
+                        <span>01 Out</span>
+                        <span>08 Out</span>
+                        <span>15 Out</span>
+                        <span>22 Out</span>
+                        <span>30 Out</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Widget 2: Cartões Virtuais (NovaBank Visa) -->
+            <div class="nb-widget-card">
+                <div class="nb-widget-head">
+                    <span class="nb-widget-title">Cartões</span>
+                    <button class="nb-head-link" onclick="toast('Gestão de Cartões em breve', 'info')">Ver todos <svg><use href="#i-chevron-right"/></svg></button>
+                </div>
+
+                <div class="nb-card-visual">
+                    <div class="nb-card-brand-row">
+                        <span class="nb-card-brand">Bank<span class="accent">AO</span></span>
+                        <svg class="nb-card-contactless" viewBox="0 0 24 24"><path d="M8.5 16.5a5 5 0 0 1 0-7M12 18.5a8 8 0 0 1 0-11M15.5 20.5a11 11 0 0 1 0-15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </div>
+                    <div class="nb-card-number">•••• 4582</div>
+                    <div class="nb-card-footer">
+                        <span class="nb-card-type">Débito Virtual</span>
+                        <span class="nb-card-network">VISA</span>
+                    </div>
+                </div>
+
+                <div class="nb-card-actions">
+                    <button class="nb-card-act" onclick="toast('Cartão bloqueado com segurança', 'info')">
+                        <svg><use href="#i-lock"/></svg>
+                        <span>Bloquear</span>
+                    </button>
+                    <button class="nb-card-act" onclick="toast('Definições do cartão', 'info')">
+                        <svg><use href="#i-gear"/></svg>
+                        <span>Definições</span>
+                    </button>
+                    <button class="nb-card-act" onclick="toast('Limites de transação ajustados', 'info')">
+                        <svg><use href="#i-trending"/></svg>
+                        <span>Limites</span>
+                    </button>
+                    <button class="nb-card-act" onclick="toast('Mais opções do cartão', 'info')">
+                        <svg><use href="#i-dots"/></svg>
+                        <span>Mais</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Widget 3: Despesas deste mês (Donut Chart) -->
+            <div class="nb-widget-card">
+                <div class="nb-widget-head">
+                    <span class="nb-widget-title">Despesas deste mês</span>
+                    <button class="nb-head-link" onclick="document.querySelector('[data-view=\'view-expenses\']')?.click()">Ver detalhes <svg><use href="#i-chevron-right"/></svg></button>
+                </div>
+
+                <div class="nb-expenses-row">
+                    <div class="nb-donut-wrap">
+                        <svg viewBox="0 0 100 100" class="nb-donut-chart">
+                            <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="12"/>
+                            <circle cx="50" cy="50" r="38" fill="none" stroke="#EC4899" stroke-width="12" stroke-dasharray="84 239" stroke-dashoffset="0"/>
+                            <circle cx="50" cy="50" r="38" fill="none" stroke="#3B82F6" stroke-width="12" stroke-dasharray="43 239" stroke-dashoffset="-84"/>
+                            <circle cx="50" cy="50" r="38" fill="none" stroke="#10B981" stroke-width="12" stroke-dasharray="29 239" stroke-dashoffset="-127"/>
+                            <circle cx="50" cy="50" r="38" fill="none" stroke="#F59E0B" stroke-width="12" stroke-dasharray="24 239" stroke-dashoffset="-156"/>
+                        </svg>
+                        <div class="nb-donut-center">
+                            <strong>320.000</strong>
+                            <span>Total Kz</span>
+                        </div>
+                    </div>
+
+                    <div class="nb-expense-legend">
+                        <div class="nb-leg-item"><span class="dot pink"></span><span>Alimentação</span><strong>35%</strong></div>
+                        <div class="nb-leg-item"><span class="dot blue"></span><span>Transporte</span><strong>18%</strong></div>
+                        <div class="nb-leg-item"><span class="dot green"></span><span>Internet</span><strong>12%</strong></div>
+                        <div class="nb-leg-item"><span class="dot amber"></span><span>Outros</span><strong>35%</strong></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</section>

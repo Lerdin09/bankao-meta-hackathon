@@ -7,9 +7,9 @@ Suíte de testes automatizados do BankAO:
 """
 import pytest
 import uuid
-from app.iban import iban_valido, gerar_iban_ficticio
-from app.db import init_db, get_connection
-from app.ledger import (
+from backend.services.iban import iban_valido, gerar_iban_ficticio
+from backend.database import init_db, get_connection
+from backend.services.ledger import (
     execute_internal_transfer,
     get_account_balance,
     InsufficientFundsError

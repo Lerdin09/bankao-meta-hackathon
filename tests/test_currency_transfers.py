@@ -7,11 +7,11 @@ Testes automatizados para transferências multimoeda e cálculo em tempo real de
 """
 import uuid
 import pytest
-from app.db import init_db, get_connection
-from app.iban import gerar_iban_ficticio
-from app.providers.fx import FXProvider
-from app.providers.payout import PayoutProvider
-from app.ledger import execute_internal_transfer, get_account_balance
+from backend.database import init_db, get_connection
+from backend.services.iban import gerar_iban_ficticio
+from backend.providers.fx import FXProvider
+from backend.providers.payout import PayoutProvider
+from backend.services.ledger import execute_internal_transfer, get_account_balance
 
 @pytest.fixture(autouse=True)
 def setup_db():

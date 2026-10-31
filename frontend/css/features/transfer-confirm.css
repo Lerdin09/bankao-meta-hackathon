@@ -1,0 +1,231 @@
+/* ==========================================================================
+   Modal de Confirmação de Transferência
+   ========================================================================== */
+.confirm-transfer-modal {
+    position: relative;
+    width: 100%;
+    max-width: 490px;
+    background: var(--bg-1);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-lg);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(230, 184, 92, 0.15);
+    overflow: hidden;
+    animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 0;
+    margin: auto;
+}
+@media (max-width: 639px) {
+    .confirm-transfer-modal {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        max-width: 100%;
+        animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+}
+.confirm-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 24px;
+    background: linear-gradient(180deg, rgba(230, 184, 92, 0.1) 0%, transparent 100%);
+    border-bottom: 1px solid var(--line);
+    position: relative;
+}
+.confirm-modal-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(230, 184, 92, 0.15);
+    border: 1px solid rgba(230, 184, 92, 0.35);
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.confirm-modal-icon svg {
+    width: 22px;
+    height: 22px;
+}
+.confirm-header-text h3 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text);
+}
+.confirm-subtitle {
+    margin: 2px 0 0 0;
+    font-size: 0.8rem;
+    color: var(--text-2);
+}
+.confirm-close-btn {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bg-2);
+    border: 1px solid var(--line-2);
+    color: var(--text-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.18s;
+}
+.confirm-close-btn:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.1);
+}
+.confirm-close-btn svg {
+    width: 16px;
+    height: 16px;
+}
+.confirm-modal-body {
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.confirm-beneficiary-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--bg-2);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-md);
+}
+.confirm-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1E3A8A, #3B82F6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.confirm-beneficiary-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+}
+.confirm-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.confirm-beneficiary-info h4 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.confirm-dest-id {
+    font-size: 0.8rem;
+    color: var(--text-2);
+    word-break: break-all;
+}
+
+.confirm-details-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+}
+.confirm-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.88rem;
+}
+.confirm-row .c-label {
+    color: var(--text-2);
+    font-weight: 600;
+}
+.confirm-val-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    text-align: right;
+}
+.confirm-val-stack .c-val.primary {
+    font-size: 1.08rem;
+    font-weight: 800;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+}
+.confirm-val-stack .c-val-sub {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--gold);
+    opacity: 0.95;
+    font-variant-numeric: tabular-nums;
+}
+.confirm-val-stack .c-val.fee-text.primary {
+    color: #F87171;
+    font-weight: 700;
+}
+.confirm-val-stack .c-val-sub.fee {
+    color: rgba(248, 113, 113, 0.9);
+}
+.confirm-divider {
+    height: 1px;
+    background: var(--line);
+    margin: 4px 0;
+}
+.confirm-row.highlight {
+    padding-top: 6px;
+}
+.confirm-row.highlight .c-label {
+    color: var(--text);
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+.confirm-val-stack .c-val.total-arrive.primary {
+    color: var(--green);
+    font-size: 1.32rem;
+    font-weight: 800;
+    text-shadow: 0 0 12px rgba(52, 211, 153, 0.3);
+}
+.confirm-val-stack .c-val-sub.arrive {
+    color: #6EE7B7;
+    font-weight: 800;
+    font-size: 0.9rem;
+}
+.confirm-rate-note {
+    font-size: 0.78rem;
+    color: var(--text-3);
+    margin-top: 4px;
+    text-align: right;
+    font-weight: 600;
+}
+
+.confirm-modal-actions {
+    display: flex;
+    gap: 12px;
+    padding: 16px 24px 24px;
+    border-top: 1px solid var(--line);
+    background: var(--bg-1);
+}
+.confirm-modal-actions .btn {
+    flex: 1;
+    justify-content: center;
+    min-height: 44px;
+}

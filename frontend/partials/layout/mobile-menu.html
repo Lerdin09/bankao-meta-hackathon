@@ -1,0 +1,68 @@
+<!-- Drawer / Menu Móvel com todos os módulos do banco -->
+<div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()" style="display:none;">
+    <div class="mobile-menu-drawer" onclick="event.stopPropagation()">
+        <div class="mobile-drawer-notch"></div>
+        <div class="mobile-menu-head">
+            <div class="mobile-menu-user-info">
+                <div class="avatar mobile-avatar" id="mobileDrawerAvatar">AS</div>
+                <div>
+                    <strong id="mobileDrawerUserName">Cliente BankAO</strong>
+                    <span class="mobile-drawer-kyc" id="mobileDrawerKyc">Conta Ativa</span>
+                </div>
+            </div>
+            <button type="button" class="modal-close mobile-menu-close" onclick="closeMobileMenu()" aria-label="Fechar menu">
+                <svg><use href="#i-x"/></svg>
+            </button>
+        </div>
+
+        <div class="mobile-menu-grid">
+            <button class="mobile-menu-item" onclick="mobileNavTo('view-home')">
+                <div class="m-item-icon gold"><svg><use href="#i-home"/></svg></div>
+                <span>Início</span>
+            </button>
+            <button class="mobile-menu-item" onclick="mobileNavTo('view-accounts')">
+                <div class="m-item-icon blue"><svg><use href="#i-wallet"/></svg></div>
+                <span>As Suas Contas</span>
+            </button>
+            <button class="mobile-menu-item" onclick="mobileNavTo('view-ops')">
+                <div class="m-item-icon purple"><svg><use href="#i-swap"/></svg></div>
+                <span>Transferências</span>
+            </button>
+            <button class="mobile-menu-item" onclick="mobileNavTo('view-expenses')">
+                <div class="m-item-icon cyan"><svg><use href="#i-pie"/></svg></div>
+                <span>Análise Despesas</span>
+            </button>
+            <button class="mobile-menu-item" onclick="mobileNavTo('view-payments')">
+                <div class="m-item-icon amber"><svg><use href="#i-receipt"/></svg></div>
+                <span>Pagamentos</span>
+            </button>
+            <button class="mobile-menu-item" onclick="mobileNavTo('view-savings')">
+                <div class="m-item-icon green"><svg><use href="#i-target"/></svg></div>
+                <span>Poupança & Metas</span>
+            </button>
+            <button class="mobile-menu-item" onclick="mobileNavTo('view-statement')">
+                <div class="m-item-icon indigo"><svg><use href="#i-list"/></svg></div>
+                <span>Extrato Completo</span>
+            </button>
+            <button class="mobile-menu-item" onclick="mobileNavTo('view-copilot')">
+                <div class="m-item-icon spark"><svg class="ic-spark"><use href="#i-spark"/></svg></div>
+                <span>Copilot IA</span>
+            </button>
+        </div>
+
+        <div class="mobile-menu-footer">
+            <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;gap:8px;" onclick="closeMobileMenu(); openReceiveQrModal();">
+                <svg style="width:18px;height:18px;"><use href="#i-qrcode"/></svg>
+                <span>Receber por QR Code / Chave</span>
+            </button>
+            <div class="mobile-menu-bottom-row">
+                <button type="button" class="btn-text-link" onclick="closeMobileMenu(); document.getElementById('btnToggleBalance')?.click();">
+                    <svg style="width:15px;height:15px;"><use href="#i-eye"/></svg> Ocultar saldos
+                </button>
+                <button type="button" class="btn-text-link danger" onclick="closeMobileMenu(); document.getElementById('btnAuthAction')?.click();">
+                    Definições / Sair
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

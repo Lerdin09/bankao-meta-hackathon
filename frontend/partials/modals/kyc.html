@@ -1,0 +1,160 @@
+<!-- ============ MODAL: KYC — VERIFICAÇÃO DE IDENTIDADE ============ -->
+<div class="modal-overlay kyc-overlay" id="modalKYC" style="display:none">
+    <div class="kyc-modal">
+
+        <!-- Header fixo -->
+        <div class="kyc-header">
+            <div class="kyc-brand">
+                <svg style="width:22px;height:22px"><use href="#i-shield"/></svg>
+                <span>Verificação de Identidade</span>
+            </div>
+            <div class="kyc-steps-bar">
+                <span class="kyc-step active" id="kycStepDot1">1</span>
+                <span class="kyc-step-line"></span>
+                <span class="kyc-step" id="kycStepDot2">2</span>
+                <span class="kyc-step-line"></span>
+                <span class="kyc-step" id="kycStepDot3">3</span>
+                <span class="kyc-step-line"></span>
+                <span class="kyc-step" id="kycStepDot4">4</span>
+            </div>
+        </div>
+
+        <!-- PASSO 1: Escolher tipo de documento -->
+        <div class="kyc-step-panel active" id="kycPanel1">
+            <div class="kyc-step-title">
+                <h2>Escolha o seu documento</h2>
+                <p>Selecione o tipo de documento de identificação que irá usar para validar a sua identidade.</p>
+            </div>
+            <div class="kyc-doc-options">
+                <button class="kyc-doc-option" id="optBI" onclick="selectDocType('bilhete')">
+                    <div class="kyc-doc-icon">🪪</div>
+                    <strong>Bilhete de Identidade</strong>
+                    <span>Documento Nacional de Identidade</span>
+                </button>
+                <button class="kyc-doc-option" id="optPassaporte" onclick="selectDocType('passaporte')">
+                    <div class="kyc-doc-icon">📔</div>
+                    <strong>Passaporte</strong>
+                    <span>Passaporte Nacional ou Internacional</span>
+                </button>
+            </div>
+            <button class="btn btn-primary btn-full" id="btnKycStep1Next" onclick="kycGoToStep(2)" disabled>Continuar</button>
+        </div>
+
+        <!-- PASSO 2: Upload de fotos -->
+        <div class="kyc-step-panel" id="kycPanel2" style="display:none">
+            <div class="kyc-step-title">
+                <h2 id="kycUploadTitle">Fotografias do documento</h2>
+                <p id="kycUploadDesc">Tire ou carregue fotografias nítidas das duas faces do documento.</p>
+            </div>
+
+            <div class="kyc-upload-grid">
+                <!-- Frente -->
+                <div class="kyc-upload-zone" id="zoneFrente" onclick="document.getElementById('inputFrente').click()">
+                    <input type="file" id="inputFrente" accept="image/*" capture="environment" style="display:none" onchange="handleDocPhoto('frente', this)">
+                    <div class="upload-placeholder" id="placeholderFrente">
+                        <div class="upload-icon">📷</div>
+                        <span class="upload-label" id="labelFrente">Frente / Página de dados</span>
+                        <span class="upload-hint">Toque para fotografar ou selecionar</span>
+                    </div>
+                    <img class="upload-preview" id="previewFrente" style="display:none" alt="Frente do documento">
+                </div>
+
+                <!-- Verso -->
+                <div class="kyc-upload-zone" id="zoneVerso" onclick="document.getElementById('inputVerso').click()">
+                    <input type="file" id="inputVerso" accept="image/*" capture="environment" style="display:none" onchange="handleDocPhoto('verso', this)">
+                    <div class="upload-placeholder" id="placeholderVerso">
+                        <div class="upload-icon">📷</div>
+                        <span class="upload-label" id="labelVerso">Verso / Assinatura</span>
+                        <span class="upload-hint">Toque para fotografar ou selecionar</span>
+                    </div>
+                    <img class="upload-preview" id="previewVerso" style="display:none" alt="Verso do documento">
+                </div>
+            </div>
+
+            <!-- Botão de amostra para testes -->
+            <button class="btn-sample" id="btnUseSample" onclick="loadSampleDocument()">
+                <svg style="width:16px;height:16px"><use href="#i-bolt"/></svg>
+                Usar documento de amostra (teste rápido)
+            </button>
+
+            <div class="kyc-step-actions">
+                <button class="btn btn-ghost" onclick="kycGoToStep(1)">← Voltar</button>
+                <button class="btn btn-primary" id="btnKycStep2Next" onclick="kycGoToStep(3)" disabled>Validar com IA →</button>
+            </div>
+        </div>
+
+        <!-- PASSO 3: Extração com IA em progresso -->
+        <div class="kyc-step-panel" id="kycPanel3" style="display:none">
+            <div class="kyc-ai-loading">
+                <div class="kyc-ai-orb">
+                    <div class="orb-ring"></div>
+                    <div class="orb-ring orb-ring-2"></div>
+                    <div class="orb-core">
+                        <svg style="width:32px;height:32px"><use href="#i-spark"/></svg>
+                    </div>
+                </div>
+                <h2>IA a analisar o documento...</h2>
+                <p id="kycAiStatus">A extrair os seus dados de identificação com segurança.<br>Este processo pode demorar alguns segundos.</p>
+                <div class="kyc-progress-bar"><div class="kyc-progress-fill" id="kycProgressFill"></div></div>
+            </div>
+        </div>
+
+        <!-- PASSO 4: Revisão e confirmação dos dados extraídos -->
+        <div class="kyc-step-panel" id="kycPanel4" style="display:none">
+            <div class="kyc-step-title">
+                <h2>Confirme os seus dados</h2>
+                <p>Verifique os dados extraídos pelo sistema de IA. Pode corrigir qualquer campo antes de confirmar.</p>
+            </div>
+
+            <div class="kyc-fields-grid">
+                <div class="kyc-field">
+                    <label>Nome Completo</label>
+                    <input type="text" id="kycNomeCompleto" class="kyc-input">
+                </div>
+                <div class="kyc-fields-row">
+                    <div class="kyc-field">
+                        <label>Primeiro Nome</label>
+                        <input type="text" id="kycPrimeiroNome" class="kyc-input">
+                    </div>
+                    <div class="kyc-field">
+                        <label>Último Nome</label>
+                        <input type="text" id="kycUltimoNome" class="kyc-input">
+                    </div>
+                </div>
+                <div class="kyc-field">
+                    <label>Nome do Pai</label>
+                    <input type="text" id="kycNomePai" class="kyc-input">
+                </div>
+                <div class="kyc-field">
+                    <label>Nome da Mãe</label>
+                    <input type="text" id="kycNomeMae" class="kyc-input">
+                </div>
+                <div class="kyc-fields-row">
+                    <div class="kyc-field">
+                        <label id="kycDocNumLabel">NIF / Nº do Bilhete</label>
+                        <input type="text" id="kycDocNumero" class="kyc-input mono">
+                    </div>
+                    <div class="kyc-field">
+                        <label>Data de Emissão</label>
+                        <input type="text" id="kycDataEmissao" class="kyc-input mono">
+                    </div>
+                </div>
+                <div class="kyc-field">
+                    <label>Morada</label>
+                    <input type="text" id="kycMorada" class="kyc-input">
+                </div>
+            </div>
+
+            <div class="auth-error" id="kycConfirmError"></div>
+
+            <div class="kyc-step-actions">
+                <button class="btn btn-ghost" onclick="kycGoToStep(2)">← Rever fotos</button>
+                <button class="btn btn-primary" id="btnKycConfirm" onclick="confirmKYC()">
+                    <svg><use href="#i-shield"/></svg>
+                    <span>Confirmar e Ativar Carteira</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,94 @@
+/* ==========================================================================
+   Shell
+   Banner sandbox, estrutura da app, marca, barra superior e contentor das vistas.
+   ========================================================================== */
+
+/* ---------- Banner ---------- */
+.sandbox-banner {
+    height: var(--banner-h);
+    padding: var(--safe-t) 16px 0;
+    height: calc(var(--banner-h) + var(--safe-t));
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: linear-gradient(90deg, #14183A, #0B1226 55%, #101C3F);
+    border-bottom: 1px solid rgba(124, 140, 255, .18);
+    font-size: .74rem; color: #B9C3F5; white-space: nowrap; overflow: hidden;
+}
+.sandbox-banner strong { color: #DDE3FF; font-weight: 600; }
+.sandbox-badge {
+    font-size: .66rem; font-weight: 700; letter-spacing: .08em; padding: 2px 9px; border-radius: 99px;
+    color: #A9B6FF; background: rgba(124, 140, 255, .14); border: 1px solid rgba(124, 140, 255, .3);
+}
+
+/* ---------- Shell ---------- */
+.shell { display: block; }
+.sidebar { display: none; }
+.workspace { min-width: 0; }
+
+/* Marca */
+.brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
+.brand-mark {
+    width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center;
+    font-weight: 800; font-size: 1.05rem; color: #1A1203;
+    background: linear-gradient(135deg, #F4D48A, var(--gold-2));
+    box-shadow: 0 6px 18px -6px rgba(230, 184, 92, .6), inset 0 1px 0 rgba(255, 255, 255, .5);
+}
+.brand-name { font-weight: 800; font-size: 1.25rem; letter-spacing: -.03em; }
+.brand-name .accent { color: var(--gold); }
+
+/* ---------- Topbar ---------- */
+.topbar {
+    position: sticky; top: 0; z-index: 30;
+    height: var(--top-h);
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 0 16px;
+    background: rgba(7, 11, 20, .78);
+    backdrop-filter: blur(18px) saturate(140%); -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border-bottom: 1px solid var(--line);
+}
+.fx-ticker {
+    display: none; white-space: nowrap; align-items: center; gap: 12px;
+    padding: 7px 16px; border-radius: 99px; font-size: .8rem;
+    background: var(--surface); border: 1px solid var(--line);
+}
+.ticker-item em { font-style: normal; color: var(--text-3); font-weight: 600; margin-right: 6px; font-size: .72rem; letter-spacing: .06em; }
+.ticker-item strong { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.ticker-sep { width: 1px; height: 14px; background: var(--line-2); }
+
+.topbar-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.icon-btn {
+    width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center;
+    background: var(--surface); border: 1px solid var(--line); color: var(--text-2);
+    transition: .2s;
+}
+.icon-btn:hover { color: var(--text); border-color: var(--line-2); }
+.icon-btn .ic-eye-off { display: none; }
+body.balances-hidden .icon-btn .ic-eye { display: none; }
+body.balances-hidden .icon-btn .ic-eye-off { display: block; }
+
+.btn-copilot-toggle {
+    display: none; align-items: center; gap: 8px; height: 42px; padding: 0 16px; border-radius: 13px;
+    font-weight: 600; font-size: .88rem; color: var(--gold);
+    background: var(--gold-soft); border: 1px solid rgba(230, 184, 92, .28); transition: .2s;
+}
+.btn-copilot-toggle:hover { background: rgba(230, 184, 92, .2); }
+.user-profile { display: flex; align-items: center; gap: 10px; overflow: hidden; min-width: 0; }
+.avatar {
+    width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center;
+    font-weight: 700; font-size: .82rem; color: #1A1203; flex-shrink: 0;
+    background: linear-gradient(135deg, #F4D48A, var(--gold-2));
+    box-shadow: 0 0 0 3px var(--bg), 0 0 0 4px var(--line-2);
+}
+.user-details { display: none; flex-direction: column; line-height: 1.25; white-space: nowrap; }
+.user-name { font-weight: 600; font-size: .88rem; }
+/* kyc-badge base — sobrescrito pelos novos estilos abaixo */
+.kyc-badge { font-size: .72rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 7px; border-radius: 20px; background: var(--surface-3); color: var(--text-3); }
+
+/* ---------- Views ---------- */
+.main-content { padding: 20px 16px calc(var(--bottom-h) + var(--safe-b) + 28px); max-width: 1180px; margin: 0 auto; }
+.view { display: none; animation: viewIn .35s cubic-bezier(.2, .7, .2, 1); }
+.view.active { display: block; }
+@keyframes viewIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+.page-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
+.eyebrow { color: var(--text-3); font-size: .78rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.page-head h1 { font-size: 1.7rem; font-weight: 800; letter-spacing: -.03em; line-height: 1.15; margin-top: 2px; }

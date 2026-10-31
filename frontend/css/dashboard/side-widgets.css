@@ -1,0 +1,266 @@
+/* ==========================================================================
+   Dashboard — widgets laterais
+   Gráfico de área, cartão Visa e donut de despesas.
+   ========================================================================== */
+
+/* ---------- Widgets Laterais (Coluna Direita NovaBank) ---------- */
+.nb-dash-side-widgets {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.nb-widget-card {
+    background: rgba(18, 26, 47, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 22px;
+    box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.nb-widget-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.nb-widget-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #F8FAFC;
+}
+
+.nb-widget-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #94A3B8;
+}
+
+.nb-widget-amount {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -0.02em;
+    margin: 2px 0 4px;
+}
+
+.nb-badge-time {
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #94A3B8;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 4px 10px;
+    border-radius: 99px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Gráfico de Área Detalhado */
+.nb-chart-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.nb-full-chart {
+    width: 100%;
+    height: 110px;
+    overflow: visible;
+}
+
+.nb-chart-dates {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.74rem;
+    color: #64748B;
+    font-weight: 600;
+    padding: 0 4px;
+}
+
+/* Mockup de Cartão NovaBank Visa */
+.nb-card-visual {
+    height: 160px;
+    border-radius: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #7C3AED 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 16px 36px -10px rgba(37, 99, 235, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.nb-card-visual::before {
+    content: "";
+    position: absolute;
+    top: -40%;
+    right: -20%;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.nb-card-brand-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nb-card-brand {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -0.02em;
+}
+
+.nb-card-contactless {
+    width: 22px;
+    height: 22px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.nb-card-number {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #FFFFFF;
+    font-family: var(--mono);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.nb-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.nb-card-type {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.nb-card-network {
+    font-size: 1.2rem;
+    font-weight: 900;
+    font-style: italic;
+    color: #FFFFFF;
+    letter-spacing: 0.05em;
+}
+
+.nb-card-actions {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.nb-card-act {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 4px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: #94A3B8;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.nb-card-act svg { width: 18px; height: 18px; color: #CBD5E1; }
+.nb-card-act:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+/* Gráfico Donut de Despesas */
+.nb-expenses-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nb-donut-wrap {
+    position: relative;
+    width: 104px;
+    height: 104px;
+    flex-shrink: 0;
+}
+
+.nb-donut-chart {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.nb-donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    pointer-events: none;
+}
+
+.nb-donut-center strong {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    line-height: 1.1;
+}
+
+.nb-donut-center span {
+    font-size: 0.65rem;
+    color: #94A3B8;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.nb-expense-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.nb-leg-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    color: #CBD5E1;
+}
+
+.nb-leg-item .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+.nb-leg-item .dot.pink { background: #EC4899; box-shadow: 0 0 6px #EC4899; }
+.nb-leg-item .dot.blue { background: #3B82F6; box-shadow: 0 0 6px #3B82F6; }
+.nb-leg-item .dot.green { background: #10B981; box-shadow: 0 0 6px #10B981; }
+.nb-leg-item .dot.amber { background: #F59E0B; box-shadow: 0 0 6px #F59E0B; }
+
+.nb-leg-item strong {
+    font-weight: 700;
+    color: #F8FAFC;
+    margin-left: auto;
+}

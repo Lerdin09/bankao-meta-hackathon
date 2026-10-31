@@ -1,0 +1,198 @@
+/* ==========================================================================
+   Operações — Cabeçalho e Caixas de Cálculo em Tempo Real
+   ========================================================================== */
+.op-header-info {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+}
+.op-badge-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(230, 184, 92, 0.12);
+    border: 1px solid rgba(230, 184, 92, 0.3);
+    color: var(--gold);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+}
+.op-header-info h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    color: var(--text);
+}
+.op-header-info p {
+    font-size: 0.88rem;
+    color: var(--text-2);
+    margin: 0;
+    line-height: 1.45;
+}
+
+.recipient-live-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--green);
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    padding: 3px 10px;
+    border-radius: 6px;
+}
+
+/* Caixa de cálculo em tempo real */
+.realtime-calc-box {
+    margin-top: 18px;
+    background: linear-gradient(145deg, rgba(16, 26, 47, 0.95), rgba(9, 16, 32, 0.98));
+    border: 1px solid rgba(230, 184, 92, 0.35);
+    border-radius: var(--r-md);
+    padding: 18px;
+    box-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.55), 0 0 20px -4px rgba(230, 184, 92, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+.realtime-calc-box::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.realtime-calc-box .rt-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+.realtime-calc-box .rt-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.realtime-calc-box .rt-tag svg {
+    width: 15px;
+    height: 15px;
+}
+
+.rt-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    background: rgba(4, 9, 20, 0.55);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-sm);
+    padding: 14px;
+}
+@media (max-width: 680px) {
+    .rt-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+.rt-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.rt-lbl {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.rt-val-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.rt-val.primary {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #F8FAFC;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+}
+.rt-val-sub {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--gold);
+    opacity: 0.95;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.rt-val.fee.primary {
+    color: #F87171;
+}
+.rt-val-sub.fee {
+    color: rgba(248, 113, 113, 0.9);
+}
+
+.rt-item.highlight {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(6, 78, 59, 0.22));
+    border: 1px solid rgba(52, 211, 153, 0.4);
+    border-radius: 10px;
+    padding: 8px 12px;
+}
+.rt-val.arrive.primary {
+    color: #34D399;
+    font-size: 1.35rem;
+    text-shadow: 0 0 16px rgba(52, 211, 153, 0.35);
+}
+.rt-val-sub.arrive {
+    color: #6EE7B7;
+    font-weight: 800;
+}
+
+/* Routing footer badge */
+.rt-footer-badge {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--line);
+    font-size: 0.78rem;
+}
+.route-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--line-2);
+    color: var(--text-2);
+    font-weight: 500;
+}
+.route-pill strong {
+    color: var(--text);
+    font-weight: 700;
+}
+.route-arrow {
+    color: var(--gold);
+    font-weight: 800;
+    font-size: 0.9rem;
+}
+.route-rate {
+    margin-left: auto;
+    color: var(--text-3);
+    font-weight: 600;
+}

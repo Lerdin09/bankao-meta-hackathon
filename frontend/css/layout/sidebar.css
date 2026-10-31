@@ -1,0 +1,298 @@
+﻿/* ==========================================================================
+   BANKAO - LAYOUT DESKTOP (>= 1024px)
+   Estrutura: Banner sticky no topo, depois shell em grid 3 colunas:
+     Esquerda  -> aside.sidebar  (parede esquerda, fixa no grid)
+     Topo      -> .topbar        (telhado, fixo no workspace)
+     Centro    -> .main-content  (unica zona com scroll)
+     Direita   -> .copilot-view  (parede direita, sticky)
+   ========================================================================== */
+
+/* 1. Banner - cola no topo */
+@media (min-width: 1024px) {
+    .sandbox-banner {
+        position: sticky;
+        top: 0;
+        z-index: 90;
+    }
+
+    /* 2. Shell - grid 3 colunas x 2 linhas
+          sidebar | workspace(topbar+content) | [copilot dentro do content]
+    */
+    .shell {
+        display: grid;
+        grid-template-columns: 268px 1fr;
+        grid-template-rows: 1fr;
+        grid-template-areas: "sidebar workspace";
+        height: calc(100dvh - var(--banner-h) - var(--safe-t, 0px));
+        overflow: hidden;
+        background:
+            radial-gradient(1200px 800px at 20% -10%, rgba(56, 189, 248, 0.08), transparent 70%),
+            radial-gradient(1000px 700px at 85% 20%, rgba(129, 140, 248, 0.06), transparent 70%),
+            #070B14;
+    }
+
+    /* 3. Sidebar - parede esquerda */
+    aside.sidebar {
+        grid-area: sidebar;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 18px 12px;
+        margin: 10px 0 10px 10px;
+        background: rgba(11, 17, 32, 0.85);
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 22px;
+        box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.5),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+        overscroll-behavior: contain;
+        /* Anular qualquer posicionamento fixo herdado */
+        position: static !important;
+        top: auto !important;
+        left: auto !important;
+        width: auto !important;
+        height: auto !important;
+    }
+
+    /* 4. Workspace - area central+direita */
+    .workspace {
+        grid-area: workspace;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        overflow: hidden;
+        margin-left: 0 !important;
+    }
+
+    /* 5. Topbar - telhado fixo */
+    .topbar {
+        flex-shrink: 0;
+        position: static;
+        z-index: 30;
+        padding: 0 28px;
+    }
+
+    /* 6. Main-content - unica zona com scroll */
+    .main-content {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+        padding: 28px 28px 48px;
+        max-width: none;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+    }
+    .main-content::-webkit-scrollbar { width: 5px; }
+    .main-content::-webkit-scrollbar-track { background: transparent; }
+    .main-content::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 99px;
+    }
+
+    /* 7. Brand / Marca */
+    .sidebar .brand {
+        padding: 4px 6px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .sidebar .brand-mark {
+        width: 34px;
+        height: 34px;
+        border-radius: 11px;
+        background: linear-gradient(135deg, #38BDF8 0%, #6366F1 50%, #A855F7 100%);
+        box-shadow: 0 6px 18px -4px rgba(99, 102, 241, 0.6);
+        color: #FFFFFF;
+        font-weight: 800;
+        font-size: 1rem;
+    }
+    .sidebar .brand-name {
+        font-size: 1.2rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: #F8FAFC;
+    }
+
+    /* 8. Navegacao - lista vertical */
+    .side-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        margin-top: 8px;
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+        padding-right: 2px;
+    }
+    .side-nav::-webkit-scrollbar { width: 3px; }
+    .side-nav::-webkit-scrollbar-track { background: transparent; }
+    .side-nav::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 99px;
+    }
+
+    /* Item: ICON ESQUERDA | TEXTO DIREITA - numa unica linha */
+    .side-nav .nav-item {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 9px;
+        padding: 9px 10px;
+        border-radius: 13px;
+        color: #94A3B8;
+        font-size: 0.87rem;
+        font-weight: 500;
+        line-height: 1;
+        transition: all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+        position: relative;
+        border: 1px solid transparent;
+        text-align: left;
+        width: 100%;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+
+    /* Icone: sempre a esquerda, nao encolhe */
+    .side-nav .nav-item-icon {
+        width: 20px;
+        height: 20px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        color: inherit;
+    }
+    .side-nav .nav-item-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* Texto: ocupa o espaco restante */
+    .side-nav .nav-item-text {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Seta: aparece no hover */
+    .side-nav .nav-item-chevron {
+        opacity: 0;
+        transform: translateX(-4px);
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
+    .side-nav .nav-item-chevron svg { width: 14px; height: 14px; }
+
+    /* Hover */
+    .side-nav .nav-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: #F1F5F9;
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+    .side-nav .nav-item:hover .nav-item-chevron {
+        opacity: 0.5;
+        transform: translateX(0);
+    }
+
+    /* Activo */
+    .side-nav .nav-item.active {
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(99, 102, 241, 0.38) 100%);
+        border: 1px solid rgba(129, 140, 248, 0.38);
+        color: #FFFFFF;
+        font-weight: 600;
+        box-shadow: 0 6px 20px -6px rgba(99, 102, 241, 0.38);
+    }
+    .side-nav .nav-item.active .nav-item-icon { color: #38BDF8; }
+    .side-nav .nav-item.active .nav-item-chevron {
+        opacity: 0.7;
+        transform: translateX(0);
+        color: #E2E8F0;
+    }
+
+    /* 9. Card de utilizador no fundo da sidebar */
+    .sidebar-user-card {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 9px 11px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        transition: background 0.2s;
+        flex-shrink: 0;
+    }
+    .sidebar-user-card:hover { background: rgba(255, 255, 255, 0.07); }
+
+    .sidebar-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #38BDF8, #818CF8);
+        color: #FFFFFF;
+        font-weight: 700;
+        font-size: 0.8rem;
+        display: grid;
+        place-items: center;
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
+        flex-shrink: 0;
+    }
+    .sidebar-user-details {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+        flex: 1;
+    }
+    .sidebar-user-name {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #F8FAFC;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .sidebar-user-badge {
+        font-size: 0.68rem;
+        color: #38BDF8;
+        font-weight: 500;
+    }
+    .sidebar-settings-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        color: #94A3B8;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        transition: all 0.2s;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+    .sidebar-settings-btn:hover {
+        color: #F8FAFC;
+        background: rgba(255, 255, 255, 0.12);
+        transform: rotate(30deg);
+    }
+    .sidebar-settings-btn svg { width: 14px; height: 14px; }
+}
+
+/* Mobile/tablet < 1024px - ocultar sidebar desktop */
+@media (max-width: 1023px) {
+    aside.sidebar      { display: none !important; }
+    .sidebar-user-card { display: none; }
+    .workspace         { margin-left: 0 !important; }
+    /* Shell volta ao layout normal (block) */
+    .shell             { display: block; height: auto; overflow: visible; }
+}

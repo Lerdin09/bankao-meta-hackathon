@@ -1,0 +1,128 @@
+<!-- ============ MODAL: EDITAR META DE POUPANÇA ============ -->
+<div class="modal-overlay" id="modalEditGoal" style="display:none">
+    <div class="confirm-transfer-modal form-modal form-modal-wide">
+        <div class="confirm-modal-header">
+            <div class="confirm-modal-icon" style="background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(56,189,248,0.2));color:#10B981;">
+                <svg><use href="#i-target"/></svg>
+            </div>
+            <div class="confirm-header-text">
+                <h3>Editar Meta de Poupança</h3>
+                <p class="confirm-subtitle">Ajuste o objetivo, valor poupado ou contribuição mensal</p>
+            </div>
+            <button type="button" class="confirm-close-btn" onclick="closeEditGoalModal()" aria-label="Fechar">
+                <svg><use href="#i-x"/></svg>
+            </button>
+        </div>
+
+        <form id="formEditGoal" onsubmit="handleUpdateGoal(event)">
+            <input type="hidden" id="editGoalId">
+            <div class="confirm-modal-body">
+                <div class="fm-section">
+                <div class="fm-section-title">Identificação</div>
+                <div class="form-row">
+                    <label class="form-label" for="editGoalName">Nome do Objetivo</label>
+                    <input type="text" class="input" id="editGoalName" placeholder="Ex: Viagem de Férias, Carro Novo" required autocomplete="off">
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">Ícone do Objetivo</label>
+                    <div class="goal-icon-grid-rich" id="editGoalIconPicker">
+                        <button type="button" class="goal-ico-rich-btn" data-icon="travel">
+                            <div class="ico-box"><svg><use href="#i-plane"/></svg></div>
+                            <span class="lbl">Viagem</span>
+                        </button>
+                        <button type="button" class="goal-ico-rich-btn" data-icon="home">
+                            <div class="ico-box"><svg><use href="#i-home"/></svg></div>
+                            <span class="lbl">Habitação</span>
+                        </button>
+                        <button type="button" class="goal-ico-rich-btn" data-icon="car">
+                            <div class="ico-box"><svg><use href="#i-car"/></svg></div>
+                            <span class="lbl">Automóvel</span>
+                        </button>
+                        <button type="button" class="goal-ico-rich-btn" data-icon="laptop">
+                            <div class="ico-box"><svg><use href="#i-laptop"/></svg></div>
+                            <span class="lbl">Tecnologia</span>
+                        </button>
+                        <button type="button" class="goal-ico-rich-btn" data-icon="education">
+                            <div class="ico-box"><svg><use href="#i-book"/></svg></div>
+                            <span class="lbl">Educação</span>
+                        </button>
+                        <button type="button" class="goal-ico-rich-btn" data-icon="target">
+                            <div class="ico-box"><svg><use href="#i-target"/></svg></div>
+                            <span class="lbl">Objetivo</span>
+                        </button>
+                        <button type="button" class="goal-ico-rich-btn" data-icon="shield">
+                            <div class="ico-box"><svg><use href="#i-shield"/></svg></div>
+                            <span class="lbl">Reserva</span>
+                        </button>
+                        <button type="button" class="goal-ico-rich-btn" data-icon="award">
+                            <div class="ico-box"><svg><use href="#i-award"/></svg></div>
+                            <span class="lbl">Conquista</span>
+                        </button>
+                    </div>
+                </div>
+                </div>
+
+                <div class="fm-section">
+                <div class="fm-section-title">Valores</div>
+                <div class="form-grid-2">
+                    <div class="form-row">
+                        <label class="form-label" for="editGoalTarget">Valor da Meta (KZ)</label>
+                        <div class="input-affix">
+                            <input type="text" inputmode="numeric" class="input js-money" id="editGoalTarget" placeholder="Ex: 100.000" required oninput="updateEditGoalPreview()">
+                            <span>KZ</span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" for="editGoalSaved">Já poupado (KZ)</label>
+                        <div class="input-affix">
+                            <input type="text" inputmode="numeric" class="input js-money" id="editGoalSaved" placeholder="Ex: 25.000" required oninput="updateEditGoalPreview()">
+                            <span>KZ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fm-preview" aria-live="polite">
+                    <div class="fm-preview-top"><span id="editGoalPrevText">—</span><strong id="editGoalPrevPct">0%</strong></div>
+                    <div class="fm-preview-track"><i id="editGoalPrevBar"></i></div>
+                </div>
+                </div>
+
+                <div class="fm-section">
+                <div class="fm-section-title">Plano</div>
+                <div class="form-grid-2">
+                    <div class="form-row">
+                        <label class="form-label" for="editGoalMonthly">Depósito Mensal (KZ)</label>
+                        <div class="input-affix">
+                            <input type="text" inputmode="numeric" class="input js-money" id="editGoalMonthly" placeholder="Ex: 10.000" required>
+                            <span>KZ</span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" for="editGoalDeadline">Prazo (ex: Junho 2027)</label>
+                        <input type="text" class="input" id="editGoalDeadline" placeholder="Ex: Junho 2027" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label" id="editGoalStatusLbl">Estado da meta</label>
+                    <input type="hidden" id="editGoalStatus" value="on-track">
+                    <div class="fm-seg" id="editGoalStatusSeg" role="group" aria-labelledby="editGoalStatusLbl">
+                        <button type="button" data-status="on-track" style="--c:#4ADE80" onclick="setEditGoalStatus('on-track')"><i></i>No prazo</button>
+                        <button type="button" data-status="at-risk" style="--c:#F59E0B" onclick="setEditGoalStatus('at-risk')"><i></i>Em risco</button>
+                        <button type="button" data-status="completed" style="--c:#38BDF8" onclick="setEditGoalStatus('completed')"><i></i>Concluída</button>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            <div class="confirm-modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeEditGoalModal()">Cancelar</button>
+                <button type="submit" class="btn btn-primary">
+                    <span>Guardar alterações</span>
+                    <svg><use href="#i-check"/></svg>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

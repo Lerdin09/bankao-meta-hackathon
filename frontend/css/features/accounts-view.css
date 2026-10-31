@@ -1,0 +1,238 @@
+/* ==========================================================================
+   VISTAS NOVAS: AS SUAS CONTAS, PAGAMENTOS E POUPANÇA
+   ========================================================================== */
+
+/* Regras de Saldos Ocultos (início oculto por padrão) */
+.nb-acc-val-masked,
+.acc-bal-masked {
+    display: none;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #94A3B8;
+}
+
+body.balances-hidden .nb-acc-val-masked,
+body.balances-hidden .acc-bal-masked {
+    display: inline-block !important;
+}
+
+body.balances-hidden .nb-acc-val,
+body.balances-hidden .acc-bal-val,
+body.balances-hidden .sav-hero-val,
+body.balances-hidden .sav-prog-saved {
+    display: none !important;
+}
+
+/* ============ AS SUAS CONTAS (view-accounts) ============ */
+.acc-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+    gap: 16px;
+    margin-top: 14px;
+}
+
+/* Desktop: máximo 2 cards por linha para melhor legibilidade */
+@media (min-width: 900px) {
+    .acc-summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Mobile: coluna única */
+@media (max-width: 560px) {
+    .acc-summary-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
+.acc-summary-card {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.75), rgba(30, 41, 59, 0.55));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(16px);
+}
+
+.acc-summary-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    opacity: 0.85;
+}
+
+.acc-summary-card.acc-aoa::before { background: linear-gradient(90deg, #38BDF8, #818CF8); }
+.acc-summary-card.acc-eur::before { background: linear-gradient(90deg, #818CF8, #C084FC); }
+.acc-summary-card.acc-usd::before { background: linear-gradient(90deg, #34D399, #059669); }
+.acc-summary-card.acc-savings::before { background: linear-gradient(90deg, #F59E0B, #EC4899); }
+
+.acc-summary-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.65);
+}
+
+.acc-summary-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.acc-summary-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #38BDF8;
+}
+
+.acc-summary-card.acc-eur .acc-summary-icon { color: #A78BFA; }
+.acc-summary-card.acc-usd .acc-summary-icon { color: #34D399; }
+.acc-summary-card.acc-savings .acc-summary-icon { color: #F59E0B; }
+
+.acc-summary-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.acc-summary-label {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #F8FAFC;
+    flex: 1;
+}
+
+.acc-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #94A3B8;
+    letter-spacing: 0.03em;
+}
+
+.acc-summary-balance {
+    margin: 10px 0 18px 0;
+    min-height: 38px;
+}
+
+.acc-bal-val {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+.acc-summary-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 14px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    margin-bottom: 18px;
+}
+
+.acc-detail-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.8rem;
+}
+
+.acc-detail-label {
+    color: #94A3B8;
+}
+
+.acc-detail-val {
+    color: #E2E8F0;
+    font-size: 0.82rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: color 0.15s;
+    text-align: right;
+    max-width: 190px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.acc-detail-val:hover {
+    color: #38BDF8;
+}
+
+.acc-summary-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.acc-act-btn {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 12px;
+    border-radius: 11px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #CBD5E1;
+    cursor: pointer;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+    font-family: inherit;
+}
+
+.acc-act-btn:hover {
+    background: rgba(56, 189, 248, 0.12);
+    border-color: rgba(56, 189, 248, 0.3);
+    color: #38BDF8;
+    transform: translateY(-1px);
+}
+
+.acc-act-btn svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+/* Copyable IBAN fields: feedback visual ao copiar */
+.acc-detail-val.copyable:active {
+    color: #4ADE80;
+}
+
+.acc-detail-val.mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+}
+
+@media (max-width: 400px) {
+    .acc-act-btn span { display: none; }
+    .acc-act-btn { padding: 10px; flex: 0 0 auto; }
+}

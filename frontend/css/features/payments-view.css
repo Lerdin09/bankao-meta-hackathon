@@ -1,0 +1,85 @@
+/* ============ HISTÓRICO DE PAGAMENTOS (view-payments) ============ */
+.pay-summary-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+    margin: 14px 0 20px 0;
+}
+
+.pay-stat-card {
+    background: linear-gradient(135deg, rgba(18, 26, 47, 0.7), rgba(15, 23, 42, 0.5));
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.pay-stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.pay-stat-icon.pink { background: rgba(244, 63, 94, 0.12); color: #FB7185; }
+.pay-stat-icon.amber { background: rgba(245, 158, 11, 0.12); color: #FBBF24; }
+.pay-stat-icon.blue { background: rgba(56, 189, 248, 0.12); color: #38BDF8; }
+
+.pay-stat-icon svg { width: 22px; height: 22px; }
+
+.pay-stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    overflow: hidden;
+}
+
+.pay-stat-label {
+    font-size: 0.78rem;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+}
+
+.pay-stat-val {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    white-space: nowrap;
+}
+
+.pay-filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.pay-filter-btn {
+    padding: 7px 16px;
+    border-radius: 99px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    color: #94A3B8;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pay-filter-btn:hover {
+    color: #F8FAFC;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.pay-filter-btn.active {
+    background: linear-gradient(135deg, #38BDF8, #6366F1);
+    color: #FFFFFF;
+    border-color: transparent;
+    box-shadow: 0 2px 10px rgba(56, 189, 248, 0.35);
+}

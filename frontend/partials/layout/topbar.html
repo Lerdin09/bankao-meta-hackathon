@@ -1,0 +1,40 @@
+<!-- Cabeçalho -->
+<header class="topbar">
+    <button class="icon-btn mobile-menu-btn" id="btnMobileNavHamburger" aria-label="Abrir menu móvel" onclick="toggleMobileMenu()">
+        <svg><use href="#i-menu"/></svg>
+    </button>
+    <a class="brand brand-mobile" href="/">
+        <span class="brand-mark">B</span>
+        <span class="brand-name">Bank<span class="accent">AO</span></span>
+    </a>
+
+    <div class="fx-ticker" aria-label="Câmbio de referência">
+        <span class="ticker-item"><em>EUR</em> <strong id="fxEurAoa">1.050,00 Kz</strong></span>
+        <span class="ticker-sep"></span>
+        <span class="ticker-item"><em>USD</em> <strong id="fxUsdAoa">950,00 Kz</strong></span>
+    </div>
+
+    <div class="topbar-right">
+        <button class="icon-btn hide-unauthenticated" id="btnToggleBalance" aria-label="Mostrar saldos" aria-pressed="true" title="Ocultar/mostrar saldos">
+            <svg class="eye-anim" viewBox="0 0 24 24" aria-hidden="true">
+                <path class="eye-shape" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/>
+                <circle class="eye-pupil" cx="12" cy="12" r="3"/>
+                <path class="eye-slash" d="M4 4l16 16"/>
+            </svg>
+        </button>
+        <button class="icon-btn hide-unauthenticated topbar-qr-btn" id="btnTopbarQr" title="Receber Transferência / Código QR" aria-label="Código QR da conta" onclick="openReceiveQrModal()">
+            <svg><use href="#i-qrcode"/></svg>
+        </button>
+        <button class="btn-copilot-toggle hide-unauthenticated" id="btnToggleCopilot">
+            <svg><use href="#i-spark"/></svg><span>Copilot</span>
+        </button>
+        <div class="user-profile hide-unauthenticated" id="userProfileArea">
+            <div class="avatar" id="userAvatar">?</div>
+            <div class="user-details">
+                <span class="user-name" id="userNameDisplay">Visitante</span>
+                <span class="kyc-badge" id="userKycBadge">Não autenticado</span>
+            </div>
+        </div>
+        <button class="btn-auth-action" id="btnAuthAction" onclick="openAuthModal()">Entrar</button>
+    </div>
+</header>

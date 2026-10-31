@@ -1,0 +1,180 @@
+<!-- ============ ANÁLISE DAS DESPESAS ============ -->
+<section class="view" id="view-expenses">
+    <div class="page-head">
+        <div>
+            <p class="eyebrow">Gestão &amp; Inteligência Financeira</p>
+            <h1>Análise das Despesas</h1>
+        </div>
+        <div class="page-head-actions">
+            <button class="btn btn-primary" onclick="openNewExpenseModal()">
+                <svg><use href="#i-plus"/></svg><span>Registar despesa</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 1. PERÍODO: lista de meses (Todos + cada mês) com setas para navegar -->
+    <div class="xp-period">
+        <button type="button" class="xp-period-step" id="xpPeriodPrev" onclick="stepExpenseMonth(-1)" aria-label="Mês mais antigo">
+            <svg class="flip"><use href="#i-chevron-right"/></svg>
+        </button>
+
+        <div class="xp-period-picker" id="xpPeriodPicker">
+            <button type="button" class="xp-period-trigger" id="xpPeriodTrigger" aria-haspopup="listbox" aria-expanded="false" onclick="toggleExpensePeriodMenu(event)">
+                <svg class="xp-period-ico"><use href="#i-calendar"/></svg>
+                <span class="xp-period-text">
+                    <small>Período</small>
+                    <strong id="xpPeriodLabel">Todos os meses</strong>
+                </span>
+                <svg class="xp-period-caret"><use href="#i-chevron-right"/></svg>
+            </button>
+            <div class="xp-period-menu" id="xpPeriodMenu" role="listbox" aria-label="Escolher mês" hidden></div>
+        </div>
+
+        <button type="button" class="xp-period-step" id="xpPeriodNext" onclick="stepExpenseMonth(1)" aria-label="Mês mais recente">
+            <svg><use href="#i-chevron-right"/></svg>
+        </button>
+    </div>
+
+    <!-- 2. RESUMO DO PERÍODO -->
+    <div class="xp-kpis" id="xpKpis">
+        <!-- Preenchido via JS -->
+    </div>
+
+    <!-- 3. DISTRIBUIÇÃO: donut + detalhe da categoria -->
+    <div class="xp-card xp-chart-card">
+        <div class="xp-card-head">
+            <div>
+                <h3>Distribuição de Gastos</h3>
+                <p class="xp-sub">Toque numa fatia para ver o detalhe da categoria.</p>
+            </div>
+            <button type="button" class="xp-link-btn" id="btnResetDonutSelection" onclick="resetDonutCategorySelection()" style="visibility:hidden;">
+                Ver total
+            </button>
+        </div>
+
+        <div class="xp-chart-layout">
+            <div class="xp-donut">
+                <svg viewBox="0 0 200 200" class="xp-donut-svg" id="expDonutSvg" role="img" aria-label="Gráfico de distribuição de despesas"></svg>
+                <button type="button" class="xp-donut-hub" id="expDonutCenterHub" onclick="resetDonutCategorySelection()" title="Voltar ao total">
+                    <span class="xp-hub-lbl" id="expDonutHubLabel">Total gasto</span>
+                    <strong class="xp-hub-val" id="expTotalGastoVal">0 KZ</strong>
+                    <span class="xp-hub-sub" id="expTotalCountVal">0 compras</span>
+                </button>
+            </div>
+
+            <div class="xp-spot" id="expDonutSpotlightCard">
+                <div class="xp-spot-empty" id="spotlightEmptyState">
+                    <div class="xp-spot-orb"><svg><use href="#i-pie"/></svg></div>
+                    <h4>Selecione uma categoria</h4>
+                    <p>Toque numa fatia do gráfico ou numa categoria da lista abaixo para ver compras, total e meta.</p>
+                </div>
+
+                <div class="xp-spot-body" id="spotlightContent">
+                    <div class="xp-spot-head">
+                        <div class="xp-spot-icon" id="spotlightIconWrap"><svg><use href="#i-receipt"/></svg></div>
+                        <div class="xp-spot-title">
+                            <h4 id="spotlightName">Alimentação</h4>
+                            <span class="xp-pill" id="spotlightShareBadge">38% do gráfico</span>
+                        </div>
+                    </div>
+
+                    <dl class="xp-spot-stats">
+                        <div>
+                            <dt>Compras</dt>
+                            <dd id="spotlightPurchasesCount">4 compras</dd>
+                        </div>
+                        <div>
+                            <dt>Total gasto</dt>
+                            <dd class="debit" id="spotlightTotalSpent">45.000 KZ</dd>
+                        </div>
+                        <div class="wide">
+                            <dt id="spotlightBudgetLabel">Meta mensal</dt>
+                            <dd><span id="spotlightNormalSpent">40.000 KZ</span></dd>
+                            <div class="xp-meter"><i id="spotlightMeterFill"></i></div>
+                            <span class="xp-trend" id="spotlightTrendBadge">—</span>
+                        </div>
+                    </dl>
+
+                    <div class="xp-spot-actions">
+                        <button type="button" class="btn btn-sm btn-primary" onclick="openEditCategoryBudgetModal()">
+                            <svg><use href="#i-gear"/></svg><span>Editar meta</span>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="filterListBySpotlightCategory()">
+                            <svg><use href="#i-list"/></svg><span>Ver gastos</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. TIPOS DE DESPESAS -->
+    <div class="xp-card xp-types-card">
+        <div class="xp-card-head">
+            <div>
+                <h3>Tipos de Despesas</h3>
+                <p class="xp-sub">Marque as categorias que quer ver no gráfico.</p>
+            </div>
+            <div class="xp-segment" role="group" aria-label="Selecionar categorias">
+                <button type="button" onclick="selectAllCategoriesForChart(true)">Todas</button>
+                <button type="button" onclick="selectAllCategoriesForChart(false)">Nenhuma</button>
+            </div>
+        </div>
+        <div class="xp-types" id="expTypesList">
+            <!-- Preenchido via JS -->
+        </div>
+    </div>
+
+    <!-- 5. COPILOT: insights + registo rápido -->
+    <div class="xp-card xp-copilot">
+        <div class="xp-copilot-head">
+            <div class="xp-copilot-avatar"><svg><use href="#i-spark"/></svg><i></i></div>
+            <div class="xp-copilot-title">
+                <span class="xp-copilot-tag">BankAO Copilot</span>
+                <h3>Análise do período</h3>
+            </div>
+            <button type="button" class="xp-link-btn" onclick="openExpenseAssistantHelpModal()">Ajuda</button>
+        </div>
+
+        <div class="xp-insights" id="expAssistantDesc">
+            <!-- Preenchido via JS -->
+        </div>
+
+        <form class="xp-quick" id="formQuickAiExpense" onsubmit="handleQuickAiExpense(event)">
+            <label class="xp-quick-label" for="expQuickAiInput">Registar com o Copilot</label>
+            <div class="xp-quick-row">
+                <input type="text" id="expQuickAiInput" class="xp-quick-input"
+                    placeholder="Ex: Gastei 15.000 KZ no supermercado ontem" autocomplete="off">
+                <button type="submit" class="btn btn-sm btn-primary" id="btnQuickAiSubmit">
+                    <svg><use href="#i-send"/></svg><span>Registar</span>
+                </button>
+            </div>
+            <div class="xp-quick-examples">
+                <button type="button" onclick="fillQuickAiExample('Gastei 15.000 KZ no supermercado ontem')">Supermercado ontem</button>
+                <button type="button" onclick="fillQuickAiExample('Paguei 8.000 KZ de táxi Yango hoje')">Táxi hoje</button>
+                <button type="button" onclick="fillQuickAiExample('Comprei remédios na farmácia 6.500 KZ')">Farmácia</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 6. HISTÓRICO -->
+    <div class="xp-card xp-history">
+        <div class="xp-card-head">
+            <div>
+                <h3>Histórico de Gastos</h3>
+                <p class="xp-sub" id="xpHistorySummary">Transações do período registadas por si ou pelo Copilot.</p>
+            </div>
+            <button class="btn btn-sm btn-primary" onclick="openNewExpenseModal()">
+                <svg><use href="#i-plus"/></svg><span>Nova despesa</span>
+            </button>
+        </div>
+
+        <div class="xp-filters" id="expCategoryFilters" role="tablist" aria-label="Filtrar por categoria">
+            <!-- Preenchido via JS -->
+        </div>
+
+        <div class="xp-list" id="expensesList">
+            <div class="xp-empty">A carregar despesas…</div>
+        </div>
+    </div>
+</section>

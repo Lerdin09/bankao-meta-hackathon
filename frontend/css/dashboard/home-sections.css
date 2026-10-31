@@ -1,0 +1,275 @@
+/* ==========================================================================
+   Dashboard — secções
+   Cabeçalhos de bloco, lista de contas, banner de futuro financeiro e acordeão de carteiras.
+   ========================================================================== */
+
+/* ---------- Secções Gerais e Cabeçalhos de Bloco ---------- */
+.nb-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.nb-section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nb-section-head h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #F8FAFC;
+    margin: 0;
+}
+
+.nb-head-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #60A5FA;
+    cursor: pointer;
+    transition: color 0.2s;
+    background: none;
+    border: none;
+    padding: 0;
+}
+.nb-head-link svg {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.2s;
+}
+.nb-head-link:hover {
+    color: #93C5FD;
+}
+.nb-head-link:hover svg {
+    transform: translateX(2px);
+}
+
+/* Lista: As suas contas */
+.nb-accounts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.nb-account-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: rgba(18, 26, 47, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.nb-account-card:hover {
+    background: rgba(28, 38, 68, 0.8);
+    border-color: rgba(99, 102, 241, 0.35);
+    transform: translateX(3px);
+}
+
+.nb-acc-icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+.nb-acc-icon-wrap svg { width: 22px; height: 22px; }
+
+.nb-acc-icon-wrap.blue {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(99, 102, 241, 0.3));
+    color: #38BDF8;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.nb-acc-icon-wrap.cyan {
+    background: linear-gradient(135deg, rgba(45, 212, 191, 0.2), rgba(56, 189, 248, 0.3));
+    color: #2DD4BF;
+    border: 1px solid rgba(45, 212, 191, 0.3);
+}
+
+.nb-acc-details {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+}
+
+.nb-acc-details strong {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #F8FAFC;
+}
+
+.nb-acc-val {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #94A3B8;
+    font-variant-numeric: tabular-nums;
+}
+
+.nb-account-card .nb-chevron {
+    width: 18px;
+    height: 18px;
+    color: #64748B;
+    transition: transform 0.2s, color 0.2s;
+}
+.nb-account-card:hover .nb-chevron {
+    transform: translateX(2px);
+    color: #CBD5E1;
+}
+
+/* Banner: O seu futuro financeiro */
+.nb-future-banner {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px 22px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, rgba(30, 41, 75, 0.85) 0%, rgba(20, 24, 52, 0.95) 100%);
+    border: 1px solid rgba(129, 140, 248, 0.3);
+    box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    position: relative;
+    overflow: hidden;
+}
+
+@media (min-width: 640px) {
+    .nb-future-banner {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+.nb-future-banner::before {
+    content: "";
+    position: absolute;
+    right: -20px;
+    bottom: -20px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.nb-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    z-index: 1;
+}
+
+.nb-banner-orb {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #38BDF8, #818CF8);
+    display: grid;
+    place-items: center;
+    color: #FFFFFF;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+    flex-shrink: 0;
+}
+.nb-banner-orb svg { width: 22px; height: 22px; }
+
+.nb-banner-texts h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #FFFFFF;
+}
+
+.nb-banner-texts p {
+    margin: 3px 0 0;
+    font-size: 0.84rem;
+    color: #94A3B8;
+}
+
+.nb-banner-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #38BDF8, #6366F1);
+    color: #FFFFFF;
+    font-size: 0.86rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(99, 102, 241, 0.4);
+    transition: all 0.2s;
+    white-space: nowrap;
+    z-index: 1;
+}
+.nb-banner-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.55);
+}
+.nb-banner-action-btn svg { width: 14px; height: 14px; }
+
+/* Acordeão de Carteiras Detalhadas */
+.wallets-accordion {
+    margin-top: 10px;
+}
+
+.wallets-details {
+    background: rgba(18, 26, 47, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.2s;
+}
+
+.wallets-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #E2E8F0;
+    user-select: none;
+    list-style: none;
+}
+.wallets-summary::-webkit-details-marker { display: none; }
+
+.summary-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.summary-ic {
+    width: 20px;
+    height: 20px;
+    color: #38BDF8;
+}
+
+.summary-arrow {
+    width: 18px;
+    height: 18px;
+    color: #94A3B8;
+    transition: transform 0.2s;
+}
+.wallets-details[open] .summary-arrow {
+    transform: rotate(180deg);
+}
+
+.wallets-cards-row {
+    padding: 16px 20px 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}

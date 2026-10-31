@@ -1,0 +1,20 @@
+<!-- Modal: talão de referência -->
+<div class="modal-overlay" id="modalRefSim">
+    <div class="receipt-modal">
+        <div class="receipt-header">
+            <span class="receipt-icon"><svg><use href="#i-receipt"/></svg></span>
+            <h3>Talão de pagamento</h3>
+            <p>Pague no ATM Multicaixa ou Internet Banking</p>
+        </div>
+        <div class="receipt-body">
+            <div class="receipt-row"><span class="label">Entidade</span><strong class="val mono" id="receiptEntidade">00543</strong></div>
+            <div class="receipt-row"><span class="label">Referência</span><strong class="val mono highlight" id="receiptRefCode">123 456 789</strong></div>
+            <div class="receipt-row"><span class="label">Montante</span><strong class="val" id="receiptAmount">25.000,00 Kz</strong></div>
+            <div class="receipt-row"><span class="label">Validade</span><span class="val text-muted" id="receiptExpiry">24 horas</span></div>
+        </div>
+        <div class="receipt-actions">
+            <button class="btn btn-secondary" id="btnCloseRefModal">Fechar</button>
+            <button class="btn btn-success" id="btnSimulateRefPay"><svg><use href="#i-bolt"/></svg><span>Simular pagamento</span></button>
+        </div>
+    </div>
+</div>

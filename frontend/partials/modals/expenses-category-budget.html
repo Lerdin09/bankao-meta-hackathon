@@ -1,0 +1,51 @@
+<!-- ============ MODAL: EDITAR ORÇAMENTO / META DA DESPESA ============ -->
+<div class="modal-overlay" id="modalEditCategoryBudget" style="display:none;">
+    <div class="confirm-transfer-modal form-modal" style="max-width:440px;">
+        <div class="confirm-modal-header">
+            <div class="confirm-modal-icon" style="background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(99,102,241,0.2));color:#38BDF8;">
+                <svg><use href="#i-target"/></svg>
+            </div>
+            <div class="confirm-header-text">
+                <h3>Ajustar Limite da Despesa</h3>
+                <p class="confirm-subtitle">Personalize a meta financeira desta categoria</p>
+            </div>
+            <button type="button" class="confirm-close-btn" onclick="closeEditCategoryBudgetModal()" aria-label="Fechar">
+                <svg><use href="#i-x"/></svg>
+            </button>
+        </div>
+
+        <form id="formEditCategoryBudget" onsubmit="handleSaveCategoryBudget(event)">
+            <div class="confirm-modal-body">
+                <div class="budget-modal-cat-preview">
+                    <span class="budget-cat-icon" id="budgetEditCatIcon"><svg><use href="#i-receipt"/></svg></span>
+                    <div>
+                        <strong id="budgetEditCatName">Alimentação</strong>
+                        <p>Defina o valor habitual ou limite mensal que considera saudável para esta categoria.</p>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label" for="budgetEditInputAmount">Gasto Habitual / Limite Mensal (KZ)</label>
+                    <div class="input-affix">
+                        <input type="text" inputmode="numeric" class="input js-money" id="budgetEditInputAmount" required placeholder="Ex: 50.000" autocomplete="off">
+                        <span>KZ</span>
+                    </div>
+                    <div class="form-quick-chips">
+                        <button type="button" class="chip-btn" onclick="setBudgetQuickAmount(25000)">25.000 KZ</button>
+                        <button type="button" class="chip-btn" onclick="setBudgetQuickAmount(50000)">50.000 KZ</button>
+                        <button type="button" class="chip-btn" onclick="setBudgetQuickAmount(75000)">75.000 KZ</button>
+                        <button type="button" class="chip-btn" onclick="setBudgetQuickAmount(100000)">100.000 KZ</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="confirm-modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeEditCategoryBudgetModal()">Cancelar</button>
+                <button type="submit" class="btn btn-primary">
+                    <span>Guardar limite</span>
+                    <svg><use href="#i-check"/></svg>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

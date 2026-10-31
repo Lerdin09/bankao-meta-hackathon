@@ -1,0 +1,116 @@
+<!-- ============ MODAL: REGISTAR NOVA DESPESA ============ -->
+<div class="modal-overlay" id="modalNewExpense" style="display:none">
+    <div class="confirm-transfer-modal form-modal">
+        <div class="confirm-modal-header">
+            <div class="confirm-modal-icon" style="background:linear-gradient(135deg,rgba(236,72,153,0.2),rgba(129,140,248,0.2));color:#F472B6;">
+                <svg><use href="#i-receipt"/></svg>
+            </div>
+            <div class="confirm-header-text">
+                <h3>Registar Nova Despesa</h3>
+                <p class="confirm-subtitle">Identifique o seu gasto para alimentar o gráfico donut de despesas</p>
+            </div>
+            <button type="button" class="confirm-close-btn" onclick="closeNewExpenseModal()" aria-label="Fechar">
+                <svg><use href="#i-x"/></svg>
+            </button>
+        </div>
+
+        <form id="formNewExpense" onsubmit="handleCreateExpense(event)">
+            <div class="confirm-modal-body">
+                <div class="form-row">
+                    <label class="form-label" for="expName">Nome da Despesa / Estabelecimento</label>
+                    <input type="text" class="input" id="expName" placeholder="Ex: Supermercado Candando, Sonangol, Restaurante" required autocomplete="off">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-label-row">
+                        <label class="form-label">Categoria do Gasto</label>
+                        <span id="expCategoryBudgetHint" class="form-hint-badge">Meta: 45.000 KZ</span>
+                    </div>
+
+                    <!-- Grelha visual de categorias (1-toque) -->
+                    <div class="form-cat-grid" id="expCategoryGrid">
+                        <button type="button" class="form-cat-btn active" data-cat="Alimentação" onclick="selectExpenseFormCategory('Alimentação', 'new')">
+                            <svg style="color:#38BDF8"><use href="#i-cart"/></svg><span>Alimentação</span>
+                        </button>
+                        <button type="button" class="form-cat-btn" data-cat="Transporte" onclick="selectExpenseFormCategory('Transporte', 'new')">
+                            <svg style="color:#F59E0B"><use href="#i-car"/></svg><span>Transporte</span>
+                        </button>
+                        <button type="button" class="form-cat-btn" data-cat="Habitação" onclick="selectExpenseFormCategory('Habitação', 'new')">
+                            <svg style="color:#818CF8"><use href="#i-home"/></svg><span>Habitação</span>
+                        </button>
+                        <button type="button" class="form-cat-btn" data-cat="Telecomunicações" onclick="selectExpenseFormCategory('Telecomunicações', 'new')">
+                            <svg style="color:#EC4899"><use href="#i-phone"/></svg><span>Telecom</span>
+                        </button>
+                        <button type="button" class="form-cat-btn" data-cat="Lazer" onclick="selectExpenseFormCategory('Lazer', 'new')">
+                            <svg style="color:#A855F7"><use href="#i-spark"/></svg><span>Lazer</span>
+                        </button>
+                        <button type="button" class="form-cat-btn" data-cat="Saúde" onclick="selectExpenseFormCategory('Saúde', 'new')">
+                            <svg style="color:#10B981"><use href="#i-heart"/></svg><span>Saúde</span>
+                        </button>
+                        <button type="button" class="form-cat-btn" data-cat="Poupança" onclick="selectExpenseFormCategory('Poupança', 'new')">
+                            <svg style="color:#4ADE80"><use href="#i-piggy"/></svg><span>Poupança</span>
+                        </button>
+                        <button type="button" class="form-cat-btn" data-cat="Outros" onclick="selectExpenseFormCategory('Outros', 'new')">
+                            <svg style="color:#64748B"><use href="#i-receipt"/></svg><span>Outros</span>
+                        </button>
+                    </div>
+
+                    <!-- Input / Select de reserva sincronizado -->
+                    <select class="input select-custom" id="expCategory" style="display:none;" required>
+                        <option value="Alimentação" selected>Alimentação & Supermercado</option>
+                        <option value="Transporte">Transporte & Combustível</option>
+                        <option value="Habitação">Habitação, Renda & Contas</option>
+                        <option value="Telecomunicações">Telecomunicações & Internet</option>
+                        <option value="Lazer">Lazer, Restaurantes & Saídas</option>
+                        <option value="Saúde">Saúde & Bem-Estar</option>
+                        <option value="Poupança">Poupança (depósitos em metas)</option>
+                        <option value="Outros">Outras Despesas</option>
+                    </select>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-row">
+                        <label class="form-label" for="expAmount">Valor do Gasto (KZ)</label>
+                        <div class="input-affix">
+                            <input type="text" inputmode="numeric" class="input js-money" id="expAmount" placeholder="Ex: 25.000" required>
+                            <span>KZ</span>
+                        </div>
+                        <div class="form-quick-chips">
+                            <button type="button" class="chip-btn" onclick="addExpenseQuickAmount('expAmount', 2000)">+2K</button>
+                            <button type="button" class="chip-btn" onclick="addExpenseQuickAmount('expAmount', 5000)">+5K</button>
+                            <button type="button" class="chip-btn" onclick="addExpenseQuickAmount('expAmount', 10000)">+10K</button>
+                            <button type="button" class="chip-btn" onclick="addExpenseQuickAmount('expAmount', 25000)">+25K</button>
+                            <button type="button" class="chip-btn" onclick="addExpenseQuickAmount('expAmount', 50000)">+50K</button>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" for="expDate">Data</label>
+                        <input type="date" class="input" id="expDate" required>
+                        <div class="form-quick-chips">
+                            <button type="button" class="chip-btn" onclick="setExpenseDateShortcut('expDate', 0)">Hoje</button>
+                            <button type="button" class="chip-btn" onclick="setExpenseDateShortcut('expDate', 1)">Ontem</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label" for="expNotes">Forma de Pagamento & Notas (opcional)</label>
+                    <input type="text" class="input" id="expNotes" placeholder="Ex: Multicaixa TPA, pago com cartão virtual">
+                    <div class="form-quick-chips">
+                        <button type="button" class="chip-btn" onclick="appendExpenseNoteTag('expNotes', 'Multicaixa TPA')">Multicaixa</button>
+                        <button type="button" class="chip-btn" onclick="appendExpenseNoteTag('expNotes', 'Transferência')">Transferência</button>
+                        <button type="button" class="chip-btn" onclick="appendExpenseNoteTag('expNotes', 'Dinheiro')">Dinheiro</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="confirm-modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeNewExpenseModal()">Cancelar</button>
+                <button type="submit" class="btn btn-primary">
+                    <span>Guardar despesa</span>
+                    <svg><use href="#i-check"/></svg>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

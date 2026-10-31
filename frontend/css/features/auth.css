@@ -1,0 +1,177 @@
+/* ==========================================================================
+   AUTH MODAL — Login / Registo
+   ========================================================================== */
+
+.auth-overlay {
+    z-index: 900;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+}
+.auth-overlay.active { display: flex !important; }
+
+.auth-modal {
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-xl) var(--r-xl) 0 0;
+    width: 100%;
+    max-width: 480px;
+    max-height: 92dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 32px 24px 28px;
+    position: relative;
+    box-shadow: 0 -20px 60px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.04);
+    animation: modalSlideUp .3s cubic-bezier(.22,1,.36,1);
+    /* Drag handle visual */
+    background-image: radial-gradient(ellipse 40px 4px at 50% 12px, rgba(255,255,255,.18) 0%, transparent 100%);
+}
+@media (min-width: 600px) {
+    .auth-overlay { align-items: center; padding: 16px; }
+    .auth-modal {
+        border-radius: var(--r-xl);
+        width: min(460px, calc(100vw - 32px));
+        background-image: none;
+        box-shadow: 0 32px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04);
+        animation: modalSlideIn .3s cubic-bezier(.22,1,.36,1);
+    }
+}
+
+@keyframes modalSlideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes modalSlideIn {
+    from { opacity: 0; transform: translateY(24px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.auth-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface-3); border: 1px solid var(--line); border-radius: 50%;
+    color: var(--text-2); cursor: pointer; transition: all .18s;
+}
+.auth-close:hover { background: var(--surface-2); color: var(--text); }
+.auth-close svg { width: 18px; height: 18px; }
+
+.auth-brand {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 24px;
+}
+.auth-brand .brand-mark {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-2) 100%);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; font-weight: 800; color: #1a1200;
+}
+.auth-brand .brand-name { font-size: 1.3rem; font-weight: 800; color: var(--text); }
+.auth-brand .accent { color: var(--gold); }
+
+.auth-tabs {
+    display: flex; gap: 4px;
+    background: var(--bg-2); border-radius: 12px; padding: 4px;
+    margin-bottom: 28px;
+}
+.auth-tab {
+    flex: 1; padding: 10px 0; border-radius: 9px;
+    font-weight: 600; font-size: .9rem; cursor: pointer;
+    border: none; background: transparent; color: var(--text-3);
+    transition: all .2s;
+}
+.auth-tab.active {
+    background: var(--surface-2);
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+
+.auth-form .form-group {
+    margin-bottom: 16px;
+}
+.auth-form label {
+    display: block; font-size: .82rem; font-weight: 600;
+    color: var(--text-2); margin-bottom: 6px;
+    letter-spacing: .03em; text-transform: uppercase;
+}
+.auth-form input {
+    width: 100%;
+    background: var(--bg-2); border: 1px solid var(--line-2);
+    border-radius: var(--r-sm); padding: 12px 14px;
+    color: var(--text); font-size: .95rem; font-family: var(--font);
+    transition: border .18s, box-shadow .18s;
+    outline: none;
+}
+.auth-form input:focus {
+    border-color: rgba(230,184,92,.5);
+    box-shadow: 0 0 0 3px rgba(230,184,92,.1);
+}
+.input-eye-wrap { position: relative; }
+.input-eye-wrap input { padding-right: 44px; }
+.btn-eye {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; color: var(--text-3); cursor: pointer;
+    display: flex; align-items: center;
+    padding: 4px; border-radius: 6px;
+    transition: color .18s;
+}
+.btn-eye:hover { color: var(--text-2); }
+.btn-eye svg { width: 18px; height: 18px; }
+
+.terms-check {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: .87rem; color: var(--text-2);
+    margin-bottom: 20px; cursor: pointer; line-height: 1.4;
+}
+.terms-check input[type="checkbox"] {
+    width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px;
+    accent-color: var(--gold); cursor: pointer;
+}
+.link-accent { color: var(--gold); text-decoration: none; }
+.link-accent:hover { text-decoration: underline; }
+
+.btn-full { width: 100%; justify-content: center; }
+.auth-error {
+    color: var(--red); font-size: .85rem;
+    background: var(--red-soft); border-radius: 8px;
+    padding: 10px 14px; margin-bottom: 16px;
+    display: none;
+}
+.auth-error.show { display: block; }
+
+.auth-switch {
+    text-align: center; margin-top: 20px;
+    font-size: .88rem; color: var(--text-3);
+}
+.link-btn {
+    background: none; border: none; color: var(--gold);
+    cursor: pointer; font-weight: 600; font-size: inherit;
+    padding: 0; transition: opacity .18s;
+}
+.link-btn:hover { opacity: .8; }
+
+/* Botão Entrar / Sair no topbar */
+.btn-auth-action {
+    padding: 8px 18px; border-radius: 20px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-2));
+    color: #1a1200; font-weight: 700; font-size: .85rem;
+    border: none; cursor: pointer;
+    transition: opacity .2s, transform .18s;
+    white-space: nowrap;
+}
+.btn-auth-action:hover { opacity: .9; transform: scale(.98); }
+.btn-auth-action.logout-mode {
+    background: var(--surface-3);
+    color: var(--text-2);
+    border: 1px solid var(--line);
+}
+
+/* Badge KYC */
+.kyc-badge {
+    font-size: .72rem; font-weight: 700; letter-spacing: .05em;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 20px;
+    background: var(--surface-3); color: var(--text-3);
+}
+.kyc-badge.verified { background: var(--green-soft); color: var(--green); }
+.kyc-badge.pendente { background: rgba(230,184,92,.15); color: var(--gold); }
