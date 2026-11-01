@@ -1,110 +1,71 @@
 /**
  * Receber por QR
- * Gera o código QR e o modal de receber (e-mail, IBAN, partilha).
+ * Modal "Receber transferência": nome da conta → QR → chave → IBAN → copiar dados.
+ * O QR é gerado localmente (qr-encoder.js): nenhum dado da conta sai do dispositivo.
  */
 
 // =====================================================================
-//  MODAL: RECEBER TRANSFERÊNCIA / CÓDIGO QR & CHAVE DA CONTA
+//  QR estilizado (SVG): módulos arredondados, olhos de posição redondos e logótipo ao centro
 // =====================================================================
-
 function buildBankAoQrSvg(payload) {
-    const N = 29;
-    const grid = Array.from({ length: N }, () => Array(N).fill(0));
+    const qr = QrEncoder.encode(payload, "M");          // nível M tolera o logótipo ao centro
+    const n = qr.size, quiet = 4, total = n + quiet * 2;
 
-    function fillRect(r0, c0, h, w, val) {
-        for (let r = r0; r < r0 + h; r++) {
-            for (let c = c0; c < c0 + w; c++) {
-                if (r >= 0 && r < N && c >= 0 && c < N) grid[r][c] = val;
-            }
+    // Zona do logótipo (ímpar, ~17% do lado → ~3% da área, bem dentro da tolerância de M)
+    let logo = Math.round(n * 0.17); if (logo % 2 === 0) logo++;
+    const l0 = Math.floor((n - logo) / 2), l1 = l0 + logo;
+    const inLogo = (x, y) => x >= l0 - 1 && x <= l1 && y >= l0 - 1 && y <= l1;
+    const inFinder = (x, y) => (x < 7 && y < 7) || (x >= n - 7 && y < 7) || (x < 7 && y >= n - 7);
+
+    const r = 0.3, w = +(1 - 2 * r).toFixed(2);
+    let d = "";
+    for (let y = 0; y < n; y++) {
+        for (let x = 0; x < n; x++) {
+            if (!qr.modules[y][x] || inFinder(x, y) || inLogo(x, y)) continue;
+            const px = x + quiet, py = y + quiet;
+            d += `M${px + r},${py}h${w}a${r},${r} 0 0 1 ${r},${r}v${w}a${r},${r} 0 0 1 -${r},${r}h-${w}a${r},${r} 0 0 1 -${r},-${r}v-${w}a${r},${r} 0 0 1 ${r},-${r}z`;
         }
     }
 
-    function drawFinder(r0, c0) {
-        fillRect(r0, c0, 7, 7, 1);
-        fillRect(r0 + 1, c0 + 1, 5, 5, 0);
-        fillRect(r0 + 2, c0 + 2, 3, 3, 1);
-    }
+    const finder = (ox, oy) => {
+        const x = ox + quiet, y = oy + quiet;
+        return `<rect x="${x}" y="${y}" width="7" height="7" rx="0.5" fill="url(#qrInk)"/>` +
+               `<rect x="${x + 1}" y="${y + 1}" width="5" height="5" rx="0.25" fill="#fff"/>` +
+               `<rect x="${x + 2}" y="${y + 2}" width="3" height="3" rx="0.35" fill="#1D4ED8"/>`;
+    };
 
-    drawFinder(0, 0);
-    drawFinder(0, 22);
-    drawFinder(22, 0);
+    const bx = l0 + quiet - 0.5, bs = logo + 1;           // caixa branca do logótipo
+    const ix = bx + 0.55, is = bs - 1.1;                  // miolo escuro
+    const badge =
+        `<rect x="${bx}" y="${bx}" width="${bs}" height="${bs}" rx="${bs * 0.28}" fill="#fff"/>` +
+        `<rect x="${ix}" y="${ix}" width="${is}" height="${is}" rx="${is * 0.26}" fill="url(#qrBadge)"/>` +
+        `<text x="${total / 2}" y="${total / 2}" text-anchor="middle" dominant-baseline="central" font-family="'Plus Jakarta Sans',system-ui,sans-serif" font-weight="900" font-size="${is * 0.62}" fill="#fff">B</text>`;
 
-    fillRect(7, 0, 1, 8, 0);
-    fillRect(0, 7, 8, 1, 0);
-    fillRect(7, 21, 1, 8, 0);
-    fillRect(0, 21, 8, 1, 0);
-    fillRect(21, 0, 1, 8, 0);
-    fillRect(21, 7, 8, 1, 0);
-
-    for (let i = 8; i < 21; i++) {
-        grid[6][i] = (i % 2 === 0) ? 1 : 0;
-        grid[i][6] = (i % 2 === 0) ? 1 : 0;
-    }
-
-    fillRect(20, 20, 5, 5, 1);
-    fillRect(21, 21, 3, 3, 0);
-    grid[22][22] = 1;
-
-    let hash = 0x811c9dc5;
-    for (let i = 0; i < payload.length; i++) {
-        hash ^= payload.charCodeAt(i);
-        hash = Math.imul(hash, 0x01000193);
-    }
-
-    function pseudoRandom() {
-        hash = (hash ^ (hash << 13)) >>> 0;
-        hash = (hash ^ (hash >> 17)) >>> 0;
-        hash = (hash ^ (hash << 5)) >>> 0;
-        return (hash & 0xFF) / 255;
-    }
-
-    for (let r = 0; r < N; r++) {
-        for (let c = 0; c < N; c++) {
-            if (r <= 7 && c <= 7) continue;
-            if (r <= 7 && c >= 21) continue;
-            if (r >= 21 && c <= 7) continue;
-            if (r === 6 || c === 6) continue;
-            if (r >= 20 && r <= 24 && c >= 20 && c <= 24) continue;
-            if (r >= 11 && r <= 17 && c >= 11 && c <= 17) continue;
-            grid[r][c] = (pseudoRandom() > 0.48) ? 1 : 0;
-        }
-    }
-
-    const cellSize = 6;
-    const padding = 9;
-    const totalSize = N * cellSize + padding * 2;
-
-    let paths = "";
-    for (let r = 0; r < N; r++) {
-        for (let c = 0; c < N; c++) {
-            if (grid[r][c] === 1) {
-                const x = padding + c * cellSize;
-                const y = padding + r * cellSize;
-                paths += `<rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" fill="#0A1128"/>`;
-            }
-        }
-    }
-
-    return `<svg viewBox="0 0 ${totalSize} ${totalSize}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;background:#FFF;border-radius:8px;">${paths}</svg>`;
+    return `<svg viewBox="0 0 ${total} ${total}" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision">` +
+        `<defs>` +
+        `<linearGradient id="qrInk" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="${total}" y2="${total}"><stop offset="0" stop-color="#0B1530"/><stop offset="1" stop-color="#1B2670"/></linearGradient>` +
+        `<linearGradient id="qrBadge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#38BDF8"/><stop offset="1" stop-color="#4F46E5"/></linearGradient>` +
+        `</defs>` +
+        `<rect width="${total}" height="${total}" fill="#fff"/>` +
+        `<path d="${d}" fill="url(#qrInk)"/>` +
+        finder(0, 0) + finder(n - 7, 0) + finder(0, n - 7) +
+        badge + `</svg>`;
 }
+
 function renderReceiveQr(dataString) {
     const container = document.getElementById("qrCanvasContainer");
     if (!container) return;
-
-    const encodedData = encodeURIComponent(dataString);
-    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodedData}&format=svg`;
-
-    container.innerHTML = `
-        <img id="qrRealImg" src="${qrApiUrl}" alt="Código QR BankAO" width="192" height="192"
-             onerror="this.style.display='none'; document.getElementById('qrFallbackSvgWrap').style.display='block';">
-        <div id="qrFallbackSvgWrap" style="display:none;width:192px;height:192px;">
-            ${buildBankAoQrSvg(dataString)}
-        </div>
-        <div class="qr-canvas-badge">
-            <span>B</span>
-        </div>
-    `;
+    try {
+        container.innerHTML = buildBankAoQrSvg(dataString);
+    } catch (err) {
+        console.error("QR:", err);
+        container.innerHTML = '<p style="padding:24px;text-align:center;color:#475569;font-size:.85rem">Não foi possível gerar o código QR. Use a chave ou o IBAN abaixo.</p>';
+    }
 }
+
+// =====================================================================
+//  Abrir / fechar
+// =====================================================================
 function openReceiveQrModal() {
     const m = document.getElementById("modalReceiveQr");
     if (!m) return;
@@ -115,75 +76,99 @@ function openReceiveQrModal() {
     const aoaAcc = state.accountAoa || (state.accounts && state.accounts.find(a => a.currency === "AOA")) || null;
     const iban = aoaAcc ? groupDigits(aoaAcc.iban_virtual) : "AO06 0055 0000 0000 0000 0000 0";
 
-    const nameEl = document.getElementById("qrModalUserName");
-    const emailEl = document.getElementById("qrModalUserEmail");
-    const ibanEl = document.getElementById("qrModalUserIban");
-    const avatarEl = document.getElementById("qrModalUserAvatar");
-    const statusEl = document.getElementById("qrModalUserStatus");
-
-    if (nameEl) nameEl.textContent = name;
-    if (emailEl) emailEl.textContent = email;
-    if (ibanEl) ibanEl.textContent = iban;
-    if (avatarEl) {
-        const initials = name.split(" ").map(w => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
-        avatarEl.textContent = initials || "B";
-    }
-    if (statusEl) {
-        statusEl.textContent = (user.kyc_status === "verificado") ? "Conta Verificada BankAO" : "Conta Ativa BankAO";
-    }
+    const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    setText("qrModalUserName", name);
+    setText("qrModalUserEmail", email);
+    setText("qrModalUserIban", iban);
+    setText("qrModalUserStatus", user.kyc_status === "verificado" ? "Conta Verificada BankAO" : "Conta Ativa BankAO");
 
     const qrPayload = `BANKAO:PAY?email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&iban=${encodeURIComponent(aoaAcc ? aoaAcc.iban_virtual : '')}&account=${encodeURIComponent(aoaAcc ? aoaAcc.account_number : '')}`;
     renderReceiveQr(qrPayload);
 
+    // repõe o estado dos botões de copiar
+    m.querySelectorAll(".copied").forEach(el => el.classList.remove("copied"));
+    const card = m.querySelector(".qr-modal-card");
+    if (card) card.scrollTop = 0;
+
     m.style.display = "flex";
     setTimeout(() => m.classList.add("active"), 10);
+    document.addEventListener("keydown", qrEscClose);
 }
 window.openReceiveQrModal = openReceiveQrModal;
+
 function closeReceiveQrModal() {
     const m = document.getElementById("modalReceiveQr");
+    document.removeEventListener("keydown", qrEscClose);
     if (m) {
         m.classList.remove("active");
-        setTimeout(() => m.style.display = "none", 250);
+        setTimeout(() => { m.style.display = "none"; }, 250);
     }
 }
 window.closeReceiveQrModal = closeReceiveQrModal;
+
+function qrEscClose(e) { if (e.key === "Escape") closeReceiveQrModal(); }
+
+// =====================================================================
+//  Copiar (chave, IBAN, ou os dois)
+// =====================================================================
+async function qrCopyText(text) {
+    try {
+        if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; }
+    } catch (e) { /* tenta o método antigo */ }
+    try {   // alternativa para páginas sem HTTPS / navegadores antigos
+        const ta = document.createElement("textarea");
+        ta.value = text; ta.setAttribute("readonly", "");
+        ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;pointer-events:none";
+        document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+        const ok = document.execCommand("copy");
+        ta.remove();
+        return ok;
+    } catch (e) { return false; }
+}
+
+function qrFlash(btn) {
+    if (!btn) return;
+    btn.classList.add("copied");
+    clearTimeout(btn._qrTimer);
+    btn._qrTimer = setTimeout(() => btn.classList.remove("copied"), 1800);
+}
+
 async function copyQrAccountEmail() {
     const email = document.getElementById("qrModalUserEmail")?.textContent.trim();
-    if (email && email !== "carregando...") {
-        try { await navigator.clipboard.writeText(email); } catch (e) { /* ignore */ }
-        toast("Chave copiada: " + email, "success");
-    }
+    if (!email || email === "carregando...") return;
+    if (await qrCopyText(email)) { qrFlash(document.getElementById("btnCopyQrEmail")); toast("Chave copiada: " + email, "success"); }
+    else toast("Não foi possível copiar. Selecione e copie manualmente.", "error");
 }
 window.copyQrAccountEmail = copyQrAccountEmail;
+
 async function copyQrAccountIban() {
     const iban = document.getElementById("qrModalUserIban")?.textContent.trim();
-    if (iban && iban !== "carregando...") {
-        try { await navigator.clipboard.writeText(iban); } catch (e) { /* ignore */ }
-        toast("IBAN copiado: " + iban, "success");
-    }
+    if (!iban || iban === "carregando...") return;
+    if (await qrCopyText(iban)) { qrFlash(document.getElementById("btnCopyQrIban")); toast("IBAN copiado: " + iban, "success"); }
+    else toast("Não foi possível copiar. Selecione e copie manualmente.", "error");
 }
 window.copyQrAccountIban = copyQrAccountIban;
+
+// "Copiar dados (chave e IBAN)": um texto pronto a colar numa mensagem
 async function shareQrDetails() {
     const name = document.getElementById("qrModalUserName")?.textContent.trim();
     const email = document.getElementById("qrModalUserEmail")?.textContent.trim();
     const iban = document.getElementById("qrModalUserIban")?.textContent.trim();
+    if (!email || email === "carregando...") return;
 
-    const fullInfo = 
-`🏦 Dados para Transferência BankAO
-• Titular: ${name}
-• Chave (E-mail): ${email}
-• IBAN (AOA): ${iban}
-• Instituição: BankAO Digital`;
+    const fullInfo =
+`Dados para transferência BankAO
+Titular: ${name}
+Chave (e-mail): ${email}
+IBAN (AOA): ${iban}`;
 
-    try {
-        if (navigator.clipboard) {
-            await navigator.clipboard.writeText(fullInfo);
-            toast("✅ Dados completos copiados para partilhar!", "success");
-        } else {
-            toast("Chave copiada: " + email, "success");
-        }
-    } catch (err) {
-        toast("Chave copiada: " + email, "success");
+    if (await qrCopyText(fullInfo)) {
+        qrFlash(document.getElementById("btnCopyQrAll"));
+        qrFlash(document.getElementById("btnCopyQrEmail"));
+        qrFlash(document.getElementById("btnCopyQrIban"));
+        toast("Dados copiados para partilhar", "success");
+    } else {
+        toast("Não foi possível copiar. Selecione e copie manualmente.", "error");
     }
 }
 window.shareQrDetails = shareQrDetails;

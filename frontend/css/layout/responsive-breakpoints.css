@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    Responsivo - breakpoints
    Regras por largura: <=639, >=640, >=768, >=1024 e >=1280 px.
    ========================================================================== */
@@ -16,6 +16,8 @@ body.unauthenticated .hide-unauthenticated { display: none !important; }
     .user-profile { max-width: 120px; }
     .user-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px; font-size: .82rem; }
     .btn-copilot-toggle { display: none !important; }
+    /* O QR já está no cabeçalho do início e no menu "Mais": libertar espaço para o botão Sair não ser cortado */
+    .topbar-qr-btn { display: none !important; }
     .icon-btn { width: 38px; height: 38px; border-radius: 10px; }
     .btn-auth-action {
         padding: 10px 18px;
@@ -27,6 +29,11 @@ body.unauthenticated .hide-unauthenticated { display: none !important; }
     }
 }
 
+/* Telemóveis estreitos: só a marca (sem o nome) para a barra caber */
+@media (max-width: 389px) {
+    .brand-mobile .brand-name { display: none; }
+}
+
 /* >= 640px */
 @media (min-width: 640px) {
     .topbar { padding: 0 24px; }
@@ -35,9 +42,7 @@ body.unauthenticated .hide-unauthenticated { display: none !important; }
     .cards-row { margin: 0 0 22px; padding: 4px 0 12px; display: grid; grid-template-columns: 1fr 1fr; overflow: visible; }
     .card-wallet { flex: initial; min-height: 224px; }
     .panel { padding: 24px 22px; }
-    .operations-section { padding: 20px; }
     .form-row { grid-template-columns: 1fr 1fr; }
-    .method-selector { grid-template-columns: 1fr 1fr; }
     .btn { width: auto; min-width: 280px; }
     .form-actions { display: flex; justify-content: flex-end; }
     .tx-item { grid-template-columns: 48px 1fr auto; padding: 16px 6px; }
@@ -58,15 +63,23 @@ body.unauthenticated .hide-unauthenticated { display: none !important; }
     .topbar { justify-content: flex-start; }
     .topbar-right { margin-left: auto; }
     .btn-copilot-toggle { display: inline-flex; }
-    .bottom-nav { left: 50%; right: auto; width: min(560px, calc(100% - 48px)); transform: translateX(-50%); bottom: 14px; border: 1px solid var(--line-2); border-radius: 24px; height: 68px; padding: 8px 10px; box-shadow: 0 20px 50px -14px rgba(0, 0, 0, .8); }
     .copilot-sidebar { height: calc(100dvh - var(--banner-h) - var(--safe-t) - var(--top-h) - 150px); }
     .quick-actions { gap: 14px; }
     .qa { flex-direction: row; justify-content: center; padding: 14px; font-size: .88rem; }
 }
 
+/* Tablet e portátil pequeno (768–1099px): o câmbio de referência não cabe ao lado dos botões
+   e empurrava o avatar e o botão Sair para fora do ecrã */
+@media (min-width: 768px) and (max-width: 1099px) {
+    .fx-ticker { display: none; }
+}
+
 /* =============================================================
-   >= 1024px - Desktop: barra lateral, topbar e copilot fixos;
-   apenas o main-content tem scroll
+   >= 1024px - Desktop: Estrutura "Duas Paredes e um Telhado"
+   - Parede Esquerda: aside.sidebar (fixa)
+   - Telhado: .topbar (fixo no topo)
+   - Parede Direita: #view-copilot (fixa, scroll apenas nas mensagens)
+   - Centro: .main-content (UNICA zona que faz scroll)
    ============================================================= */
 @media (min-width: 1024px) {
     .user-details { display: flex; }
@@ -76,42 +89,83 @@ body.unauthenticated .hide-unauthenticated { display: none !important; }
     .card-wallet { min-height: 236px; padding: 24px 26px; }
     .qa { padding: 18px; }
     .toast-stack { right: 28px; }
-    .copilot-sidebar { height: calc(100dvh - var(--banner-h) - var(--safe-t) - var(--top-h) - 72px); }
-}
 
-/* =============================================================
-   >= 1280px - Desktop largo: Copilot visivel como coluna direita
-   O Copilot usa position:sticky dentro do main-content (scroll container)
-   ============================================================= */
-@media (min-width: 1280px) {
-    .main-content { padding: 28px 32px 56px; }
+    /* Telhado estende harmonioso */
+    .topbar {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(7, 11, 20, 0.88);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+    }
 
-    /*
-     * .views = grid: col 1 = pagina activa, col 2 = copilot
-     * O copilot fica sticky dentro do main-content (overflow-y:auto)
-     * Nota: sticky funciona dentro de overflow:auto desde que o
-     * elemento pai nao bloqueie o eixo correspondente.
-     */
+    /* Corpo de trabalho: centro (scroll) + parede direita (fixa) */
+    .workspace-body {
+        display: flex !important;
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* Centro Móvel: Única zona com scroll ao descer */
+    .main-content {
+        flex: 1;
+        min-width: 0;
+        height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+        padding: 28px 32px 56px;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+    }
+    .main-content::-webkit-scrollbar { width: 5px; }
+    .main-content::-webkit-scrollbar-track { background: transparent; }
+    .main-content::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 99px;
+    }
+
+    /* Área de views no centro: sem colisões */
     .views {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) var(--copilot-w);
-        gap: 24px;
-        align-items: start;
+        display: block !important;
+        width: 100%;
+        max-width: 1080px;
+        margin: 0 auto;
     }
-    .views > .view:not(.copilot-view) { grid-column: 1; grid-row: 1; }
-    .views > .copilot-view {
-        display: block;
-        grid-column: 2;
-        grid-row: 1;
-        position: sticky;
-        top: 0;
-        align-self: start;
-        animation: none;
+
+    /* Parede Direita Fixa: BankAO Copilot / Chatbot */
+    #view-copilot {
+        width: var(--copilot-w, 380px);
+        flex-shrink: 0;
+        height: 100%;
+        display: flex !important;
+        flex-direction: column;
+        border-left: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(10, 15, 28, 0.95);
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        box-shadow: -4px 0 24px rgba(0, 0, 0, 0.35);
+        overflow: hidden;
+        position: static;
+        z-index: 20;
+        animation: none !important;
     }
+
     .copilot-sidebar {
-        height: calc(100dvh - var(--banner-h) - var(--safe-t) - var(--top-h) - 56px);
-        max-height: 860px;
+        height: 100% !important;
+        max-height: 100% !important;
+        min-height: 0 !important;
+        border-radius: 0 !important;
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        padding: 0 !important;
     }
+
+    /* Ocultar botões redundantes no desktop */
     .btn-copilot-toggle, .nav-copilot { display: none !important; }
     .qa:nth-child(4) { display: none; }
     .quick-actions { grid-template-columns: repeat(3, 1fr); }
@@ -119,7 +173,13 @@ body.unauthenticated .hide-unauthenticated { display: none !important; }
 
 @media (min-width: 1600px) {
     :root { --copilot-w: 420px; }
-    .main-content { padding: 36px 56px 64px; }
+    .main-content { padding: 36px 52px 64px; }
+    .views { max-width: 1200px; }
+}
+
+/* Mobile: workspace-body como display contents */
+@media (max-width: 1023px) {
+    .workspace-body { display: contents; }
 }
 
 /* Tablet/telem em paisagem com pouca altura */

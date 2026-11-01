@@ -1,0 +1,55 @@
+﻿{
+  "version": "1.2.0",
+  "intents": [
+    {
+      "id": "TRANSFER_IBAN",
+      "name": "Transferência Internacional ou Nacional por IBAN",
+      "description": "Prepara e pré-valida o envio de fundos para qualquer IBAN (Angola, Portugal, Europa SEPA, etc.)",
+      "action_type": "TRANSFER_IBAN",
+      "required_params": ["amount", "to_iban"],
+      "optional_params": ["beneficiary_name", "currency", "country_code", "country_name", "fee_percent"],
+      "ui_target": "view-payments",
+      "requires_user_confirmation": true
+    },
+    {
+      "id": "REGISTER_EXPENSE",
+      "name": "Registo Rápido de Despesa",
+      "description": "Insere um novo gasto na aba de Despesas e recalcula os orçamentos e gráfico donut",
+      "action_type": "REGISTER_EXPENSE",
+      "required_params": ["name", "amount", "category"],
+      "optional_params": ["currency", "notes"],
+      "ui_target": "view-expenses",
+      "requires_user_confirmation": false
+    },
+    {
+      "id": "DEPOSIT_MULTICAIXA_EXPRESS",
+      "name": "Depósito com Multicaixa Express",
+      "description": "Instrui e simula envio de push de aprovação para o telemóvel do utilizador",
+      "action_type": "DEPOSIT_MULTICAIXA",
+      "required_params": ["phone_number", "amount"],
+      "optional_params": ["currency"],
+      "ui_target": "multicaixaExpressModal",
+      "requires_user_confirmation": true
+    },
+    {
+      "id": "FX_INQUIRY",
+      "name": "Consulta de Câmbio em Tempo Real",
+      "description": "Informa as cotações oficiais e comerciais de EUR/AOA, USD/AOA e calcula spread",
+      "action_type": null,
+      "required_params": [],
+      "optional_params": ["base_currency", "target_currency"],
+      "ui_target": null,
+      "requires_user_confirmation": false
+    },
+    {
+      "id": "SAVINGS_ADVICE",
+      "name": "Dicas e Consultoria de Poupança",
+      "description": "Avalia o saldo atual versus metas ativas e projeta tempo até a conclusão",
+      "action_type": null,
+      "required_params": [],
+      "optional_params": ["goal_id"],
+      "ui_target": "view-savings",
+      "requires_user_confirmation": false
+    }
+  ]
+}

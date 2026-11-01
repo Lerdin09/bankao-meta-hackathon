@@ -2,27 +2,7 @@
    VISTAS NOVAS: AS SUAS CONTAS, PAGAMENTOS E POUPANÇA
    ========================================================================== */
 
-/* Regras de Saldos Ocultos (início oculto por padrão) */
-.nb-acc-val-masked,
-.acc-bal-masked {
-    display: none;
-    font-size: 1.15rem;
-    font-weight: 700;
-    letter-spacing: 3px;
-    color: #94A3B8;
-}
-
-body.balances-hidden .nb-acc-val-masked,
-body.balances-hidden .acc-bal-masked {
-    display: inline-block !important;
-}
-
-body.balances-hidden .nb-acc-val,
-body.balances-hidden .acc-bal-val,
-body.balances-hidden .sav-hero-val,
-body.balances-hidden .sav-prog-saved {
-    display: none !important;
-}
+/* Saldos ocultos: ver components/balance-swap.css (troca valor ↔ máscara sem mudar o tamanho) */
 
 /* ============ AS SUAS CONTAS (view-accounts) ============ */
 .acc-summary-grid {

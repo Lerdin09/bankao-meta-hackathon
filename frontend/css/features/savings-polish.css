@@ -3,8 +3,8 @@
    ========================================================================== */
 
 /* Valores monetários dentro de textos respeitam o modo "saldos ocultos" */
-body.balances-hidden .sg-money { font-size: 0; }
-body.balances-hidden .sg-money::after { content: "•••• KZ"; font-size: .85rem; letter-spacing: 1px; color: var(--text-3); }
+.sg-money { display: inline-block; transition: filter .4s ease, opacity .4s ease; }
+body.balances-hidden .sg-money { filter: blur(6px); opacity: .7; user-select: none; }
 
 /* ───────── Lista de metas ───────── */
 .sav-goals-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 14px; }

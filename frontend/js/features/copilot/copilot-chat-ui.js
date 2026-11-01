@@ -17,10 +17,17 @@ function addCopilotMessage(sender, text, action = null) {
         .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
         .replace(/\*(.*?)\*/g, "<em>$1</em>");
 
+    const timeStr = new Date().toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" });
+    const isAi = sender === "ai";
+    const headerLabel = isAi
+        ? `<div class="bubble-header-label"><span class="sender-name">BankAO Copilot</span><span class="sender-badge">Assistente IA</span><span class="bubble-time">${timeStr}</span></div>`
+        : `<div class="bubble-header-label"><span class="sender-name">Você</span><span class="bubble-time">${timeStr}</span></div>`;
+
     bubble.innerHTML = `
         <div class="bubble-avatar">${avatar}</div>
         <div class="bubble-content">
-            <p>${formatted}</p>
+            ${headerLabel}
+            <div class="bubble-text"><p>${formatted}</p></div>
         </div>
     `;
 
@@ -30,8 +37,8 @@ function addCopilotMessage(sender, text, action = null) {
         actionCard.className = "copilot-action-card";
         actionCard.innerHTML = `
             <div class="action-card-header">
-                <span class="action-badge">🤖 Operação Pronta</span>
-                <span class="country-pill">${action.country_name || action.country_code}</span>
+                <span class="action-badge"><svg><use href="#i-spark"/></svg> Operação Pronta</span>
+                <span class="country-pill">${escapeHtml(action.country_name || action.country_code || "")}</span>
             </div>
             <div class="action-summary-grid">
                 <div class="action-grid-row">
@@ -74,7 +81,7 @@ function addCopilotMessage(sender, text, action = null) {
         actionCard.className = "copilot-action-card";
         actionCard.innerHTML = `
             <div class="action-card-header">
-                <span class="action-badge">📊 Despesa Registada</span>
+                <span class="action-badge"><svg><use href="#i-pie"/></svg> Despesa Registada</span>
                 <span class="country-pill">${escapeHtml(action.category || "Gasto")}</span>
             </div>
             <div class="action-summary-grid">
@@ -100,17 +107,52 @@ function addCopilotMessage(sender, text, action = null) {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
     // Guardar no histórico
+    if (!state.chatHistory) state.chatHistory = [];
     state.chatHistory.push({
         role: sender === "ai" ? "assistant" : "user",
         content: text
     });
 }
+
 function showTyping() {
     const chatContainer = document.getElementById("copilotChatMessages");
     const el = document.createElement("div");
-    el.className = "chat-bubble ai";
-    el.innerHTML = `<div class="bubble-avatar"><svg><use href="#i-spark"/></svg></div><div class="bubble-content"><span class="typing"><i></i><i></i><i></i></span></div>`;
+    el.className = "chat-bubble ai typing-bubble";
+    el.innerHTML = `
+        <div class="bubble-avatar"><svg><use href="#i-spark"/></svg></div>
+        <div class="bubble-content">
+            <span class="typing"><i></i><i></i><i></i></span>
+        </div>
+    `;
     chatContainer.appendChild(el);
     chatContainer.scrollTop = chatContainer.scrollHeight;
     return el;
+}
+
+// Reiniciar / Limpar conversa do Copilot
+function resetCopilotConversation() {
+    state.chatHistory = [];
+    const chatContainer = document.getElementById("copilotChatMessages");
+    if (!chatContainer) return;
+    chatContainer.innerHTML = `
+        <div class="chat-bubble ai">
+            <div class="bubble-avatar"><svg><use href="#i-spark"/></svg></div>
+            <div class="bubble-content">
+                <div class="bubble-header-label">
+                    <span class="sender-name">BankAO Copilot</span>
+                    <span class="sender-badge">Assistente IA</span>
+                </div>
+                <p class="greeting-lead">Olá! Sou o seu <strong>assistente financeiro inteligente</strong>.</p>
+                <p class="greeting-desc">Estou pronto para simular envios, analisar despesas, esclarecer câmbio e depósitos Multicaixa Express.</p>
+                <div class="copilot-capability-tags">
+                    <span class="cap-tag"><svg><use href="#i-swap"/></svg> Câmbio EUR/USD/AOA</span>
+                    <span class="cap-tag"><svg><use href="#i-shield"/></svg> Multicaixa Express</span>
+                    <span class="cap-tag"><svg><use href="#i-pie"/></svg> Gráfico de Despesas</span>
+                    <span class="cap-tag"><svg><use href="#i-target"/></svg> Metas de Poupança</span>
+                </div>
+            </div>
+        </div>
+    `;
+    const input = document.getElementById("copilotUserInput");
+    if (input) input.focus();
 }

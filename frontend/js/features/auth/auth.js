@@ -149,6 +149,7 @@ function updateTopbarUser(user) {
     if (!user) {
         // Modo visitante: marcar body para esconder elementos desnecessários
         document.body.classList.add('unauthenticated');
+        updateHomeGreeting(null);
         if (nameEl)  nameEl.textContent   = 'Visitante';
         if (avatarEl) avatarEl.textContent = '?';
         if (badgeEl) {
@@ -186,13 +187,8 @@ function updateTopbarUser(user) {
     if (mobNameEl)   mobNameEl.textContent   = name;
     if (mobAvatarEl) mobAvatarEl.textContent = initials;
 
-    // Saudação baseada na hora do dia
-    const hour = new Date().getHours();
-    const greetEl     = document.getElementById('greetingLine');
-    const greetNameEl = document.getElementById('greetingName');
-    const greeting = hour < 12 ? '☀️ Bom dia' : hour < 19 ? '🌤️ Boa tarde' : '🌙 Boa noite';
-    if (greetEl)     greetEl.textContent     = greeting;
-    if (greetNameEl) greetNameEl.textContent = name.split(' ')[0];
+    // Saudação (nome + frase conforme a hora)
+    updateHomeGreeting(user);
 
     // Badge KYC
     const isVerif = user.kyc_status === 'verificado';

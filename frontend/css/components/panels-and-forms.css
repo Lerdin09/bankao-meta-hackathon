@@ -45,29 +45,7 @@ body.balances-hidden .tx-amount { filter: blur(7px); }
 .status-tag.failed { color: var(--red); background: var(--red-soft); }
 .empty { padding: 36px 12px; text-align: center; color: var(--text-3); font-size: .9rem; }
 
-/* ---------- Operações ---------- */
-.operations-section { padding: 14px; }
-.tabs-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; margin-bottom: 18px; border-radius: 14px; background: var(--bg); border: 1px solid var(--line); }
-.tab-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 6px; border-radius: 11px; font-weight: 600; font-size: .84rem; color: var(--text-3); transition: .2s; min-height: 44px; }
-.tab-btn svg { width: 17px; height: 17px; }
-.tab-btn:hover { color: var(--text-2); }
-.tab-btn.active { color: var(--text); background: var(--surface-3); box-shadow: 0 2px 10px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .06); }
-.tab-btn.active svg { color: var(--gold); }
-.tab-pane { display: none; }
-.tab-pane.active { display: block; animation: viewIn .3s ease; }
-.operation-card { padding: 4px 4px 6px; }
-
-.method-selector { display: grid; gap: 10px; margin-bottom: 20px; }
-.method-card { position: relative; display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: var(--r-md); cursor: pointer; background: var(--bg-2); border: 1px solid var(--line); transition: .2s; }
-.method-card input { position: absolute; opacity: 0; pointer-events: none; }
-.method-card:hover { border-color: var(--line-2); }
-.method-card.active { border-color: rgba(230, 184, 92, .5); background: linear-gradient(180deg, rgba(230, 184, 92, .09), rgba(230, 184, 92, .03)); box-shadow: 0 0 0 3px rgba(230, 184, 92, .08); }
-.method-ic { width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center; background: var(--surface-3); color: var(--text-2); }
-.method-card.active .method-ic { background: var(--gold-soft); color: var(--gold); }
-.method-title { font-weight: 600; font-size: .92rem; }
-.method-desc { color: var(--text-3); font-size: .78rem; }
-.deposit-subform { display: none; }
-.deposit-subform.active { display: block; }
+/* ---------- Operações: ver css/features/operations.css ---------- */
 
 /* Formulários */
 .form-row { display: grid; gap: 16px; margin-bottom: 16px; }

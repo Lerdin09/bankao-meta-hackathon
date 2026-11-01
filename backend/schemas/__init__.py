@@ -8,7 +8,7 @@ from backend.schemas.accounts import AccountResponse
 from backend.schemas.deposits import DepositReferenciaCreate, DepositExpressCreate, DepositSimulatePayment
 from backend.schemas.transfers import InternalTransferCreate, IbanTransferCreate
 from backend.schemas.fx import FxQuoteRequest
-from backend.schemas.ai import AIChatRequest, AIExplainTransferRequest
+from backend.schemas.ai import AIChatRequest, AIExplainTransferRequest, IdealPaceRequest
 
 __all__ = [
     "UserRegister",
@@ -25,4 +25,5 @@ __all__ = [
     "FxQuoteRequest",
     "AIChatRequest",
     "AIExplainTransferRequest",
+    "IdealPaceRequest",
 ]

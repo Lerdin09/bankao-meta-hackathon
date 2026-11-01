@@ -14,6 +14,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
+    min-width: 0;
 }
 
 .nb-section-head h3 {
@@ -34,24 +36,25 @@
     transition: color 0.2s;
     background: none;
     border: none;
-    padding: 0;
+    padding: 6px 0 6px 8px;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
 }
+.nb-head-link:focus-visible { outline: 2px solid #38BDF8; outline-offset: 2px; border-radius: 6px; }
 .nb-head-link svg {
     width: 14px;
     height: 14px;
     transition: transform 0.2s;
 }
-.nb-head-link:hover {
-    color: #93C5FD;
-}
-.nb-head-link:hover svg {
-    transform: translateX(2px);
+@media (hover: hover) {
+    .nb-head-link:hover { color: #93C5FD; }
+    .nb-head-link:hover svg { transform: translateX(2px); }
 }
 
-/* Lista: As suas contas */
+/* Lista: As suas contas (1 coluna no telemóvel, 2 quando há espaço) */
 .nb-accounts-list {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
     gap: 10px;
 }
 
@@ -59,21 +62,24 @@
     display: flex;
     align-items: center;
     gap: 14px;
-    padding: 14px 18px;
+    min-width: 0;
+    padding: 14px 16px;
     background: rgba(18, 26, 47, 0.65);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 20px;
     cursor: pointer;
-    transition: all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
     box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .22s cubic-bezier(0.2, 0.8, 0.2, 1), background-color .22s ease, border-color .22s ease;
 }
-
-.nb-account-card:hover {
-    background: rgba(28, 38, 68, 0.8);
-    border-color: rgba(99, 102, 241, 0.35);
-    transform: translateX(3px);
+.nb-account-card:active { transform: scale(.985); }
+.nb-account-card:focus-visible { outline: 2px solid #38BDF8; outline-offset: 2px; }
+@media (hover: hover) {
+    .nb-account-card:hover {
+        background: rgba(28, 38, 68, 0.8);
+        border-color: rgba(99, 102, 241, 0.35);
+        transform: translateX(3px);
+    }
 }
 
 .nb-acc-icon-wrap {
@@ -90,6 +96,12 @@
     background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(99, 102, 241, 0.3));
     color: #38BDF8;
     border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.nb-acc-icon-wrap.green {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.18), rgba(45, 212, 191, 0.28));
+    color: #4ADE80;
+    border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
 .nb-acc-icon-wrap.cyan {
@@ -110,6 +122,9 @@
     font-size: 0.95rem;
     font-weight: 700;
     color: #F8FAFC;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .nb-acc-val {
@@ -120,14 +135,14 @@
 }
 
 .nb-account-card .nb-chevron {
+    flex: none;
     width: 18px;
     height: 18px;
     color: #64748B;
-    transition: transform 0.2s, color 0.2s;
+    transition: transform .2s ease, color .2s ease;
 }
-.nb-account-card:hover .nb-chevron {
-    transform: translateX(2px);
-    color: #CBD5E1;
+@media (hover: hover) {
+    .nb-account-card:hover .nb-chevron { transform: translateX(2px); color: #CBD5E1; }
 }
 
 /* Banner: O seu futuro financeiro */
@@ -168,8 +183,10 @@
     display: flex;
     align-items: center;
     gap: 14px;
+    min-width: 0;
     z-index: 1;
 }
+.nb-banner-texts { min-width: 0; }
 
 .nb-banner-orb {
     width: 46px;
@@ -211,13 +228,19 @@
     border: none;
     cursor: pointer;
     box-shadow: 0 6px 18px rgba(99, 102, 241, 0.4);
-    transition: all 0.2s;
+    transition: transform .2s ease, box-shadow .2s ease;
     white-space: nowrap;
     z-index: 1;
+    min-height: 44px;
+    -webkit-tap-highlight-color: transparent;
 }
-.nb-banner-action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.55);
+.nb-banner-action-btn:active { transform: scale(.97); }
+.nb-banner-action-btn:focus-visible { outline: 2px solid #E0E7FF; outline-offset: 2px; }
+@media (hover: hover) {
+    .nb-banner-action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.55);
+    }
 }
 .nb-banner-action-btn svg { width: 14px; height: 14px; }
 

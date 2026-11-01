@@ -261,20 +261,10 @@ body.balances-hidden .balance-amount { filter: blur(11px); user-select: none; }
 }
 
 .dash-balance-masked {
-    display: none;
     font-size: 1.6rem;
     letter-spacing: 4px;
     color: var(--text-3);
     vertical-align: middle;
-}
-
-body.balances-hidden .dash-balance-masked {
-    display: inline-block;
-}
-
-body.balances-hidden .dash-balance-num,
-body.balances-hidden .dash-balance-curr {
-    display: none !important;
 }
 
 /* Botão do Olho (posicionado no lado direito do número) */

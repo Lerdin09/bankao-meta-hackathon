@@ -92,3 +92,7 @@ reexportados em `schemas/__init__.py`); regras de negócio em `backend/services/
 
 - Os dados de poupanças, despesas e orçamentos do frontend ficam em `localStorage` (por browser).
 - A base de dados SQLite (`bankao.db`) é ignorada pelo Git (ver `.gitignore`).
+
+## Gráfico do cartão
+
+Ao tocar no cartão de saldo do início abre-se `view-card-chart` (`frontend/js/features/card-chart/`): linhas verde (recebido), vermelha (saído) e azul (ritmo ideal). Intervalos: 7 dias, 30 dias, 3 meses, 6 meses, 1 ano e Total. A linha azul vem de `POST /api/ai/ideal-pace` (`backend/ai/ideal_pace.py`): a Meta Model API propõe o gasto mensal ideal para cumprir as metas de poupança, limitado a ±25 % do cálculo local, que também é o fallback sem chave, sem sessão ou sem rede. Sem sessão ou sem histórico o gráfico mostra dados de demonstração.

@@ -43,8 +43,10 @@
 @import url("components/period-filter.css");
 @import url("features/statement.css");
 @import url("components/eye-toggle.css");
+@import url("components/balance-swap.css");
 @import url("features/tx-detail.css");
 @import url("features/receive-qr.css");
 @import url("components/confirm-dialog.css");
 @import url("features/savings-polish.css");
+@import url("features/card-chart.css");
 @import url("layout/responsive-polish.css");

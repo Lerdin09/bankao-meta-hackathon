@@ -35,6 +35,7 @@ async function loadUserData() {
         }
         renderSavingsView();
         renderExpensesView();
+        if (typeof refreshCardChart === "function") refreshCardChart();
 
         // Preencher seletores de mês a partir da data de criação da conta
         const createdAt = state.user && state.user.created_at ? state.user.created_at : null;
@@ -74,6 +75,23 @@ function renderAccounts() {
     updateDashboardHero();
     renderAccountsView();
 }
+// Saudação do início: nome + frase conforme a hora do dia
+function updateHomeGreeting(user) {
+    const u = user === undefined ? state.user : user;
+    const nameEl = document.getElementById("greetingName");
+    const lineEl = document.getElementById("greetingLine");
+    const hour = new Date().getHours();
+    const text = hour < 5 ? "🌙 Boa noite"
+        : hour < 12 ? "☀️ Bom dia"
+        : hour < 19 ? "🌤️ Boa tarde"
+        : "🌙 Boa noite";
+    if (lineEl && lineEl.textContent !== text) lineEl.textContent = text;
+    if (nameEl) {
+        const full = u ? (u.nome || u.primeiro_nome || "Utilizador") : "Visitante";
+        const first = String(full).trim().split(/\s+/)[0];
+        if (nameEl.textContent !== first) nameEl.textContent = first;
+    }
+}
 // Atualizar Hero Card do Dashboard com Chave, Saldo da moeda de preferência, contas e seletor
 function updateDashboardHero() {
     const prefCurr = state.prefCurrency || "AOA";
@@ -83,7 +101,9 @@ function updateDashboardHero() {
     const emailEl = document.getElementById("dashAccountEmail");
 
     if (emailEl) {
-        emailEl.textContent = (state.user && state.user.email) ? state.user.email : "conta@bankao.ao";
+        const key = (state.user && state.user.email) ? state.user.email : "conta@bankao.ao";
+        emailEl.textContent = key;
+        emailEl.title = key;   // se for cortada com "…", o valor completo aparece ao passar o cursor
     }
 
     if (valEl && currEl) {

@@ -5,9 +5,10 @@ Rotas — Assistente IA: Copilot, explicação de transferências e análise de 
 from fastapi import APIRouter, Depends
 
 from backend.ai.assistant import BankaoAssistant
+from backend.ai.ideal_pace import compute_ideal_pace
 from backend.core.config import settings
 from backend.core.security import get_current_user
-from backend.schemas import AIChatRequest, AIExplainTransferRequest
+from backend.schemas import AIChatRequest, AIExplainTransferRequest, IdealPaceRequest
 
 router = APIRouter(prefix="/api/ai", tags=["Assistente IA"])
 
@@ -55,3 +56,15 @@ def ai_analyze_risk(
         user_kyc_status=current_user.get("kyc_status", "verificado")
     )
     return analysis
+
+
+@router.post("/ideal-pace")
+def ai_ideal_pace(data: IdealPaceRequest, current_user: dict = Depends(get_current_user)):
+    """Linha azul do gráfico do cartão: quanto devia gastar por mês para cumprir as metas."""
+    return compute_ideal_pace(
+        currency=data.currency,
+        income_month=data.income_month,
+        expense_month=data.expense_month,
+        budget_month=data.budget_month,
+        goals=[g.model_dump() for g in data.goals],
+    )

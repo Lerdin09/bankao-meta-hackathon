@@ -1,0 +1,87 @@
+<!-- ============ GRÁFICO DO CARTÃO (abre ao tocar no cartão de saldo do início) ============ -->
+<section class="view" id="view-card-chart" aria-labelledby="ccTitle">
+    <div class="cc-head">
+        <button type="button" class="cc-back" data-goto="view-home" aria-label="Voltar ao início">
+            <svg aria-hidden="true"><use href="#i-chevron-right"/></svg>
+        </button>
+        <div class="cc-head-text">
+            <h1 id="ccTitle">Fluxo do cartão</h1>
+            <p class="cc-sub" id="ccSubtitle">Entradas, saídas e o ritmo ideal para as suas metas</p>
+        </div>
+        <button type="button" class="cc-eye" id="ccEye" aria-label="Mostrar valores">Mostrar</button>
+        <span class="cc-curr" id="ccCurrency" aria-label="Moeda do gráfico">AOA</span>
+    </div>
+
+    <!-- Intervalo de tempo -->
+    <div class="cc-periods" id="ccPeriods" role="group" aria-label="Intervalo de tempo">
+        <button type="button" class="cc-chip" data-period="7d">7 dias</button>
+        <button type="button" class="cc-chip" data-period="30d">30 dias</button>
+        <button type="button" class="cc-chip" data-period="3m">3 meses</button>
+        <button type="button" class="cc-chip" data-period="6m">6 meses</button>
+        <button type="button" class="cc-chip" data-period="1a">1 ano</button>
+        <button type="button" class="cc-chip" data-period="total">Total</button>
+    </div>
+
+    <!-- Resumo: cada cartão também liga/desliga a sua linha -->
+    <div class="cc-stats" id="ccStats">
+        <button type="button" class="cc-stat cc-stat--in" data-series="in" aria-pressed="true">
+            <span class="cc-stat-top"><i class="cc-dot"></i>Recebido</span>
+            <strong class="cc-stat-val" id="ccStatIn">—</strong>
+            <span class="cc-stat-note" id="ccStatInNote">&nbsp;</span>
+        </button>
+        <button type="button" class="cc-stat cc-stat--out" data-series="out" aria-pressed="true">
+            <span class="cc-stat-top"><i class="cc-dot"></i>Saído</span>
+            <strong class="cc-stat-val" id="ccStatOut">—</strong>
+            <span class="cc-stat-note" id="ccStatOutNote" title="Comparado com o gasto ideal da IA">&nbsp;</span>
+        </button>
+        <button type="button" class="cc-stat cc-stat--ideal" data-series="ideal" aria-pressed="true">
+            <span class="cc-stat-top"><i class="cc-dot"></i>Ideal (IA)</span>
+            <strong class="cc-stat-val" id="ccStatIdeal">—</strong>
+            <span class="cc-stat-note" id="ccStatIdealNote">&nbsp;</span>
+        </button>
+    </div>
+
+    <!-- Gráfico -->
+    <section class="cc-card cc-chart-card" aria-label="Gráfico de linhas">
+        <div class="cc-chart-top">
+            <div>
+                <span class="cc-card-label">Movimento da conta</span>
+                <span class="cc-range" id="ccRange">—</span>
+            </div>
+            <span class="cc-badge" id="ccDemoBadge" hidden>Dados de demonstração</span>
+        </div>
+        <div class="cc-chart" id="ccChart" role="img" aria-label="Gráfico de linhas: recebido, saído e ritmo ideal"></div>
+        <div class="cc-legend" aria-hidden="true">
+            <span class="cc-leg cc-leg--in"><i></i>Recebido</span>
+            <span class="cc-leg cc-leg--out"><i></i>Saído</span>
+            <span class="cc-leg cc-leg--ideal"><i></i>Ideal (IA)</span>
+        </div>
+    </section>
+
+    <!-- Leitura da IA -->
+    <div class="cc-bottom">
+        <section class="cc-card cc-ai" aria-live="polite">
+            <div class="cc-ai-head">
+                <span class="cc-ai-orb"><svg aria-hidden="true"><use href="#i-spark"/></svg></span>
+                <div>
+                    <strong>Ritmo ideal</strong>
+                    <span class="cc-ai-src" id="ccAiSource">Cálculo local</span>
+                </div>
+                <span class="cc-status" id="ccAiStatus" hidden></span>
+            </div>
+            <p class="cc-ai-tip" id="ccAiTip">A calcular o seu ritmo ideal…</p>
+            <dl class="cc-ai-facts">
+                <div><dt>Gasto ideal por mês</dt><dd id="ccFactIdeal">—</dd></div>
+                <div><dt>Poupança sugerida</dt><dd id="ccFactSave">—</dd></div>
+            </dl>
+        </section>
+
+        <section class="cc-card cc-goals" aria-label="Metas">
+            <div class="cc-goals-head">
+                <strong>Metas em curso</strong>
+                <button type="button" class="cc-link" data-goto="view-savings">Ver metas <svg aria-hidden="true"><use href="#i-chevron-right"/></svg></button>
+            </div>
+            <div class="cc-goals-list" id="ccGoals"></div>
+        </section>
+    </div>
+</section>

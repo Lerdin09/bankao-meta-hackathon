@@ -1,0 +1,95 @@
+/* ==========================================================================
+   Saldos ocultos — troca valor ↔ máscara SEM mudar o tamanho do cartão
+   --------------------------------------------------------------------------
+   Antes: o valor passava a display:none e a máscara aparecia → o cartão
+   encolhia/crescia. Agora o valor e a máscara ocupam a MESMA célula de uma
+   grelha: a caixa tem sempre o tamanho do maior dos dois, por isso nada
+   se mexe. Só mudam opacidade, desfoque e um pequeno deslize.
+
+   Marcação:
+     <span class="bal-swap">
+        <span class="bal-mask">••••••••</span>
+        <span class="bal-real">1.250.000 KZ</span>
+     </span>
+   Estado global: body.balances-hidden
+   ========================================================================== */
+.bal-swap {
+    display: grid;
+    grid-template-areas: "s";
+    align-items: baseline;
+    justify-items: start;
+    width: max-content;
+    max-width: 100%;
+}
+.bal-swap > .bal-real,
+.bal-swap > .bal-mask {
+    grid-area: s;
+    transform-origin: left center;
+    will-change: opacity, filter, transform;
+}
+.bal-swap > .bal-real {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+/* ---------- Estado visível (valor à vista) ---------- */
+.bal-swap > .bal-real {
+    opacity: 1; filter: blur(0); transform: none; visibility: visible;
+    transition:
+        opacity .38s ease .12s,
+        filter .42s ease .12s,
+        transform .55s cubic-bezier(.2, .8, .2, 1) .12s,
+        visibility 0s linear 0s;
+}
+.bal-swap > .bal-mask {
+    opacity: 0; filter: blur(8px); transform: translateY(8px) scale(.94); visibility: hidden;
+    pointer-events: none; user-select: none;
+    line-height: 1;
+    transition:
+        opacity .26s ease,
+        filter .3s ease,
+        transform .3s ease,
+        visibility 0s linear .3s;
+}
+
+/* ---------- Estado oculto (máscara à vista) ---------- */
+body.balances-hidden .bal-swap > .bal-real {
+    opacity: 0; filter: blur(10px); transform: translateY(-8px) scale(.96); visibility: hidden;
+    pointer-events: none; user-select: none;
+    transition:
+        opacity .26s ease,
+        filter .3s ease,
+        transform .3s ease,
+        visibility 0s linear .3s;
+}
+body.balances-hidden .bal-swap > .bal-mask {
+    opacity: 1; filter: blur(0); transform: none; visibility: visible;
+    transition:
+        opacity .38s ease .12s,
+        filter .42s ease .12s,
+        transform .55s cubic-bezier(.2, .8, .2, 1) .12s,
+        visibility 0s linear 0s;
+}
+
+/* A máscara nunca pode ser maior que o valor, senão a caixa cresceria */
+.bal-swap > .nb-acc-val-masked { font-size: .88rem;  font-weight: 700; letter-spacing: 3px; color: #94A3B8; }
+.bal-swap > .acc-bal-masked    { font-size: 1.15rem; font-weight: 700; letter-spacing: 3px; color: #94A3B8; }
+.bal-swap > .dash-balance-masked { font-size: 1.9rem; letter-spacing: 5px; }
+
+/* ---------- Valores sem máscara própria: desfoque suave (tamanho intacto) ---------- */
+.nb-widget-amount,
+.tx-amount, .balance-amount, .txd-amount, .txd-val-money {
+    transition: filter .45s ease, opacity .45s ease;
+}
+body.balances-hidden .nb-widget-amount { filter: blur(10px); opacity: .55; user-select: none; }
+
+/* Ao carregar a página não há animação (já arranca oculto) */
+body.bal-no-anim .bal-swap > .bal-real,
+body.bal-no-anim .bal-swap > .bal-mask,
+body.bal-no-anim .nb-widget-amount,
+body.bal-no-anim .sg-money { transition: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+    .bal-swap > .bal-real, .bal-swap > .bal-mask { transition-duration: .01s !important; transition-delay: 0s !important; transform: none !important; filter: none !important; }
+}

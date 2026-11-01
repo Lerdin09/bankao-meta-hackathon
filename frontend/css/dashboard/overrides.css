@@ -13,33 +13,11 @@
         border-radius: 16px !important;
     }
 
-    /* O .side-foot não existe no novo HTML mas não causa dano */
-    .sidebar { border-right: none !important; }
+    /* Borda divisória gerida em sidebar.css */
 }
 
 /* Padding do main-content e' definido em sidebar.css e responsive-breakpoints.css */
 
-
-/* Balance card: garantir que não fica cortado */
-.nb-balance-card {
-    min-height: 170px;
-    overflow: hidden;
-}
-
-/* Corrigir subtítulo / greeting */
-.nb-subtitle {
-    font-size: 0.88rem;
-    color: #94A3B8;
-    margin-top: 6px;
-    font-weight: 500;
-}
-
-/* Correção: cartão de saldo - valor e moeda alinhados corretamente */
-.nb-balance-amount-box {
-    align-items: baseline;
-    gap: 6px;
-    margin: 6px 0 0;
-}
 
 /* Tiles: garantir que ficam visíveis mesmo com espaço reduzido */
 @media (max-width: 420px) {

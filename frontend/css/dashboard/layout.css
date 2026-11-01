@@ -10,18 +10,8 @@
     gap: 24px;
 }
 
-/* Dois colunas apenas quando o Copilot NÃO está visível */
-@media (min-width: 1100px) and (max-width: 1279px) {
-    .nb-dash-layout {
-        display: grid;
-        grid-template-columns: minmax(0, 1.25fr) minmax(320px, 370px);
-        gap: 24px;
-        align-items: start;
-    }
-}
-
-/* A >=1280px o Copilot ocupa a coluna direita — dashboard fica coluna única */
-@media (min-width: 1280px) {
+/* No Desktop (>= 1024px), com o Copilot fixo na parede direita, o dashboard é coluna única fluida */
+@media (min-width: 1024px) {
     .nb-dash-layout {
         display: block;
     }
@@ -37,26 +27,43 @@
     min-width: 0;
 }
 
-/* Header de Boas-vindas */
+/* ---------- Topo do início ----------
+   linha 1: "Olá, nome 👋" (esquerda) + QR e notificações (direita, fixos)
+   linha 2: saudação conforme a hora
+   linha 3: chave (e-mail) — se não couber, termina em "…" e o botão de copiar fica fixo */
+.nb-home-top {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
 .nb-dash-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: 16px;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
 }
 
-.nb-user-greeting .nb-title {
-    font-size: 1.85rem;
+.nb-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    font-size: clamp(1.5rem, 6.4vw, 1.85rem);
     font-weight: 800;
     color: #F8FAFC;
     letter-spacing: -0.03em;
-    margin: 0;
     line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
-.nb-user-greeting .wave-hand {
+.nb-title .wave-hand {
     display: inline-block;
-    animation: waveBounce 2.5s infinite;
     transform-origin: 70% 70%;
+    /* acena duas vezes ao abrir e pára (movimento contínuo distrai) */
+    animation: waveBounce 2.2s ease-in-out .5s 2;
 }
 @keyframes waveBounce {
     0%, 100% { transform: rotate(0deg); }
@@ -67,51 +74,105 @@
     75% { transform: rotate(10deg); }
 }
 
-.nb-subtitle {
-    font-size: 0.92rem;
-    color: #94A3B8;
-    margin-top: 4px;
+.nb-header-actions {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
+/* Telemóveis muito estreitos: botões do topo mais pequenos e sem o emoji, para o nome caber */
+@media (max-width: 379px) {
+    .nb-header-actions { gap: 8px; }
+    .nb-header-actions .nb-qr-btn,
+    .nb-header-actions .nb-bell-btn { width: 40px; height: 40px; }
+    .nb-header-actions .nb-bell-dot { top: 10px; right: 11px; }
+    .nb-title { font-size: 1.35rem; }
+}
+@media (max-width: 349px) {
+    .nb-title .wave-hand { display: none; }
+}
+
+.nb-greeting {
+    margin: 0;
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: #94A3B8;
+    line-height: 1.35;
+}
+
+/* Chave (e-mail) */
 .nb-key-badge {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 8px;
-    margin-top: 10px;
-    padding: 5px 12px;
+    align-self: flex-start;
+    width: fit-content;
+    max-width: 100%;
+    min-width: 0;
+    margin-top: 6px;
+    padding: 4px 4px 4px 12px;
     border-radius: 99px;
     background: rgba(56, 189, 248, 0.08);
     border: 1px solid rgba(56, 189, 248, 0.2);
-    font-size: 0.82rem;
+    font-size: 0.84rem;
     color: #BAE6FD;
 }
+.nb-key-ic {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    color: #7DD3FC;
+}
 .nb-key-tag {
+    flex: none;
     font-weight: 600;
     color: #7DD3FC;
-    font-size: 0.76rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    font-size: 0.82rem;
 }
 .nb-key-val {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-weight: 600;
     color: #F0F9FF;
 }
 .nb-key-copy-btn {
-    width: 22px;
-    height: 22px;
-    border-radius: 6px;
+    flex: none;
+    position: relative;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
     display: grid;
     place-items: center;
     color: #7DD3FC;
     background: rgba(255, 255, 255, 0.08);
     cursor: pointer;
-    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    transition: color .2s ease, background-color .2s ease, transform .15s ease;
 }
-.nb-key-copy-btn:hover {
-    color: #FFFFFF;
-    background: rgba(56, 189, 248, 0.3);
+.nb-key-copy-btn::after {            /* área de toque maior sem aumentar o botão */
+    content: "";
+    position: absolute;
+    inset: -6px;
 }
-.nb-key-copy-btn svg { width: 14px; height: 14px; }
+.nb-key-copy-btn svg {
+    grid-area: 1 / 1;
+    width: 15px;
+    height: 15px;
+    transition: opacity .2s ease, transform .25s cubic-bezier(.2, .8, .2, 1);
+}
+.nb-key-copy-btn .ic-done { opacity: 0; transform: scale(.5); }
+.nb-key-copy-btn.copied { color: #4ADE80; background: rgba(34, 197, 94, 0.18); }
+.nb-key-copy-btn.copied .ic-copy { opacity: 0; transform: scale(.5); }
+.nb-key-copy-btn.copied .ic-done { opacity: 1; transform: none; }
+.nb-key-copy-btn:active { transform: scale(.9); }
+.nb-key-copy-btn:focus-visible { outline: 2px solid #38BDF8; outline-offset: 2px; }
+@media (hover: hover) {
+    .nb-key-copy-btn:hover { color: #FFFFFF; background: rgba(56, 189, 248, 0.3); }
+}
 
 /* Botão de Sino / Notificações */
 .nb-bell-btn {
@@ -125,13 +186,18 @@
     color: #E2E8F0;
     cursor: pointer;
     position: relative;
-    transition: all 0.2s;
-    backdrop-filter: blur(12px);
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color .2s ease, border-color .2s ease, transform .2s ease;
 }
-.nb-bell-btn:hover {
-    background: rgba(30, 41, 70, 0.9);
-    border-color: rgba(99, 102, 241, 0.4);
-    transform: translateY(-2px);
+.nb-bell-btn:active { transform: scale(.93); }
+.nb-bell-btn:focus-visible,
+.nb-qr-btn:focus-visible { outline: 2px solid #38BDF8; outline-offset: 2px; }
+@media (hover: hover) {
+    .nb-bell-btn:hover {
+        background: rgba(30, 41, 70, 0.9);
+        border-color: rgba(99, 102, 241, 0.4);
+        transform: translateY(-2px);
+    }
 }
 .nb-bell-btn svg { width: 20px; height: 20px; }
 .nb-bell-dot {

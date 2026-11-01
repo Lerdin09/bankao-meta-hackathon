@@ -5,16 +5,26 @@
 
 // Navegação entre vistas, atalhos, saldos ocultos, copiar IBAN
 function initShell() {
-    const wide = window.matchMedia("(min-width: 1280px)");
+    const wide = window.matchMedia("(min-width: 1024px)");
+
+    // Páginas abertas a partir de outra: o menu continua a marcar a página de origem
+    const PARENT_VIEW = { "view-card-chart": "view-home" };
 
     function showView(id) {
-        // No ecrã largo o Copilot está sempre visível ao lado
+        // No ecrã largo (desktop >= 1024px) o Copilot está sempre visível na parede direita
         if (id === "view-copilot" && wide.matches) {
-            document.getElementById("copilotUserInput").focus();
+            const input = document.getElementById("copilotUserInput");
+            if (input) input.focus();
+            const box = document.getElementById("copilotChatMessages");
+            if (box) box.scrollTop = box.scrollHeight;
             return;
         }
-        document.querySelectorAll(".views > .view").forEach(v => v.classList.toggle("active", v.id === id));
-        document.querySelectorAll("[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === id));
+        document.querySelectorAll(".view").forEach(v => {
+            if (v.id === "view-copilot" && wide.matches) return;
+            v.classList.toggle("active", v.id === id);
+        });
+        const navId = PARENT_VIEW[id] || id;
+        document.querySelectorAll("[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === navId));
         // Scroll para o topo: usa o main-content em desktop (scroll interno), window em mobile
         const mc = document.querySelector(".main-content");
         if (mc && getComputedStyle(mc).overflowY === "auto") {
@@ -26,6 +36,7 @@ function initShell() {
         if (id === "view-payments") renderPayments();
         if (id === "view-expenses") renderExpensesView();
         if (id === "view-savings") renderSavingsView();
+        if (id === "view-card-chart") renderCardChart();
         if (id === "view-statement") {
             initStatementDateRange();
             refreshStatement();
@@ -82,14 +93,28 @@ function initShell() {
     };
 
     document.querySelectorAll("[data-view]").forEach(btn => btn.addEventListener("click", () => showView(btn.dataset.view)));
-    document.querySelectorAll("[data-goto]").forEach(btn => btn.addEventListener("click", () => {
-        if (btn.dataset.gotoTab) showTab(btn.dataset.gotoTab);
-        showView(btn.dataset.goto);
-    }));
+    document.querySelectorAll("[data-goto]").forEach(el => {
+        const go = () => {
+            if (el.dataset.gotoTab) showTab(el.dataset.gotoTab);
+            showView(el.dataset.goto);
+        };
+        el.addEventListener("click", go);
+        // Elementos que não são <button>/<a> (ex.: linhas de contas) também funcionam com o teclado
+        if (!/^(BUTTON|A)$/.test(el.tagName)) {
+            if (!el.hasAttribute("tabindex")) el.tabIndex = 0;
+            if (!el.hasAttribute("role")) el.setAttribute("role", "button");
+            el.addEventListener("keydown", ev => {
+                if (ev.target !== el) return;
+                if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); go(); }
+            });
+        }
+    });
     document.getElementById("btnToggleCopilot").addEventListener("click", () => showView("view-copilot"));
 
     // Ocultar / mostrar saldos — SEMPRE começa oculto por padrão
-    document.body.classList.add("balances-hidden");
+    // (bal-no-anim evita que a troca valor→máscara se anime ao abrir a app)
+    document.body.classList.add("bal-no-anim", "balances-hidden");
+    requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.remove("bal-no-anim")));
     const btnEyeTop = document.getElementById("btnToggleBalance");
     const btnEyeDash = document.getElementById("btnToggleDashBalance");
     // Mantém aria-label/aria-pressed e o título coerentes com o estado (o olho anima por CSS)
@@ -131,9 +156,15 @@ function initShell() {
     if (btnCopyKey) {
         btnCopyKey.addEventListener("click", async () => {
             const email = document.getElementById("dashAccountEmail")?.textContent.trim();
-            if (email && email !== "carregando...") {
-                try { await navigator.clipboard.writeText(email); } catch (e) { /* ignore */ }
+            if (!email || email === "carregando...") return;
+            const ok = await qrCopyText(email);   // com alternativa para páginas sem HTTPS
+            if (ok) {
+                btnCopyKey.classList.add("copied");
+                clearTimeout(btnCopyKey._copiedTimer);
+                btnCopyKey._copiedTimer = setTimeout(() => btnCopyKey.classList.remove("copied"), 1500);
                 toast("Chave da conta copiada: " + email, "success");
+            } else {
+                toast("Não foi possível copiar. Selecione a chave e copie manualmente.", "error");
             }
         });
     }

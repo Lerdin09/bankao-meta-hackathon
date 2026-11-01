@@ -1,8 +1,13 @@
-<!-- Navegação inferior (telemóvel / tablet vertical) -->
-<nav class="bottom-nav" aria-label="Navegação móvel">
-    <button class="nav-item active" data-view="view-home"><svg><use href="#i-home"/></svg><span>Início</span></button>
-    <button class="nav-item" data-view="view-ops"><svg><use href="#i-swap"/></svg><span>Operações</span></button>
-    <button class="nav-item" data-view="view-expenses"><svg><use href="#i-pie"/></svg><span>Despesas</span></button>
-    <button class="nav-item" data-view="view-statement"><svg><use href="#i-list"/></svg><span>Extrato</span></button>
-    <button class="nav-item nav-more-btn" id="btnBottomMore" onclick="toggleMobileMenu()"><svg><use href="#i-dots"/></svg><span>Mais</span></button>
+<!-- Navegação inferior (telemóvel / tablet vertical) — vidro líquido.
+     Toque num item para ir, ou mantenha o dedo e deslize para escolher; ao soltar abre o item. -->
+<nav class="bottom-nav" id="bottomNav" aria-label="Navegação móvel">
+    <div class="bn-glass" aria-hidden="true"></div>
+    <div class="bn-track" id="bnTrack">
+        <span class="bn-lens" id="bnLens" aria-hidden="true"></span>
+        <button type="button" class="nav-item active" data-view="view-home"><svg><use href="#i-home"/></svg><span>Início</span></button>
+        <button type="button" class="nav-item" data-view="view-ops"><svg><use href="#i-swap"/></svg><span>Operações</span></button>
+        <button type="button" class="nav-item" data-view="view-expenses"><svg><use href="#i-pie"/></svg><span>Despesas</span></button>
+        <button type="button" class="nav-item" data-view="view-statement"><svg><use href="#i-list"/></svg><span>Extrato</span></button>
+        <button type="button" class="nav-item nav-more-btn" id="btnBottomMore" onclick="toggleMobileMenu()"><svg><use href="#i-dots"/></svg><span>Mais</span></button>
+    </div>
 </nav>

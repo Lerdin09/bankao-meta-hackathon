@@ -1,18 +1,32 @@
 /* ==========================================================================
    Dashboard — cartão de saldo
-   Cartão de saldo total (aurora glow) e gráfico sparkline.
+   Cartão de saldo total: clicável (abre "Gráfico do cartão"), seletor de moeda,
+   valor com olho e linha de tendência ao fundo, sem nada a sobrepor o valor.
+
+   Camadas (de baixo para cima):
+     0  .nb-balance-chart-art   linha de tendência (decorativa)
+     1  .nb-card-hit            botão que cobre o cartão todo (o "clique no cartão")
+     2  .nb-balance-card-inner  conteúdo — só moeda e olho recebem toques;
+                                o resto deixa passar o toque para o cartão
    ========================================================================== */
 
-/* ---------- Card de Saldo Total (Aurora Glow + Sparkline) ---------- */
 .nb-balance-card {
+    --pad: 22px;
     position: relative;
+    display: flex;
+    flex-direction: column;
     border-radius: 26px;
-    padding: 24px 26px;
+    padding: var(--pad) var(--pad) 0;
     background: linear-gradient(135deg, #0D162C 0%, #111A36 45%, #18193D 100%);
     border: 1px solid rgba(129, 140, 248, 0.22);
     box-shadow: 0 20px 48px -16px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.12);
     overflow: hidden;
     isolation: isolate;
+    -webkit-tap-highlight-color: transparent;
+    transition: border-color .25s ease, box-shadow .25s ease, transform .2s ease;
+}
+@media (min-width: 640px) {
+    .nb-balance-card { --pad: 28px; }
 }
 
 .nb-balance-card::before {
@@ -28,13 +42,46 @@
     z-index: 0;
 }
 
+/* Botão que cobre o cartão inteiro */
+.nb-card-hit {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: inherit;
+    background: transparent;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+.nb-card-hit:focus-visible {
+    outline: 2px solid #38BDF8;
+    outline-offset: -3px;
+}
+.nb-balance-card:has(.nb-card-hit:active) { transform: scale(.992); }
+@media (hover: hover) {
+    .nb-balance-card:has(.nb-card-hit:hover) {
+        border-color: rgba(129, 140, 248, 0.45);
+        box-shadow: 0 24px 54px -16px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(129, 140, 248, .12), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    }
+    .nb-balance-card:has(.nb-card-hit:hover) .nb-balance-cta { color: #E0E7FF; }
+    .nb-balance-card:has(.nb-card-hit:hover) .nb-balance-cta svg { transform: translateX(3px); }
+}
+
 .nb-balance-card-inner {
     position: relative;
     z-index: 2;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 10px;
+    pointer-events: none;           /* o toque atravessa para .nb-card-hit */
 }
+.nb-balance-card-inner .nb-currency-selector,
+.nb-balance-card-inner .nb-eye-btn { pointer-events: auto; }
+.nb-eye-btn { position: relative; }
+.nb-eye-btn::after { content: ""; position: absolute; inset: -6px; }   /* área de toque maior */
 
 .nb-balance-top {
     display: flex;
@@ -47,38 +94,45 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    min-width: 0;
 }
 
 .nb-balance-label {
     font-size: 0.95rem;
     font-weight: 500;
     color: #94A3B8;
+    white-space: nowrap;
 }
 
+/* Olho: ocultar / mostrar saldo */
 .nb-eye-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
     display: grid;
     place-items: center;
     color: #94A3B8;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.08);
     cursor: pointer;
-    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    transition: color .2s ease, background-color .2s ease, border-color .2s ease, transform .15s ease;
 }
-.nb-eye-btn:hover {
-    color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.12);
+@media (hover: hover) {
+    .nb-eye-btn:hover { color: #FFFFFF; background: rgba(255, 255, 255, 0.12); }
 }
+.nb-eye-btn:focus-visible { outline: 2px solid #38BDF8; outline-offset: 2px; }
 .nb-eye-btn svg { width: 16px; height: 16px; }
 .nb-eye-btn .ic-eye-off { display: none; }
 body.balances-hidden .nb-eye-btn .ic-eye { display: none; }
 body.balances-hidden .nb-eye-btn .ic-eye-off { display: block; }
 
+/* Seletor de moeda */
 .nb-currency-selector {
+    flex: none;
     display: flex;
-    gap: 4px;
+    gap: 2px;
     background: rgba(0, 0, 0, 0.3);
     padding: 3px;
     border-radius: 12px;
@@ -86,70 +140,66 @@ body.balances-hidden .nb-eye-btn .ic-eye-off { display: block; }
 }
 
 .dash-curr-tag {
-    padding: 3px 10px;
-    border-radius: 8px;
+    min-width: 40px;
+    padding: 6px 8px;
+    border-radius: 9px;
     font-size: 0.75rem;
     font-weight: 700;
     color: #94A3B8;
     cursor: pointer;
-    transition: all 0.2s;
     letter-spacing: 0.04em;
+    -webkit-tap-highlight-color: transparent;
+    transition: color .2s ease, background-color .2s ease, box-shadow .2s ease;
 }
-.dash-curr-tag:hover {
-    color: #F1F5F9;
-}
+.dash-curr-tag:hover { color: #F1F5F9; }
+.dash-curr-tag:focus-visible { outline: 2px solid #38BDF8; outline-offset: 1px; }
 .dash-curr-tag.active {
     background: linear-gradient(135deg, #38BDF8, #6366F1);
     color: #FFFFFF;
     box-shadow: 0 2px 8px rgba(56, 189, 248, 0.35);
 }
 
+/* Valor */
 .nb-balance-amount-box {
     display: flex;
-    align-items: baseline;
-    gap: 8px;
+    align-items: center;
     min-height: 48px;
+    min-width: 0;
 }
+.nb-balance-amount-box .bal-swap { min-width: 0; }
+.nb-balance-amount-box .bal-real { flex-wrap: wrap; row-gap: 0; }   /* nunca sobrepõe: a moeda desce se faltar espaço */
 
 .dash-balance-num {
-    font-size: 2.35rem;
+    font-size: clamp(1.55rem, 8.4vw, 2.35rem);
     font-weight: 800;
     color: #FFFFFF;
     letter-spacing: -0.03em;
+    line-height: 1.15;
     font-variant-numeric: tabular-nums;
     text-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
 }
 
 .dash-balance-curr {
-    font-size: 1.35rem;
+    font-size: clamp(1rem, 4.6vw, 1.35rem);
     font-weight: 700;
     color: #7DD3FC;
     letter-spacing: -0.01em;
 }
 
-.dash-balance-masked {
-    display: none;
-    font-size: 2rem;
+/* A máscara nunca pode ser maior que o valor (senão o cartão mexe-se ao ocultar) */
+.nb-balance-card .bal-swap > .dash-balance-masked {
+    font-size: clamp(1.4rem, 7vw, 1.9rem);
     font-weight: 800;
     letter-spacing: 4px;
     color: #94A3B8;
     line-height: 1.2;
 }
 
-body.balances-hidden .dash-balance-num,
-body.balances-hidden .dash-balance-curr,
-body.balances-hidden .nb-acc-val,
-body.balances-hidden #nbWidgetAmount {
-    display: none !important;
-}
-
-body.balances-hidden .dash-balance-masked {
-    display: inline-block !important;
-}
-
+/* Linha de baixo: tendência + chamada para o gráfico */
 .nb-balance-bottom {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 12px;
 }
 
@@ -164,25 +214,60 @@ body.balances-hidden .dash-balance-masked {
     color: #4ADE80;
     font-size: 0.82rem;
     font-weight: 700;
+    white-space: nowrap;
 }
 .nb-trend-pill svg {
     width: 13px;
     height: 13px;
 }
 
-/* Gráfico Sparkline de Fundo */
+.nb-balance-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #A5B4FC;
+    white-space: nowrap;
+    transition: color .2s ease;
+}
+.nb-balance-cta svg {
+    width: 15px;
+    height: 15px;
+    transition: transform .2s ease;
+}
+
+/* Linha de tendência: faixa na base do cartão, em fluxo normal (nunca cobre o valor) */
 .nb-balance-chart-art {
-    position: absolute;
-    right: 18px;
-    bottom: 12px;
-    width: 180px;
-    height: 80px;
+    position: relative;
+    z-index: 0;
+    height: 56px;
+    margin: 4px calc(var(--pad) * -1) 0;
     pointer-events: none;
-    z-index: 1;
-    opacity: 0.85;
+}
+@media (min-width: 640px) {
+    .nb-balance-chart-art { height: 76px; }
 }
 .nb-sparkline {
+    display: block;
     width: 100%;
     height: 100%;
     overflow: visible;
 }
+.nb-spark-dot {
+    position: absolute;
+    left: 97.5%;
+    top: 15.6%;
+    width: 9px;
+    height: 9px;
+    margin: -4.5px 0 0 -4.5px;
+    border-radius: 50%;
+    background: #C084FC;
+    box-shadow: 0 0 10px #C084FC;
+}
+
+/* Um único momento animado: a linha desenha-se da esquerda para a direita ao abrir o início */
+.view.active .nb-sparkline { animation: sparkReveal 1.1s cubic-bezier(.4, 0, .2, 1) .1s both; }
+.view.active .nb-spark-dot { animation: sparkDot .35s ease 1s both; }
+@keyframes sparkReveal { from { clip-path: inset(-6px 100% -6px 0); } to { clip-path: inset(-6px -6px -6px 0); } }
+@keyframes sparkDot { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: none; } }

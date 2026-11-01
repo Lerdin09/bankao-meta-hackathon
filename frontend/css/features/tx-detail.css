@@ -66,7 +66,6 @@ body.txd-lock { overflow: hidden; }
 .txd-eye:hover { color: var(--text); background: rgba(255, 255, 255, .12); }
 .txd-eye:active { transform: scale(.9); }
 .txd-eye .eye-anim { width: 18px; height: 18px; }
-body.balances-hidden .txd-eye { color: var(--gold); border-color: rgba(230, 184, 92, .35); }
 
 .txd-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 0 20px calc(22px + var(--safe-b)); }
 

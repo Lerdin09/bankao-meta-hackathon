@@ -1,36 +1,81 @@
-<!-- ============ COPILOT ============ -->
+<!-- ============ COPILOT (CHATBOT IA) ============ -->
 <section class="view copilot-view" id="view-copilot">
     <aside class="copilot-sidebar" id="copilotSidebar">
+        <!-- 1. Header do Chatbot -->
         <div class="copilot-header">
-            <div class="copilot-title">
-                <span class="copilot-orb"><svg><use href="#i-spark"/></svg></span>
-                <div>
-                    <h3>BankAO Copilot</h3>
-                    <span class="copilot-subtitle">Meta Muse Spark</span>
+            <div class="copilot-brand-wrap">
+                <div class="copilot-orb-glow">
+                    <span class="copilot-orb"><svg><use href="#i-spark"/></svg></span>
+                </div>
+                <div class="copilot-title-box">
+                    <div class="copilot-name-row">
+                        <h3>BankAO Copilot</h3>
+                        <span class="copilot-version-badge">Meta Muse</span>
+                    </div>
+                    <span class="copilot-status-indicator">
+                        <span class="pulse-dot"></span>
+                        <span class="status-txt">IA Multimoeda Ativa</span>
+                    </span>
                 </div>
             </div>
-            <span class="online-indicator">Online</span>
+            <div class="copilot-header-actions">
+                <button type="button" class="copilot-tool-btn" id="btnCopilotReset" title="Limpar conversa" aria-label="Limpar conversa" onclick="resetCopilotConversation()">
+                    <svg><use href="#i-refresh"/></svg>
+                </button>
+            </div>
         </div>
 
-        <div class="copilot-chat-messages" id="copilotChatMessages">
+        <!-- 2. Área de Mensagens com design inteligente -->
+        <div class="copilot-chat-messages" id="copilotChatMessages" aria-live="polite">
             <div class="chat-bubble ai">
                 <div class="bubble-avatar"><svg><use href="#i-spark"/></svg></div>
                 <div class="bubble-content">
-                    <p>Olá! Sou o <strong>BankAO Copilot</strong>, o seu assistente financeiro.</p>
-                    <p>Posso explicar taxas de câmbio para a Europa, simular envios e esclarecer dúvidas sobre depósitos com Multicaixa Express.</p>
+                    <div class="bubble-header-label">
+                        <span class="sender-name">BankAO Copilot</span>
+                        <span class="sender-badge">Assistente IA</span>
+                    </div>
+                    <p class="greeting-lead">Olá! Sou o seu <strong>assistente financeiro inteligente</strong>.</p>
+                    <p class="greeting-desc">Estou pronto para simular envios, analisar despesas, esclarecer câmbio e depósitos Multicaixa Express.</p>
+                    <div class="copilot-capability-tags">
+                        <span class="cap-tag"><svg><use href="#i-swap"/></svg> Câmbio EUR/USD/AOA</span>
+                        <span class="cap-tag"><svg><use href="#i-shield"/></svg> Multicaixa Express</span>
+                        <span class="cap-tag"><svg><use href="#i-pie"/></svg> Gráfico de Despesas</span>
+                        <span class="cap-tag"><svg><use href="#i-target"/></svg> Metas de Poupança</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="copilot-quick-prompts">
-            <button class="quick-prompt-btn" data-prompt="Como faço para depositar com Multicaixa Express?">Como depositar?</button>
-            <button class="quick-prompt-btn" data-prompt="Quais são as taxas de câmbio para enviar dinheiro a Portugal?">Taxas para Portugal</button>
-            <button class="quick-prompt-btn" data-prompt="Como funciona a garantia de livro-razão e segurança?">Segurança e ledger</button>
+        <!-- 3. Sugestões Rápidas (Chips dinâmicos com categorias) -->
+        <div class="copilot-quick-prompts-section">
+            <span class="quick-prompts-label">Perguntas frequentes</span>
+            <div class="copilot-quick-prompts">
+                <button type="button" class="quick-prompt-btn" data-prompt="Quais são as taxas de câmbio actuais para enviar dinheiro a Portugal e Europa?">
+                    <svg><use href="#i-swap"/></svg><span>Câmbio EUR & Portugal</span>
+                </button>
+                <button type="button" class="quick-prompt-btn" data-prompt="Como faço para depositar fundos na minha conta com Multicaixa Express?">
+                    <svg><use href="#i-bolt"/></svg><span>Depositar Multicaixa</span>
+                </button>
+                <button type="button" class="quick-prompt-btn" data-prompt="Como funciona a garantia do livro-razão e segurança dos meus fundos?">
+                    <svg><use href="#i-shield"/></svg><span>Segurança & Ledger</span>
+                </button>
+                <button type="button" class="quick-prompt-btn" data-prompt="Como posso enviar uma transferência com IBAN de destino?">
+                    <svg><use href="#i-globe"/></svg><span>Transferência IBAN</span>
+                </button>
+            </div>
         </div>
 
+        <!-- 4. Barra de Envio (Design moderno com glow e tecla de atalho) -->
         <form class="copilot-input-form" id="copilotInputForm">
-            <input type="text" id="copilotUserInput" placeholder="Pergunte ao Copilot…" autocomplete="off">
-            <button type="submit" class="btn-send-copilot" aria-label="Enviar"><svg><use href="#i-send"/></svg></button>
+            <div class="copilot-input-container">
+                <input type="text" id="copilotUserInput" placeholder="Pergunte algo ou simule uma operação…" autocomplete="off" aria-label="Mensagem para o Copilot">
+                <button type="submit" class="btn-send-copilot" aria-label="Enviar mensagem" id="btnSendCopilot">
+                    <svg><use href="#i-send"/></svg>
+                </button>
+            </div>
+            <div class="copilot-input-hint">
+                <span>Pressione <kbd>Enter</kbd> para enviar · Alimentado por Meta Muse Spark</span>
+            </div>
         </form>
     </aside>
 </section>

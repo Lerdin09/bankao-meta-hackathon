@@ -36,6 +36,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         updateTopbarUser(null);
     }
 
+    // A frase "Bom dia / Boa tarde / Boa noite" acompanha a hora sem recarregar a página
+    setInterval(() => updateHomeGreeting(), 60000);
+
     // Polling suave a cada 15s para atualizar saldos e extrato (só se logado)
     setInterval(() => { if (state.token) loadUserData(); }, 15000);
 });

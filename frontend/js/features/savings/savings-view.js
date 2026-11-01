@@ -90,8 +90,10 @@ function renderSavingsView() {
                     <span class="sg-status ${statusClass}">${statusLabel}</span>
                 </header>
                 <div class="sg-amounts">
-                    <span class="acc-bal-masked">••••••</span>
-                    <strong class="sav-prog-saved">${formatTwoTierMoney(saved, "AOA")}</strong>
+                    <span class="bal-swap">
+                        <span class="bal-mask acc-bal-masked" aria-hidden="true">••••••</span>
+                        <strong class="bal-real sav-prog-saved">${formatTwoTierMoney(saved, "AOA")}</strong>
+                    </span>
                     <span class="sav-prog-target">de ${formatTwoTierMoney(target, "AOA")}</span>
                     <b class="sg-pct">${pct}%</b>
                 </div>
