@@ -19,6 +19,7 @@
 @import url("components/panels-and-forms.css");
 @import url("components/rich-forms.css");
 @import url("components/copilot.css");
+@import url("components/copilot-voice.css");
 @import url("layout/bottom-nav.css");
 @import url("components/toasts.css");
 @import url("components/modals.css");
@@ -27,6 +28,7 @@
 @import url("features/auth.css");
 @import url("features/kyc.css");
 @import url("features/operations.css");
+@import url("features/contacts.css");
 @import url("features/transfer-confirm.css");
 @import url("layout/sidebar.css");
 @import url("dashboard/layout.css");
@@ -49,4 +51,48 @@
 @import url("components/confirm-dialog.css");
 @import url("features/savings-polish.css");
 @import url("features/card-chart.css");
+@import url("features/card-spend.css");
+@import url("features/merchants.css");
+@import url("features/accounts-flow.css");
 @import url("layout/responsive-polish.css");
+@import url("features/transfer-deposit-modals.css");
+@import url("features/balance-forecast.css");
+@import url("features/investments.css");
+@import url("features/cards.css");
+
+/* Bloqueio de scroll de ecrã ao tocar num gráfico em dispositivos móveis */
+html.chart-touch-locked,
+body.chart-touch-locked {
+    overflow: hidden !important;
+    touch-action: none !important;
+    overscroll-behavior: none !important;
+}
+
+/* Gráficos de linha e sobreposições de interação */
+.cc-hit,
+#fcFullOverlay,
+#fcOverlay {
+    touch-action: pan-y;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+}
+
+body.chart-touch-locked .cc-hit,
+body.chart-touch-locked #fcFullOverlay,
+body.chart-touch-locked #fcOverlay {
+    touch-action: none !important;
+}
+
+/* Gráfico Donut de despesas: mantém o scroll da página 100% natural */
+.nb-donut-wrap,
+.nb-donut-chart,
+#homeDonut,
+.xp-donut-wrap,
+.xp-donut-chart,
+.nb-expenses-row {
+    touch-action: auto !important;
+    -webkit-user-select: auto !important;
+    user-select: auto !important;
+}
+

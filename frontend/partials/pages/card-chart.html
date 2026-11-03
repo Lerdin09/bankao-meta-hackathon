@@ -1,87 +1,640 @@
-<!-- ============ GRÁFICO DO CARTÃO (abre ao tocar no cartão de saldo do início) ============ -->
+<!-- ============ GRÁFICOS DA CONTA (abre ao tocar no cartão de saldo do início) ============
+     Menu com 6 gráficos. Estão desenvolvidos: 1 "Evolução do saldo", 2 "Entradas vs. saídas", 3 "Fluxo de gastos do cartão", 4 "Gastos por comerciante" e 5 "Fluxo entre contas". O Copilot fica sempre no fim.
+     Para ativar o próximo gráfico: criar o seu painel (.bc-panel[data-chart="..."]) e
+     tirar o atributo data-soon do botão correspondente em #bcTypes. -->
 <section class="view" id="view-card-chart" aria-labelledby="ccTitle">
     <div class="cc-head">
         <button type="button" class="cc-back" data-goto="view-home" aria-label="Voltar ao início">
             <svg aria-hidden="true"><use href="#i-chevron-right"/></svg>
         </button>
         <div class="cc-head-text">
-            <h1 id="ccTitle">Fluxo do cartão</h1>
-            <p class="cc-sub" id="ccSubtitle">Entradas, saídas e o ritmo ideal para as suas metas</p>
+            <h1 id="ccTitle">Gráficos da conta</h1>
+            <p class="cc-sub" id="ccSubtitle">Evolução do saldo ao longo do tempo</p>
         </div>
         <button type="button" class="cc-eye" id="ccEye" aria-label="Mostrar valores">Mostrar</button>
         <span class="cc-curr" id="ccCurrency" aria-label="Moeda do gráfico">AOA</span>
     </div>
 
-    <!-- Intervalo de tempo -->
-    <div class="cc-periods" id="ccPeriods" role="group" aria-label="Intervalo de tempo">
-        <button type="button" class="cc-chip" data-period="7d">7 dias</button>
-        <button type="button" class="cc-chip" data-period="30d">30 dias</button>
-        <button type="button" class="cc-chip" data-period="3m">3 meses</button>
-        <button type="button" class="cc-chip" data-period="6m">6 meses</button>
-        <button type="button" class="cc-chip" data-period="1a">1 ano</button>
-        <button type="button" class="cc-chip" data-period="total">Total</button>
-    </div>
+    <!-- Escolha do gráfico -->
+    <nav class="bc-types" id="bcTypes" aria-label="Tipo de gráfico">
+        <button type="button" class="bc-type active" data-chart="balance" aria-pressed="true">
+            <span class="bc-type-n">1</span><span class="bc-type-t">Evolução do saldo</span>
+        </button>
+        <button type="button" class="bc-type" data-chart="flow" aria-pressed="false">
+            <span class="bc-type-n">2</span><span class="bc-type-t">Entradas vs. saídas</span>
+        </button>
+        <button type="button" class="bc-type" data-chart="card" aria-pressed="false">
+            <span class="bc-type-n">3</span><span class="bc-type-t">Fluxo de gastos do cartão</span>
+        </button>
+        <button type="button" class="bc-type" data-chart="merchants" aria-pressed="false">
+            <span class="bc-type-n">4</span><span class="bc-type-t">Gastos por comerciante</span>
+        </button>
+        <button type="button" class="bc-type" data-chart="accounts" aria-pressed="false">
+            <span class="bc-type-n">5</span><span class="bc-type-t">Fluxo entre contas</span>
+        </button>
+        <button type="button" class="bc-type" data-chart="forecast" aria-pressed="false">
+            <span class="bc-type-n">6</span><span class="bc-type-t">Previsão do saldo</span>
+        </button>
+    </nav>
 
-    <!-- Resumo: cada cartão também liga/desliga a sua linha -->
-    <div class="cc-stats" id="ccStats">
-        <button type="button" class="cc-stat cc-stat--in" data-series="in" aria-pressed="true">
-            <span class="cc-stat-top"><i class="cc-dot"></i>Recebido</span>
-            <strong class="cc-stat-val" id="ccStatIn">—</strong>
-            <span class="cc-stat-note" id="ccStatInNote">&nbsp;</span>
-        </button>
-        <button type="button" class="cc-stat cc-stat--out" data-series="out" aria-pressed="true">
-            <span class="cc-stat-top"><i class="cc-dot"></i>Saído</span>
-            <strong class="cc-stat-val" id="ccStatOut">—</strong>
-            <span class="cc-stat-note" id="ccStatOutNote" title="Comparado com o gasto ideal da IA">&nbsp;</span>
-        </button>
-        <button type="button" class="cc-stat cc-stat--ideal" data-series="ideal" aria-pressed="true">
-            <span class="cc-stat-top"><i class="cc-dot"></i>Ideal (IA)</span>
-            <strong class="cc-stat-val" id="ccStatIdeal">—</strong>
-            <span class="cc-stat-note" id="ccStatIdealNote">&nbsp;</span>
-        </button>
-    </div>
+    <!-- ================= 1. EVOLUÇÃO DO SALDO ================= -->
+    <div class="bc-panel" id="bcPanelBalance" data-chart="balance">
 
-    <!-- Gráfico -->
-    <section class="cc-card cc-chart-card" aria-label="Gráfico de linhas">
-        <div class="cc-chart-top">
-            <div>
-                <span class="cc-card-label">Movimento da conta</span>
-                <span class="cc-range" id="ccRange">—</span>
+        <!-- Filtros rápidos -->
+        <div class="cc-periods" id="ccPeriods" role="group" aria-label="Intervalo de tempo">
+            <button type="button" class="cc-chip" data-period="7d">7 dias</button>
+            <button type="button" class="cc-chip" data-period="30d">30 dias</button>
+            <button type="button" class="cc-chip" data-period="90d">90 dias</button>
+            <button type="button" class="cc-chip" data-period="6m">6 meses</button>
+            <button type="button" class="cc-chip" data-period="1a">1 ano</button>
+        </div>
+
+        <!-- Resumo -->
+        <div class="bc-stats" id="bcStats">
+            <div class="bc-stat bc-stat--start">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Saldo inicial</span>
+                <strong class="bc-stat-val" id="bcStatStart">—</strong>
+                <span class="bc-stat-note" id="bcStatStartNote">&nbsp;</span>
             </div>
-            <span class="cc-badge" id="ccDemoBadge" hidden>Dados de demonstração</span>
+            <div class="bc-stat bc-stat--now">
+                <span class="bc-stat-top"><i class="cc-dot"></i><span id="bcStatNowLabel">Saldo atual</span></span>
+                <strong class="bc-stat-val" id="bcStatNow">—</strong>
+                <span class="bc-stat-note" id="bcStatNowNote">&nbsp;</span>
+            </div>
+            <button type="button" class="bc-stat bc-stat--max" id="bcStatMaxBtn" aria-label="Ver o ponto máximo no gráfico">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Máximo</span>
+                <strong class="bc-stat-val" id="bcStatMax">—</strong>
+                <span class="bc-stat-note" id="bcStatMaxNote">&nbsp;</span>
+            </button>
+            <button type="button" class="bc-stat bc-stat--min" id="bcStatMinBtn" aria-label="Ver o ponto mínimo no gráfico">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Mínimo</span>
+                <strong class="bc-stat-val" id="bcStatMin">—</strong>
+                <span class="bc-stat-note" id="bcStatMinNote">&nbsp;</span>
+            </button>
         </div>
-        <div class="cc-chart" id="ccChart" role="img" aria-label="Gráfico de linhas: recebido, saído e ritmo ideal"></div>
-        <div class="cc-legend" aria-hidden="true">
-            <span class="cc-leg cc-leg--in"><i></i>Recebido</span>
-            <span class="cc-leg cc-leg--out"><i></i>Saído</span>
-            <span class="cc-leg cc-leg--ideal"><i></i>Ideal (IA)</span>
-        </div>
-    </section>
 
-    <!-- Leitura da IA -->
-    <div class="cc-bottom">
-        <section class="cc-card cc-ai" aria-live="polite">
-            <div class="cc-ai-head">
-                <span class="cc-ai-orb"><svg aria-hidden="true"><use href="#i-spark"/></svg></span>
+        <!-- Gráfico de linhas -->
+        <section class="cc-card cc-chart-card" aria-label="Evolução do saldo">
+            <div class="cc-chart-top">
                 <div>
-                    <strong>Ritmo ideal</strong>
-                    <span class="cc-ai-src" id="ccAiSource">Cálculo local</span>
+                    <span class="cc-card-label">Evolução do saldo</span>
+                    <span class="cc-range" id="ccRange">—</span>
                 </div>
-                <span class="cc-status" id="ccAiStatus" hidden></span>
+                <span class="bc-delta" id="bcDelta" hidden></span>
             </div>
-            <p class="cc-ai-tip" id="ccAiTip">A calcular o seu ritmo ideal…</p>
-            <dl class="cc-ai-facts">
-                <div><dt>Gasto ideal por mês</dt><dd id="ccFactIdeal">—</dd></div>
-                <div><dt>Poupança sugerida</dt><dd id="ccFactSave">—</dd></div>
+            <div class="cc-chart" id="ccChart" role="img" aria-label="Gráfico de linhas da evolução do saldo"></div>
+            <div class="cc-legend" aria-hidden="true">
+                <span class="cc-leg cc-leg--bal"><i></i>Saldo</span>
+                <span class="cc-leg cc-leg--base"><i></i>Saldo inicial</span>
+                <span class="cc-leg cc-leg--ev"><i></i>Movimento</span>
+                <span class="cc-leg cc-leg--max"><i></i>Máximo</span>
+                <span class="cc-leg cc-leg--min"><i></i>Mínimo</span>
+            </div>
+        </section>
+
+        <!-- Intervalo flexível: dias OU horas (ex.: só as 17h–18h) -->
+        <section class="cc-card bc-range" aria-label="Intervalo flexível">
+            <div class="bc-range-head">
+                <div>
+                    <strong>Intervalo flexível</strong>
+                    <span class="bc-range-hint">Dias ou horas: arraste a barra, escolha data e hora ou use os atalhos</span>
+                </div>
+                <span class="bc-range-days" id="bcRangeDays">—</span>
+            </div>
+
+            <!-- Atalhos de horas -->
+            <div class="cc-periods bc-quick" id="bcQuick" role="group" aria-label="Atalhos de horas">
+                <button type="button" class="cc-chip" data-span="1h">Última hora</button>
+                <button type="button" class="cc-chip" data-span="6h">Últimas 6 h</button>
+                <button type="button" class="cc-chip" data-span="24h">Últimas 24 h</button>
+                <button type="button" class="cc-chip" data-span="hoje">Hoje</button>
+            </div>
+
+            <div class="bc-nav" id="bcNav">
+                <svg class="bc-nav-svg" id="bcNavSvg" preserveAspectRatio="none" aria-hidden="true"></svg>
+                <div class="bc-nav-shade bc-nav-shade--l" id="bcShadeL"></div>
+                <div class="bc-nav-shade bc-nav-shade--r" id="bcShadeR"></div>
+                <div class="bc-nav-win" id="bcWin" role="group" aria-label="Janela de tempo selecionada">
+                    <button type="button" class="bc-handle bc-handle--l" id="bcHandleL" role="slider" aria-label="Início do intervalo"><i></i></button>
+                    <button type="button" class="bc-handle bc-handle--r" id="bcHandleR" role="slider" aria-label="Fim do intervalo"><i></i></button>
+                </div>
+            </div>
+            <div class="bc-nav-ticks" id="bcNavTicks" aria-hidden="true"></div>
+
+            <!-- Data e hora (minutos) -->
+            <div class="bc-dates">
+                <label class="bc-date" for="bcDateFrom">
+                    <span>De</span>
+                    <b id="bcDateFromTxt">—</b>
+                    <input type="datetime-local" id="bcDateFrom" aria-label="Data e hora iniciais">
+                </label>
+                <span class="bc-dates-sep" aria-hidden="true"></span>
+                <label class="bc-date" for="bcDateTo">
+                    <span>Até</span>
+                    <b id="bcDateToTxt">—</b>
+                    <input type="datetime-local" id="bcDateTo" aria-label="Data e hora finais">
+                </label>
+            </div>
+
+            <!-- Andar no tempo e aproximar/afastar -->
+            <div class="bc-tools" id="bcTools" role="group" aria-label="Mover e ampliar o intervalo">
+                <button type="button" class="bc-tool" data-act="prev"><svg aria-hidden="true" class="bc-tool-prev"><use href="#i-chevron-right"/></svg><span>Anterior</span></button>
+                <button type="button" class="bc-tool" data-act="in"><b aria-hidden="true">+</b><span>Aproximar</span></button>
+                <button type="button" class="bc-tool" data-act="out"><b aria-hidden="true">−</b><span>Afastar</span></button>
+                <button type="button" class="bc-tool" data-act="next"><span>Seguinte</span><svg aria-hidden="true"><use href="#i-chevron-right"/></svg></button>
+            </div>
+        </section>
+    </div>
+
+    <!-- ================= 2. ENTRADAS VS. SAÍDAS ================= -->
+    <div class="bc-panel" id="bcPanelFlow" data-chart="flow" hidden>
+
+        <!-- Comparar semanas, meses ou anos -->
+        <div class="cc-periods fl-grans" id="flGrans" role="group" aria-label="Comparar por">
+            <button type="button" class="cc-chip" data-gran="week">Semanas</button>
+            <button type="button" class="cc-chip" data-gran="month">Meses</button>
+            <button type="button" class="cc-chip" data-gran="year">Anos</button>
+        </div>
+
+        <div class="bc-stats" id="flStats">
+            <div class="bc-stat bc-stat--max">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Entradas</span>
+                <strong class="bc-stat-val" id="flStatIn">—</strong>
+                <span class="bc-stat-note" id="flStatInNote">&nbsp;</span>
+            </div>
+            <div class="bc-stat bc-stat--min">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Saídas</span>
+                <strong class="bc-stat-val" id="flStatOut">—</strong>
+                <span class="bc-stat-note" id="flStatOutNote">&nbsp;</span>
+            </div>
+            <div class="bc-stat bc-stat--now" id="flStatNetBox">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Diferença</span>
+                <strong class="bc-stat-val" id="flStatNet">—</strong>
+                <span class="bc-stat-note" id="flStatNetNote">&nbsp;</span>
+            </div>
+            <div class="bc-stat bc-stat--start">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Taxa de poupança</span>
+                <strong class="bc-stat-val" id="flStatRate">—</strong>
+                <span class="bc-stat-note" id="flStatRateNote">do que recebeu</span>
+            </div>
+        </div>
+
+        <section class="cc-card cc-chart-card" aria-label="Entradas vs. saídas">
+            <div class="cc-chart-top">
+                <div>
+                    <span class="cc-card-label">Entradas vs. saídas</span>
+                    <span class="cc-range" id="flRange">—</span>
+                </div>
+                <div class="fl-pager" role="group" aria-label="Navegar no tempo">
+                    <button type="button" class="fl-page" id="flPrev" aria-label="Períodos anteriores"><svg aria-hidden="true"><use href="#i-chevron-right"/></svg></button>
+                    <button type="button" class="fl-page fl-page--next" id="flNext" aria-label="Períodos seguintes"><svg aria-hidden="true"><use href="#i-chevron-right"/></svg></button>
+                </div>
+            </div>
+            <div class="cc-chart" id="flChart" role="img" aria-label="Gráfico de barras de entradas e saídas"></div>
+            <div class="cc-legend" aria-hidden="true">
+                <span class="cc-leg cc-leg--in"><i></i>Entradas</span>
+                <span class="cc-leg cc-leg--out"><i></i>Saídas</span>
+                <span class="cc-leg cc-leg--net"><i></i>Diferença</span>
+            </div>
+        </section>
+
+        <!-- Detalhe do período escolhido -->
+        <section class="cc-card fl-detail" aria-live="polite">
+            <div class="fl-detail-head">
+                <div>
+                    <strong id="flDetTitle">—</strong>
+                    <span class="bc-range-hint" id="flDetSub">Toque numa barra para ver o detalhe</span>
+                </div>
+                <span class="bc-delta" id="flDetBadge" hidden></span>
+            </div>
+            <div class="fl-meter" aria-hidden="true"><i class="fl-meter-in" id="flMeterIn"></i><i class="fl-meter-out" id="flMeterOut"></i></div>
+            <dl class="fl-facts">
+                <div><dt><i class="cc-dot fl-d-in"></i>Entradas</dt><dd id="flDetIn">—</dd></div>
+                <div><dt><i class="cc-dot fl-d-out"></i>Saídas</dt><dd id="flDetOut">—</dd></div>
+                <div><dt><i class="cc-dot fl-d-net"></i>Diferença</dt><dd id="flDetNet">—</dd></div>
             </dl>
         </section>
+    </div>
 
-        <section class="cc-card cc-goals" aria-label="Metas">
-            <div class="cc-goals-head">
-                <strong>Metas em curso</strong>
-                <button type="button" class="cc-link" data-goto="view-savings">Ver metas <svg aria-hidden="true"><use href="#i-chevron-right"/></svg></button>
+    <!-- ================= 3. FLUXO DE GASTOS DO CARTÃO ================= -->
+    <div class="bc-panel" id="bcPanelCard" data-chart="card" hidden>
+
+        <!-- Um cartão por moeda: escolher qual analisar -->
+        <div class="cs-cards" id="csCards" role="radiogroup" aria-label="Cartão"></div>
+
+        <!-- Dia, semana ou mês + comparar -->
+        <div class="cc-periods cs-bar">
+            <div class="cs-grans" id="csGrans" role="group" aria-label="Agrupar por">
+                <button type="button" class="cc-chip" data-gran="day">Dias</button>
+                <button type="button" class="cc-chip" data-gran="week">Semanas</button>
+                <button type="button" class="cc-chip" data-gran="month">Meses</button>
             </div>
-            <div class="cc-goals-list" id="ccGoals"></div>
+            <button type="button" class="cc-chip cs-cmp" id="csCmp" aria-pressed="false">
+                <svg aria-hidden="true"><use href="#i-swap"/></svg><span>Comparar períodos</span>
+            </button>
+        </div>
+
+        <div class="bc-stats" id="csStats">
+            <div class="bc-stat bc-stat--now">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Total gasto</span>
+                <strong class="bc-stat-val" id="csStatSpent">—</strong>
+                <span class="bc-stat-note" id="csStatSpentNote">&nbsp;</span>
+            </div>
+            <div class="bc-stat bc-stat--start">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Compras</span>
+                <strong class="bc-stat-val" id="csStatBuy">—</strong>
+                <span class="bc-stat-note" id="csStatBuyNote">&nbsp;</span>
+            </div>
+            <div class="bc-stat cs-stat--wd">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Levantamentos</span>
+                <strong class="bc-stat-val" id="csStatWd">—</strong>
+                <span class="bc-stat-note" id="csStatWdNote">&nbsp;</span>
+            </div>
+            <div class="bc-stat bc-stat--max">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Estornos</span>
+                <strong class="bc-stat-val" id="csStatRef">—</strong>
+                <span class="bc-stat-note" id="csStatRefNote">&nbsp;</span>
+            </div>
+        </div>
+
+        <section class="cc-card cc-chart-card" aria-label="Fluxo de gastos do cartão">
+            <div class="cc-chart-top">
+                <div>
+                    <span class="cc-card-label">Gastos do cartão</span>
+                    <span class="cc-range" id="csRange">—</span>
+                </div>
+                <div class="fl-pager" role="group" aria-label="Navegar no tempo">
+                    <button type="button" class="fl-page" id="csPrev" aria-label="Períodos anteriores"><svg aria-hidden="true"><use href="#i-chevron-right"/></svg></button>
+                    <button type="button" class="fl-page fl-page--next" id="csNext" aria-label="Períodos seguintes"><svg aria-hidden="true"><use href="#i-chevron-right"/></svg></button>
+                </div>
+            </div>
+            <div class="cc-chart" id="csChart" role="img" aria-label="Gráfico de barras dos gastos do cartão"></div>
+            <div class="cc-legend" aria-hidden="true">
+                <span class="cc-leg cs-leg--buy"><i></i>Compras</span>
+                <span class="cc-leg cs-leg--wd"><i></i>Levantamentos</span>
+                <span class="cc-leg cs-leg--pend"><i></i>Pendentes</span>
+                <span class="cc-leg cs-leg--ref"><i></i>Estornos</span>
+            </div>
+        </section>
+
+        <!-- Detalhe do período (e comparação) -->
+        <section class="cc-card fl-detail cs-detail" aria-live="polite">
+            <div class="fl-detail-head">
+                <div>
+                    <strong id="csDetTitle">—</strong>
+                    <span class="bc-range-hint" id="csDetSub">Toque numa barra para ver o detalhe</span>
+                </div>
+                <span class="bc-delta" id="csDetBadge" hidden></span>
+            </div>
+            <div class="cs-meter" id="csMeter" aria-hidden="true"><i class="cs-m-buy" id="csMBuy"></i><i class="cs-m-wd" id="csMWd"></i><i class="cs-m-pend" id="csMPend"></i></div>
+            <dl class="cs-facts">
+                <div><dt><i class="cc-dot cs-d-buy"></i>Compras</dt><dd id="csDetBuy">—</dd></div>
+                <div><dt><i class="cc-dot cs-d-wd"></i>Levantamentos</dt><dd id="csDetWd">—</dd></div>
+                <div><dt><i class="cc-dot cs-d-pend"></i>Pendentes</dt><dd id="csDetPend">—</dd></div>
+                <div><dt><i class="cc-dot cs-d-ref"></i>Estornos</dt><dd id="csDetRef">—</dd></div>
+            </dl>
+            <div class="cs-compare" id="csCompare" hidden></div>
+        </section>
+
+        <!-- Operações do período -->
+        <section class="cc-card cs-ops" aria-label="Operações do período">
+            <div class="cs-ops-head">
+                <div>
+                    <strong id="csOpsTitle">Operações</strong>
+                    <span class="bc-range-hint" id="csOpsSub">—</span>
+                </div>
+            </div>
+            <div class="cs-filters" id="csFilters" role="group" aria-label="Tipo de operação"></div>
+            <div class="cs-list" id="csList"></div>
+            <button type="button" class="cs-more" id="csMore" hidden>Ver mais operações</button>
         </section>
     </div>
+
+    <!-- ================= 4. GASTOS POR COMERCIANTE ================= -->
+    <div class="bc-panel" id="bcPanelMerchants" data-chart="merchants" hidden>
+
+        <div class="cc-periods mc-bar">
+            <div class="mc-group" id="mcCurr" role="radiogroup" aria-label="Moeda">
+                <button type="button" class="cc-chip" role="radio" data-cur="AOA">Kwanza</button>
+                <button type="button" class="cc-chip" role="radio" data-cur="EUR">Euro</button>
+                <button type="button" class="cc-chip" role="radio" data-cur="USD">Dólar</button>
+            </div>
+        </div>
+        <div class="cc-periods" id="mcPeriods" role="group" aria-label="Intervalo de tempo">
+            <button type="button" class="cc-chip" data-p="30d">30 dias</button>
+            <button type="button" class="cc-chip" data-p="90d">90 dias</button>
+            <button type="button" class="cc-chip" data-p="6m">6 meses</button>
+            <button type="button" class="cc-chip" data-p="1a">1 ano</button>
+            <button type="button" class="cc-chip" data-p="all">Tudo</button>
+        </div>
+
+        <div class="bc-stats" id="mcStats">
+            <div class="bc-stat bc-stat--now">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Total gasto</span>
+                <strong class="bc-stat-val" id="mcStatTotal">—</strong>
+                <span class="bc-stat-note" id="mcStatTotalNote">&nbsp;</span>
+            </div>
+            <div class="bc-stat bc-stat--start">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Comerciantes</span>
+                <strong class="bc-stat-val" id="mcStatCount">—</strong>
+                <span class="bc-stat-note" id="mcStatCountNote">&nbsp;</span>
+            </div>
+            <div class="bc-stat bc-stat--max">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Principal destino</span>
+                <strong class="bc-stat-val mc-stat-name" id="mcStatTop">—</strong>
+                <span class="bc-stat-note" id="mcStatTopNote">&nbsp;</span>
+            </div>
+            <div class="bc-stat mc-stat--top3">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Três maiores</span>
+                <strong class="bc-stat-val" id="mcStatTop3">—</strong>
+                <span class="bc-stat-note" id="mcStatTop3Note">&nbsp;</span>
+            </div>
+        </div>
+
+        <section class="cc-card cc-chart-card" aria-label="Gastos por comerciante">
+            <div class="cc-chart-top">
+                <div>
+                    <span class="cc-card-label">Onde mais gastou</span>
+                    <span class="cc-range" id="mcRange">—</span>
+                </div>
+            </div>
+            <div class="mc-filters" id="mcKinds" role="group" aria-label="Tipo de destino">
+                <button type="button" class="mc-kind" data-k="all">Todos</button>
+                <button type="button" class="mc-kind" data-k="purchase">Compras</button>
+                <button type="button" class="mc-kind" data-k="transfer">Transferências</button>
+            </div>
+            <div class="mc-chart" id="mcChart" role="list" aria-label="Gráfico de barras horizontais dos gastos por comerciante"></div>
+            <button type="button" class="cs-more" id="mcMore" hidden>Ver mais comerciantes</button>
+        </section>
+
+        <section class="cc-card mc-detail" aria-live="polite">
+            <div class="fl-detail-head">
+                <div>
+                    <strong id="mcDetTitle">—</strong>
+                    <span class="bc-range-hint" id="mcDetSub">Toque num comerciante para ver o detalhe</span>
+                </div>
+                <span class="bc-delta" id="mcDetBadge" hidden></span>
+            </div>
+            <dl class="cs-facts" id="mcFacts">
+                <div><dt><i class="cc-dot cs-d-buy"></i>Total gasto</dt><dd id="mcDetTotal">—</dd></div>
+                <div><dt><i class="cc-dot cs-d-wd"></i>Operações</dt><dd id="mcDetCount">—</dd></div>
+                <div><dt><i class="cc-dot cs-d-pend"></i>Média</dt><dd id="mcDetAvg">—</dd></div>
+                <div><dt><i class="cc-dot cs-d-ref"></i>Maior</dt><dd id="mcDetMax">—</dd></div>
+            </dl>
+            <div class="cs-list mc-ops" id="mcOps"></div>
+        </section>
+    </div>
+
+    <!-- ================= 5. FLUXO ENTRE CONTAS (Sankey) ================= -->
+    <div class="bc-panel" id="bcPanelAccounts" data-chart="accounts" hidden>
+
+        <div class="cc-periods mc-bar">
+            <div class="mc-group" id="afCurr" role="radiogroup" aria-label="Moeda de apresentação">
+                <button type="button" class="cc-chip" role="radio" data-cur="AOA">Kwanza</button>
+                <button type="button" class="cc-chip" role="radio" data-cur="EUR">Euro</button>
+                <button type="button" class="cc-chip" role="radio" data-cur="USD">Dólar</button>
+            </div>
+        </div>
+        <div class="cc-periods" id="afPeriods" role="group" aria-label="Intervalo de tempo">
+            <button type="button" class="cc-chip" data-p="30d">30 dias</button>
+            <button type="button" class="cc-chip" data-p="90d">90 dias</button>
+            <button type="button" class="cc-chip" data-p="6m">6 meses</button>
+            <button type="button" class="cc-chip" data-p="1a">1 ano</button>
+            <button type="button" class="cc-chip" data-p="all">Tudo</button>
+        </div>
+
+        <div class="bc-stats" id="afStats">
+            <div class="bc-stat bc-stat--max">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Entrou</span>
+                <strong class="bc-stat-val" id="afStatIn">—</strong>
+                <span class="bc-stat-note" id="afStatInNote">&nbsp;</span>
+            </div>
+            <div class="bc-stat bc-stat--min">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Saiu</span>
+                <strong class="bc-stat-val" id="afStatOut">—</strong>
+                <span class="bc-stat-note" id="afStatOutNote">&nbsp;</span>
+            </div>
+            <div class="bc-stat bc-stat--now">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Entre contas</span>
+                <strong class="bc-stat-val" id="afStatOwn">—</strong>
+                <span class="bc-stat-note" id="afStatOwnNote">&nbsp;</span>
+            </div>
+            <div class="bc-stat af-stat--fee">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Taxas pagas</span>
+                <strong class="bc-stat-val" id="afStatFee">—</strong>
+                <span class="bc-stat-note" id="afStatFeeNote">&nbsp;</span>
+            </div>
+        </div>
+
+        <section class="cc-card cc-chart-card" aria-label="Fluxo financeiro entre contas">
+            <div class="cc-chart-top">
+                <div>
+                    <span class="cc-card-label">Fluxo entre contas</span>
+                    <span class="cc-range" id="afRange">—</span>
+                </div>
+            </div>
+            <div class="cc-chart af-chart" id="afChart" role="group" aria-label="Diagrama de Sankey: origem, contas e destino do dinheiro"></div>
+            <p class="af-note" id="afNote" hidden></p>
+            <div class="cc-legend" aria-hidden="true">
+                <span class="cc-leg af-leg--src"><i></i>Origem</span>
+                <span class="cc-leg af-leg--acc"><i></i>Contas</span>
+                <span class="cc-leg af-leg--dst"><i></i>Destino</span>
+                <span class="cc-leg af-leg--fx"><i></i>Câmbio</span>
+            </div>
+        </section>
+
+        <section class="cc-card af-detail" aria-live="polite">
+            <div class="fl-detail-head">
+                <div>
+                    <strong id="afDetTitle">—</strong>
+                    <span class="bc-range-hint" id="afDetSub">Toque num bloco ou numa faixa para ver o detalhe</span>
+                </div>
+                <span class="bc-delta" id="afDetBadge" hidden></span>
+            </div>
+            <dl class="cs-facts" id="afFacts">
+                <div><dt><i class="cc-dot cs-d-buy"></i>Valor</dt><dd id="afDetTotal">—</dd></div>
+                <div><dt><i class="cc-dot cs-d-wd"></i>Operações</dt><dd id="afDetCount">—</dd></div>
+                <div><dt><i class="cc-dot cs-d-pend"></i>Peso</dt><dd id="afDetShare">—</dd></div>
+                <div><dt><i class="cc-dot cs-d-ref"></i>Média</dt><dd id="afDetAvg">—</dd></div>
+            </dl>
+            <div class="af-conns" id="afConns"></div>
+            <div class="cs-list af-ops" id="afOps"></div>
+        </section>
+    </div>
+
+    <!-- ================= 6. PREVISÃO DO SALDO ================= -->
+    <div class="bc-panel" id="bcPanelForecast" data-chart="forecast" hidden>
+
+        <!-- Moeda e Horizonte de Projeção -->
+        <div class="cc-periods mc-bar">
+            <div class="mc-group" id="fcCurr" role="radiogroup" aria-label="Moeda de apresentação">
+                <button type="button" class="cc-chip active" role="radio" data-cur="AOA">Kwanza</button>
+                <button type="button" class="cc-chip" role="radio" data-cur="EUR">Euro</button>
+                <button type="button" class="cc-chip" role="radio" data-cur="USD">Dólar</button>
+            </div>
+        </div>
+        <div class="cc-periods" id="fcHorizon" role="group" aria-label="Intervalo da projeção">
+            <button type="button" class="cc-chip" data-period="7d">7 dias</button>
+            <button type="button" class="cc-chip" data-period="30d">30 dias</button>
+            <button type="button" class="cc-chip active" data-period="90d">90 dias</button>
+            <button type="button" class="cc-chip" data-period="6m">6 meses</button>
+            <button type="button" class="cc-chip" data-period="1a">1 ano</button>
+        </div>
+
+        <!-- Estatísticas-resumo -->
+        <div class="bc-stats" id="fcStats">
+            <div class="bc-stat bc-stat--now">
+                <span class="bc-stat-top"><i class="cc-dot"></i>Saldo atual</span>
+                <strong class="bc-stat-val" id="fcStatBalance">—</strong>
+                <span class="bc-stat-note" id="fcStatBalanceNote">Disponível real</span>
+            </div>
+            <div class="bc-stat bc-stat--max">
+                <span class="bc-stat-top"><i class="cc-dot" style="background:#10B981;"></i>Receita prevista</span>
+                <strong class="bc-stat-val" id="fcStatIncome">—</strong>
+                <span class="bc-stat-note" id="fcStatIncomeNote">Estimativa mensal</span>
+            </div>
+            <div class="bc-stat bc-stat--min">
+                <span class="bc-stat-top"><i class="cc-dot" style="background:#EF4444;"></i>Despesa prevista</span>
+                <strong class="bc-stat-val" id="fcStatExpense">—</strong>
+                <span class="bc-stat-note" id="fcStatExpenseNote">Estimativa mensal</span>
+            </div>
+            <div class="bc-stat af-stat--fee">
+                <span class="bc-stat-top"><i class="cc-dot" style="background:#8B5CF6;"></i>Poupança agendada</span>
+                <strong class="bc-stat-val" id="fcStatSavings">—</strong>
+                <span class="bc-stat-note" id="fcStatSavingsNote">Compromissos</span>
+            </div>
+        </div>
+
+        <!-- Gráfico Principal com Valores Históricos e Projetados -->
+        <section class="cc-card cc-chart-card" aria-label="Gráfico de previsão do saldo">
+            <div class="cc-chart-top">
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <span class="cc-card-label">Histórico e Projeção do Saldo</span>
+                    <span class="fc-estimate-badge">Estimativa</span>
+                    <span class="cc-range" id="fcRange">—</span>
+                </div>
+                <div id="fcAlertBadge" class="fc-alert-badge" hidden>Aviso de saldo reduzido</div>
+            </div>
+
+            <!-- Gráfico SVG Interativo -->
+            <div class="cc-chart fc-full-chart" id="fcFullChart" role="img" aria-label="Gráfico de linhas com valores históricos e projetados"></div>
+
+            <!-- Legenda Clara -->
+            <div class="cc-legend" aria-hidden="true">
+                <span class="cc-leg"><i style="background:#38BDF8; width:16px; height:3px; border-radius:2px;"></i>Histórico (real)</span>
+                <span class="cc-leg"><i style="border-top:2.5px dashed #818CF8; width:18px; height:0;"></i>Projeção (estimativa)</span>
+                <span class="cc-leg"><i style="background:rgba(239,68,68,0.5); border:1px solid #EF4444; width:10px; height:10px; border-radius:2px;"></i>Alerta saldo reduzido</span>
+            </div>
+        </section>
+
+        <!-- Intervalo flexível da previsão -->
+        <section class="cc-card bc-range" aria-label="Intervalo flexível de previsão">
+            <div class="bc-range-head">
+                <div>
+                    <strong>Intervalo flexível</strong>
+                    <span class="bc-range-hint">Arraste a barra, escolha as datas ou use os atalhos</span>
+                </div>
+                <span class="bc-range-days" id="fcRangeDays">90 dias</span>
+            </div>
+
+            <!-- Atalhos de horizonte flexível (mesmo intervalo do gráfico 1) -->
+            <div class="cc-periods bc-quick" id="fcQuick" role="group" aria-label="Atalhos de previsão">
+                <button type="button" class="cc-chip" data-period="7d">7 dias</button>
+                <button type="button" class="cc-chip" data-period="30d">30 dias</button>
+                <button type="button" class="cc-chip active" data-period="90d">90 dias</button>
+                <button type="button" class="cc-chip" data-period="6m">6 meses</button>
+                <button type="button" class="cc-chip" data-period="1a">1 ano</button>
+            </div>
+
+            <!-- Barra de intervalo (igual à do gráfico 1): arraste as pegas ou a janela -->
+            <div class="fc-slider-wrap">
+                <div class="fc-nav-readout">
+                    <span id="fcStartLbl">—</span>
+                    <b id="fcSliderLabel">—</b>
+                    <span id="fcEndLbl">—</span>
+                </div>
+                <div class="bc-nav fc-nav" id="fcNav">
+                    <svg class="bc-nav-svg" id="fcNavSvg" preserveAspectRatio="none" aria-hidden="true"></svg>
+                    <div class="fc-nav-today" aria-hidden="true"></div>
+                    <div class="bc-nav-shade bc-nav-shade--l" id="fcShadeL"></div>
+                    <div class="bc-nav-shade bc-nav-shade--r" id="fcShadeR"></div>
+                    <div class="bc-nav-win" id="fcWin" role="group" aria-label="Janela de tempo da previsão">
+                        <button type="button" class="bc-handle bc-handle--l" id="fcHandleL" role="slider" aria-label="Início do intervalo"><i></i></button>
+                        <button type="button" class="bc-handle bc-handle--r" id="fcHandleR" role="slider" aria-label="Fim do intervalo"><i></i></button>
+                    </div>
+                </div>
+                <div class="fc-nav-ticks" id="fcNavTicks" aria-hidden="true">
+                    <span style="left:7.36%">Hoje</span>
+                    <span style="left:30.2%">90d</span>
+                    <span style="left:53.05%">6m</span>
+                    <span style="left:100%" class="last">1 ano</span>
+                </div>
+            </div>
+
+            <!-- Datas De / Até -->
+            <div class="bc-dates">
+                <label class="bc-date" for="fcDateFrom">
+                    <span>De</span>
+                    <b id="fcDateFromTxt">—</b>
+                    <input type="date" id="fcDateFrom" aria-label="Data inicial do intervalo">
+                </label>
+                <span class="bc-dates-sep" aria-hidden="true"></span>
+                <label class="bc-date" for="fcDateTo">
+                    <span>Até</span>
+                    <b id="fcDateToTxt">—</b>
+                    <input type="date" id="fcDateTo" aria-label="Data final do intervalo">
+                </label>
+            </div>
+
+            <!-- Ferramentas: Andar no tempo e aproximar/afastar -->
+            <div class="bc-tools" id="fcTools" role="group" aria-label="Mover e ampliar a previsão">
+                <button type="button" class="bc-tool" data-act="prev"><svg aria-hidden="true" class="bc-tool-prev"><use href="#i-chevron-right"/></svg><span>Anterior</span></button>
+                <button type="button" class="bc-tool" data-act="in"><b aria-hidden="true">+</b><span>Aproximar</span></button>
+                <button type="button" class="bc-tool" data-act="out"><b aria-hidden="true">−</b><span>Afastar</span></button>
+                <button type="button" class="bc-tool" data-act="next"><span>Seguinte</span><svg aria-hidden="true"><use href="#i-chevron-right"/></svg></button>
+            </div>
+        </section>
+
+        <!-- Premissas, Riscos e Ritmo Ideal -->
+        <section class="cc-card fc-detail" aria-live="polite">
+            <div class="fl-detail-head">
+                <div>
+                    <strong>Premissas & Gestão de Risco de Liquidez</strong>
+                    <span class="bc-range-hint">Como esta projeção é calculada pelo sistema</span>
+                </div>
+            </div>
+
+            <div class="fc-assumptions-box" style="margin-top:14px;">
+                <p id="fcAssumpText" class="fc-assump-desc" style="font-size:0.84rem; color:rgba(255,255,255,0.78); line-height:1.55; margin-bottom:14px;"></p>
+                <div id="fcRiskNotice" style="margin-bottom:16px;"></div>
+            </div>
+
+            <div class="fc-pace-box" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px 16px;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                    <svg style="width:18px; height:18px; fill:#38BDF8;" viewBox="0 0 24 24"><use href="#i-spark"/></svg>
+                    <strong style="font-size:0.88rem; color:#fff;">Ritmo Ideal Sugerido pela IA</strong>
+                </div>
+                <div id="fcPaceContent"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ================= COPILOT: sempre no fim da página, em qualquer gráfico ================= -->
+    <section class="sgc cc-copilot" id="ccCopilot" aria-label="BankAO Copilot">
+        <div class="sgc-head">
+            <div class="sgc-orb"><svg aria-hidden="true"><use href="#i-spark"/></svg><i></i></div>
+            <div class="sgc-title">
+                <span class="sgc-tag">BankAO Copilot</span>
+                <h3 id="ccCopilotTitle">Análise do gráfico</h3>
+            </div>
+        </div>
+        <div class="sgc-list" id="ccCopilotInsights"></div>
+        <div class="sgc-ask">
+            <span class="sgc-ask-lbl">Pergunte ao Copilot</span>
+            <div class="sgc-chips" id="ccCopilotChips"></div>
+            <button type="button" class="sgc-open" onclick="showView('view-copilot')">
+                <span>Abrir conversa</span><svg aria-hidden="true"><use href="#i-chevron-right"/></svg>
+            </button>
+        </div>
+    </section>
 </section>

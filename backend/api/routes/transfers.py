@@ -2,6 +2,8 @@
 Rotas — Transferências: Transferências internas (taxa 1%) e para IBAN.
 """
 
+import datetime
+import uuid
 from fastapi import APIRouter, Depends, HTTPException
 
 from backend.core.security import get_current_user
@@ -87,6 +89,31 @@ def transfer_internal(
         res["dest_amount_decimal"] = dest_amount_minor / 100.0
         res["fee_decimal"] = fee_minor / 100.0
         res["fee_percentage"] = 1.0
+
+        # Registar saída nas Despesas do utilizador (categoria 'Transferências')
+        try:
+            with get_connection() as conn_exp:
+                exp_id = str(uuid.uuid4())
+                today_iso = datetime.date.today().isoformat()
+                from_acc = conn_exp.execute("SELECT currency, user_id FROM accounts WHERE id = ?", (data.from_account_id,)).fetchone()
+                curr = from_acc["currency"] if from_acc else "AOA"
+                owner_uid = from_acc["user_id"] if from_acc else current_user["id"]
+                conn_exp.execute("""
+                    INSERT INTO expenses (id, user_id, name, category, amount_minor, currency, expense_date, origin, notes)
+                    VALUES (?, ?, ?, 'Transferências', ?, ?, ?, 'transfer', ?)
+                """, (
+                    exp_id,
+                    owner_uid,
+                    f"Transferência — {beneficiary_name}",
+                    amount_minor,
+                    curr,
+                    today_iso,
+                    f"Transferência enviada para {beneficiary_name}" + (f": {data.description}" if data.description else "")
+                ))
+                conn_exp.commit()
+        except Exception:
+            pass
+
         return res
     except InsufficientFundsError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -118,6 +145,29 @@ def transfer_iban(
             dest_currency=data.dest_currency,
             idempotency_key=data.idempotency_key
         )
+
+        # Registar saída nas Despesas do utilizador (categoria 'Transferências')
+        try:
+            with get_connection() as conn_exp:
+                exp_id = str(uuid.uuid4())
+                today_iso = datetime.date.today().isoformat()
+                label_dest = data.beneficiary_name or data.to_iban
+                conn_exp.execute("""
+                    INSERT INTO expenses (id, user_id, name, category, amount_minor, currency, expense_date, origin, notes)
+                    VALUES (?, ?, ?, 'Transferências', ?, ?, ?, 'transfer', ?)
+                """, (
+                    exp_id,
+                    current_user["id"],
+                    f"Transferência IBAN — {label_dest}",
+                    amount_minor,
+                    source_currency,
+                    today_iso,
+                    f"Transferência IBAN enviada para {data.to_iban} ({data.beneficiary_name or 'Sem beneficiário'})"
+                ))
+                conn_exp.commit()
+        except Exception:
+            pass
+
         return res
     except InsufficientFundsError as e:
         raise HTTPException(status_code=400, detail=str(e))

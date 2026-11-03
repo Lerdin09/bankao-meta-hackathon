@@ -9,7 +9,7 @@ window.openNewExpenseModal = function() {
     if (m) {
         const dateInput = document.getElementById("expDate");
         if (dateInput && !dateInput.value) {
-            dateInput.value = new Date().toISOString().split("T")[0];
+            dateInput.value = localISODate(0);
         }
         selectExpenseFormCategory("Alimentação", "new");
         m.style.display = "flex";
@@ -33,7 +33,7 @@ window.openEditExpenseModal = function(id) {
     document.getElementById("editExpName").value = exp.name || "";
     document.getElementById("editExpCategory").value = exp.category || "Outros";
     document.getElementById("editExpAmount").value = formatNumberWithDots(exp.amount || 0);
-    document.getElementById("editExpDate").value = exp.date || new Date().toISOString().split("T")[0];
+    document.getElementById("editExpDate").value = exp.date || localISODate(0);
     document.getElementById("editExpNotes").value = exp.notes || "";
 
     selectExpenseFormCategory(exp.category || "Outros", "edit");
@@ -64,8 +64,8 @@ window.selectExpenseFormCategory = function(cat, mode) {
     const hintEl = document.getElementById(hintId);
     if (hintEl && typeof getCategoryBudgets === "function") {
         const budgets = getCategoryBudgets();
-        const bVal = budgets[cat] || 35000;
-        hintEl.textContent = `Meta: ${formatMoney(bVal, "AOA")}/mês`;
+        const bVal = budgets[cat] || 0;
+        hintEl.textContent = bVal > 0 ? `Meta: ${formatMoney(bVal, "AOA")}/mês` : "Sem meta definida";
     }
 };
 
@@ -79,11 +79,7 @@ window.addExpenseQuickAmount = function(fieldId, val) {
 
 window.setExpenseDateShortcut = function(fieldId, daysAgo) {
     const el = document.getElementById(fieldId);
-    if (el) {
-        const d = new Date();
-        d.setDate(d.getDate() - daysAgo);
-        el.value = d.toISOString().split("T")[0];
-    }
+    if (el) el.value = localISODate(-daysAgo);
 };
 
 window.appendExpenseNoteTag = function(fieldId, tag) {
@@ -97,92 +93,70 @@ window.appendExpenseNoteTag = function(fieldId, tag) {
         }
     }
 };
-window.handleUpdateExpense = function(e) {
+window.handleUpdateExpense = async function(e) {
     e.preventDefault();
     const id = document.getElementById("editExpId")?.value;
     const name = document.getElementById("editExpName")?.value.trim();
     const category = document.getElementById("editExpCategory")?.value || "Outros";
     const amount = parseCleanNumber(document.getElementById("editExpAmount")?.value || "0");
-    const date = document.getElementById("editExpDate")?.value || new Date().toISOString().split("T")[0];
+    const date = document.getElementById("editExpDate")?.value || localISODate(0);
     const notes = document.getElementById("editExpNotes")?.value.trim() || "";
 
     if (!name || amount <= 0) {
         return toast("Indique o nome e o montante válido da despesa.", "error");
     }
+    const previous = getExpenses().find(x => x.id === id);
+    if (!previous) return toast("Despesa não encontrada.", "error");
 
-    const expenses = getExpenses();
-    const idx = expenses.findIndex(x => x.id === id);
-    if (idx === -1) return toast("Despesa não encontrada.", "error");
-
-    const previous = expenses[idx];
-    expenses[idx] = {
-        ...previous,
-        name,
-        category,
-        amount,
-        date,
-        notes
-    };
-
-    // Depósito numa poupança: ajusta a meta pela diferença de valor
-    if (previous.goalId && amount !== previous.amount) {
-        const goals = getSavingsGoals();
-        const gi = goals.findIndex(x => x.id === previous.goalId);
-        if (gi !== -1) {
-            goals[gi].saved = Math.max(0, (Number(goals[gi].saved) || 0) + (amount - previous.amount));
-            saveSavingsGoals(goals);
-            renderSavingsView();
-            if (typeof updateDashboardHero === "function") updateDashboardHero();
-        }
+    try {
+        const updated = await apiRequest("PUT", `/api/expenses/${encodeURIComponent(id)}`, { name, category, amount, date, notes, currency: previous.currency || "AOA", origin: previous.origin });
+        const idx = financeStore.expenses.findIndex(x => x.id === id);
+        financeStore.expenses[idx] = updated;
+        // Depósito numa meta: a base de dados já ajustou a meta pela diferença; recarrega as metas
+        if (previous.goalId) financeStore.goals = await apiRequest("GET", "/api/savings/goals");
+    } catch (err) {
+        return toast(err.message, "error");
     }
 
-    saveExpenses(expenses);
     closeEditExpenseModal();
     renderExpensesView();
+    renderSavingsView();
+    if (typeof updateDashboardHero === "function") updateDashboardHero();
+    refreshHomeFinance();
     toast(`Despesa "${name}" atualizada com sucesso!`, "success");
 };
-window.handleCreateExpense = function(e) {
+window.handleCreateExpense = async function(e) {
     e.preventDefault();
     const name = document.getElementById("expName")?.value.trim();
     const category = document.getElementById("expCategory")?.value || "Outros";
     const amount = parseCleanNumber(document.getElementById("expAmount")?.value || "0");
-    const date = document.getElementById("expDate")?.value || new Date().toISOString().split("T")[0];
+    const date = document.getElementById("expDate")?.value || localISODate(0);
     const notes = document.getElementById("expNotes")?.value.trim() || "";
 
     if (!name || amount <= 0) {
         return toast("Indique o nome e o montante válido da despesa.", "error");
     }
 
-    const expenses = getExpenses();
-    const newExp = {
-        id: "exp_" + Date.now(),
-        name,
-        category,
-        amount,
-        currency: "AOA",
-        date,
-        origin: "manual",
-        notes
-    };
-
-    expenses.unshift(newExp);
-    saveExpenses(expenses);
+    try {
+        const created = await apiRequest("POST", "/api/expenses", { name, category, amount, currency: "AOA", date, origin: "manual", notes });
+        financeStore.expenses.unshift(created);
+    } catch (err) {
+        return toast(err.message, "error");
+    }
 
     // Se o filtro de mês estiver ativo, atualiza para o mês da despesa para ela aparecer logo
-    if (date) {
-        const expMonth = date.substring(0, 7); // YYYY-MM
-        if (currentExpensesMonth && currentExpensesMonth !== expMonth) currentExpensesMonth = expMonth;
-        activeExpenseCategoryFilter = "all";
-    }
+    const expMonth = date.substring(0, 7); // YYYY-MM
+    if (currentExpensesMonth && currentExpensesMonth !== expMonth) currentExpensesMonth = expMonth;
+    activeExpenseCategoryFilter = "all";
 
     closeNewExpenseModal();
     document.getElementById("formNewExpense")?.reset();
     renderExpensesView();
+    refreshHomeFinance();
     toast(`Despesa "${name}" de ${formatMoney(amount, "AOA")} registada!`, "success");
 };
 window.deleteExpense = async function(id) {
-    const expenses = getExpenses();
-    const removed = expenses.find(e => e.id === id);
+    const removed = getExpenses().find(e => e.id === id);
     if (!removed) return;
 
     const [yy, mm, dd] = String(removed.date || "").split("-");
@@ -199,23 +173,18 @@ window.deleteExpense = async function(id) {
         confirmText: "Sim, remover"
     });
     if (!ok) return;
-    const filtered = expenses.filter(e => e.id !== id);
-    saveExpenses(filtered);
 
-    // Depósito numa poupança: retira o valor da meta correspondente
-    if (removed && removed.goalId) {
-        const goals = getSavingsGoals();
-        const gi = goals.findIndex(x => x.id === removed.goalId);
-        if (gi !== -1) {
-            goals[gi].saved = Math.max(0, (Number(goals[gi].saved) || 0) - (Number(removed.amount) || 0));
-            saveSavingsGoals(goals);
-            renderSavingsView();
-            if (typeof updateDashboardHero === "function") updateDashboardHero();
-            renderExpensesView();
-            return toast(`Depósito removido e ${formatMoney(removed.amount, "AOA")} retirados da meta "${goals[gi].name}".`, "info");
-        }
+    try {
+        await apiRequest("DELETE", `/api/expenses/${encodeURIComponent(id)}`);
+        financeStore.expenses = financeStore.expenses.filter(e => e.id !== id);
+        if (removed.goalId) financeStore.goals = await apiRequest("GET", "/api/savings/goals");
+    } catch (err) {
+        return toast(err.message, "error");
     }
 
     renderExpensesView();
-    toast("Despesa removida.", "info");
+    renderSavingsView();
+    if (typeof updateDashboardHero === "function") updateDashboardHero();
+    refreshHomeFinance();
+    toast(removed.goalId ? `Depósito removido e ${formatMoney(removed.amount, "AOA")} retirados da meta.` : "Despesa removida.", "info");
 };

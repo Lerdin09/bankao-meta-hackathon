@@ -1,12 +1,12 @@
 <!-- ============ MODAL: CONFIRMAÇÃO DE TRANSFERÊNCIA ============ -->
 <div class="modal-overlay" id="modalTransferConfirm" style="display:none">
-    <div class="confirm-transfer-modal">
+    <div class="confirm-transfer-modal" role="dialog" aria-modal="true" aria-labelledby="confirmTransferTitle">
         <div class="confirm-modal-header">
             <div class="confirm-modal-icon">
                 <svg><use href="#i-shield"/></svg>
             </div>
             <div class="confirm-header-text">
-                <h3>Confirmar Transferência</h3>
+                <h3 id="confirmTransferTitle">Confirmar Transferência</h3>
                 <p class="confirm-subtitle">Confira os detalhes antes de concluir o envio</p>
             </div>
             <button type="button" class="confirm-close-btn" id="btnCloseConfirmTransfer" aria-label="Fechar">
@@ -51,6 +51,21 @@
                     Câmbio aplicado: 1 $ = 1.000 Kz · Rede Bancária
                 </div>
             </div>
+        </div>
+
+        <!-- Estado final: transferência enviada (os dados do formulário já foram apagados) -->
+        <div class="confirm-success" id="confirmSuccess" role="status" aria-live="polite">
+            <div class="cs-check"><svg aria-hidden="true"><use href="#i-check"/></svg></div>
+            <h3 id="csTitle">Transferência enviada</h3>
+            <p class="cs-lead" id="csLead">A sua transferência foi enviada com sucesso.</p>
+            <strong class="cs-amount" id="csAmount">—</strong>
+            <dl class="cs-facts">
+                <div><dt>Para</dt><dd id="csTo">—</dd></div>
+                <div><dt>Destino</dt><dd id="csDest" class="mono">—</dd></div>
+                <div><dt>Chega ao beneficiário</dt><dd id="csArrive">—</dd></div>
+                <div><dt>Enviada em</dt><dd id="csWhen">—</dd></div>
+            </dl>
+            <button type="button" class="btn btn-primary cs-done" id="btnTransferDone">Concluir</button>
         </div>
 
         <div class="confirm-modal-actions">

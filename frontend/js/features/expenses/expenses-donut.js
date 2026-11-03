@@ -96,7 +96,7 @@ function renderDonutSpotlight(catTotals, catCounts, activeTotal) {
     const count = catCounts[cat] || 0;
     const info = EXPENSE_CATEGORIES[cat] || { icon: "#i-receipt", color: "#64748B", label: cat };
     const factor = getBudgetFactor();
-    const budget = (getCategoryBudgets()[cat] || 35000) * factor;
+    const budget = (getCategoryBudgets()[cat] || 0) * factor;
 
     const $ = id => document.getElementById(id);
     const iconWrap = $("spotlightIconWrap");
@@ -118,17 +118,19 @@ function renderDonutSpotlight(catTotals, catCounts, activeTotal) {
     $("spotlightPurchasesCount").textContent = `${count} ${count === 1 ? "compra" : "compras"}`;
     $("spotlightTotalSpent").textContent = fmtKz(amt);
     $("spotlightBudgetLabel").textContent = factor > 1 ? `Meta (${factor} meses)` : "Meta mensal";
-    $("spotlightNormalSpent").textContent = fmtKz(budget);
+    $("spotlightNormalSpent").textContent = budget > 0 ? fmtKz(budget) : "Sem meta";
 
     const used = budget > 0 ? (amt / budget) * 100 : 0;
     const fill = $("spotlightMeterFill");
     const trend = $("spotlightTrendBadge");
-    const state = amt === 0 ? "neutral" : amt > budget ? "danger" : used >= 85 ? "warn" : "success";
+    const state = amt === 0 || budget <= 0 ? "neutral" : amt > budget ? "danger" : used >= 85 ? "warn" : "success";
     fill.style.width = `${Math.min(100, used)}%`;
     fill.dataset.state = state;
     trend.dataset.state = state;
     if (amt === 0) {
         trend.textContent = "Sem gastos no período";
+    } else if (budget <= 0) {
+        trend.textContent = "Defina uma meta mensal para acompanhar esta categoria";
     } else if (amt > budget) {
         trend.textContent = `${fmtKz(amt - budget)} acima da meta (+${Math.round(((amt - budget) / budget) * 100)}%)`;
     } else {
@@ -151,7 +153,7 @@ function renderSelectableExpenseTypes(catTotals, catCounts, activeTotal, grandTo
         const count = catCounts[cat] || 0;
         const base = on ? activeTotal : grandTotal;
         const pct = base > 0 ? Math.round((amt / base) * 100) : 0;
-        const over = amt > (budgets[cat] || 35000) * factor;
+        const over = (budgets[cat] || 0) > 0 && amt > budgets[cat] * factor;
 
         const sub = [`${count} ${count === 1 ? "gasto" : "gastos"}`];
         if (over) sub.push(`<span class="over">acima da meta</span>`);

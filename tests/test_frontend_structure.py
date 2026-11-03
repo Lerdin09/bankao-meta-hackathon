@@ -65,3 +65,13 @@ def test_handlers_inline_principais_existem_no_js():
     ignorar = {"event", "if", "return", "function"}
     em_falta = sorted(n for n in usados - definidos - ignorar)
     assert not em_falta, f"handlers sem função: {em_falta}"
+
+
+def test_grafico_previsao_saldo_ativo_sem_em_breve():
+    """O 6.º gráfico (Previsão do saldo) tem de estar ativo, sem 'Em breve' e com o painel bcPanelForecast."""
+    html, _ = _html()
+    assert 'data-chart="forecast"' in html
+    assert 'id="bcPanelForecast"' in html
+    assert 'id="fcFullChart"' in html
+    assert 'Previsão do saldo</span><em class="bc-soon">Em breve</em>' not in html
+

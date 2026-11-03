@@ -40,7 +40,7 @@ def register(data: UserRegister):
             (user_id, nome_display, data.email, pwd_hash, data.telefone)
         )
 
-        # Criar automaticamente carteira em Kwanza (AOA), Euro (EUR) e Dólar (USD)
+        # Criar automaticamente 3 cartões/contas: AO (Angola - AOA), PT (Portugal - EUR) e US (Estados Unidos - USD) com saldo 0
         acc_aoa_id = str(uuid.uuid4())
         acc_aoa_num = f"0040{random.randint(10000000, 99999999)}"
         iban_aoa = gerar_iban_ficticio("AO")
@@ -59,7 +59,7 @@ def register(data: UserRegister):
 
         acc_usd_id = str(uuid.uuid4())
         acc_usd_num = f"0060{random.randint(10000000, 99999999)}"
-        iban_usd = gerar_iban_ficticio("AO")
+        iban_usd = gerar_iban_ficticio("US")
         conn.execute(
             "INSERT INTO accounts (id, user_id, account_number, iban_virtual, currency) VALUES (?, ?, ?, ?, 'USD')",
             (acc_usd_id, user_id, acc_usd_num, iban_usd)

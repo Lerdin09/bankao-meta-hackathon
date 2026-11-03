@@ -8,6 +8,8 @@ from pydantic import BaseModel
 class AIChatRequest(BaseModel):
     message: str
     history: Optional[List[dict]] = None
+    # Pedido a meio (ex.: a IA perguntou o prazo da meta); o frontend devolve-o na mensagem seguinte
+    pending: Optional[dict] = None
 
 
 class AIExplainTransferRequest(BaseModel):

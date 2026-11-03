@@ -7,15 +7,6 @@
 // VISTA: HISTÓRICO DE PAGAMENTOS (view-payments)
 // "em pagamentos ficariam todas as compras, todo dinheiro que saiu da conta, sem ser transferencia"
 // ==========================================================================
-const DEFAULT_PURCHASES = [
-    { id: "p1", title: "Maxi Hipermercado Morro Bento", category: "Supermercado", amount: 48500, currency: "AOA", date: "2026-10-28T16:42:00", method: "Multicaixa POS" },
-    { id: "p2", title: "Unitel Net Casa Fibra", category: "Telecomunicações", amount: 25000, currency: "AOA", date: "2026-10-25T11:15:00", method: "Multicaixa Express" },
-    { id: "p3", title: "Restaurante Miami Beach Ilha", category: "Restauração", amount: 38200, currency: "AOA", date: "2026-10-22T21:30:00", method: "Cartão VISA Virtual" },
-    { id: "p4", title: "ZAP Satélite Mensalidade", category: "Entretenimento", amount: 16500, currency: "AOA", date: "2026-10-18T09:10:00", method: "Pagamento por Referência" },
-    { id: "p5", title: "Kero Kilamba Compras", category: "Supermercado", amount: 62400, currency: "AOA", date: "2026-10-14T18:05:00", method: "Multicaixa POS" },
-    { id: "p6", title: "Yango Viagens Luanda", category: "Transportes", amount: 12500, currency: "AOA", date: "2026-10-10T14:20:00", method: "Cartão VISA Virtual" },
-    { id: "p7", title: "Farmácia Luanda Saúde", category: "Saúde & Bem-Estar", amount: 18900, currency: "AOA", date: "2026-10-05T10:45:00", method: "Multicaixa POS" }
-];
 let currentPaymentsPeriod = "month";
 let currentPaymentsMonth = null;
  // null = sem filtro de mês específico
@@ -73,23 +64,22 @@ function renderPayments(period = currentPaymentsPeriod) {
     const listEl = document.getElementById("paymentsList");
     if (!listEl) return;
 
-    // Movimentos reais de débito que não sejam transferência
+    // Movimentos de débito do extrato (base de dados) que não sejam transferência
     const realDebits = (state.transactions || []).filter(tx => {
         const isTransfer = tx.type === "transfer_internal" || tx.type === "transfer_iban" || tx.type === "transfer";
         const isOutgoing = tx.amount_minor < 0 || tx.amount_decimal < 0;
         return isOutgoing && !isTransfer;
     }).map(tx => ({
         id: tx.id,
-        title: tx.description || "Pagamento Comercial",
-        category: "Compras & Serviços",
+        title: tx.description || "Pagamento",
+        category: tx.type === "fx_exchange" ? "Câmbio" : "Pagamento",
         amount: Math.abs(tx.amount_decimal),
         currency: tx.currency || "AOA",
         date: tx.created_at,
-        method: "BankAO Pay"
+        method: "BankAO"
     }));
 
-    // Combinar com as compras padrão
-    const allPurchases = [...realDebits, ...DEFAULT_PURCHASES];
+    const allPurchases = realDebits;
 
     // Filtrar pelo mês específico ou pelo período genérico
     const now = new Date();
@@ -107,7 +97,7 @@ function renderPayments(period = currentPaymentsPeriod) {
     });
 
     // Calcular estatísticas
-    const totalSpent = filtered.reduce((acc, p) => acc + p.amount, 0);
+    const totalSpent = filtered.reduce((acc, p) => acc + convertMoney(p.amount, p.currency, "AOA"), 0);
     const count = filtered.length;
     const daysInPeriod = currentPaymentsMonth ? new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
         : (period === "month" ? 30 : period === "3months" ? 90 : 120);

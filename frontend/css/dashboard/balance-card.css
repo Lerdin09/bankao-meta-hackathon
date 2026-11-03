@@ -271,3 +271,6 @@ body.balances-hidden .nb-eye-btn .ic-eye-off { display: block; }
 .view.active .nb-spark-dot { animation: sparkDot .35s ease 1s both; }
 @keyframes sparkReveal { from { clip-path: inset(-6px 100% -6px 0); } to { clip-path: inset(-6px -6px -6px 0); } }
 @keyframes sparkDot { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: none; } }
+
+/* Tendência negativa do saldo (calculada a partir dos movimentos reais) */
+.nb-trend-pill.down { color: #F87171; background: rgba(248, 113, 113, .14); }

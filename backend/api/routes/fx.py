@@ -4,6 +4,7 @@ Rotas — Câmbio: Cotações de câmbio.
 
 from fastapi import APIRouter, HTTPException
 
+from backend.database import get_connection
 from backend.providers.fx import FXProvider
 from backend.schemas import FxQuoteRequest
 
@@ -18,3 +19,11 @@ def get_fx_quote(data: FxQuoteRequest):
         return quote
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/rates")
+def get_fx_rates():
+    """Taxas de referência guardadas na base de dados (fonte única de câmbio do frontend)."""
+    with get_connection() as conn:
+        rows = conn.execute("SELECT base_currency, quote_currency, rate FROM fx_rates").fetchall()
+    return {f"{r['base_currency']}_{r['quote_currency']}": r["rate"] for r in rows}

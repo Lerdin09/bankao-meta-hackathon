@@ -30,7 +30,6 @@ class Settings:
     # Caminhos
     BASE_DIR: Path = BASE_DIR
     FRONTEND_DIR: Path = BASE_DIR / "frontend"
-    SAMPLES_DIR: Path = BASE_DIR / "frontend" / "assets" / "samples"
 
     # Base de dados (caminho relativo é sempre resolvido a partir da raiz do projeto)
     DATABASE_PATH: str = os.getenv("DATABASE_PATH", "bankao.db")

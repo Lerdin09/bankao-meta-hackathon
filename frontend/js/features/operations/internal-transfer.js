@@ -68,13 +68,8 @@ function initInternalTransfer() {
         if (routeToFlag) routeToFlag.textContent = "🇦🇴";
         if (routeTo) routeTo.textContent = "Angola (AOA · KZ)";
         if (routeRate) {
-            if (sendCurr === "USD") {
-                routeRate.textContent = "Câmbio: 1 $ = 1.000 KZ · Instantâneo entre Contas";
-            } else if (sendCurr === "EUR") {
-                routeRate.textContent = "Câmbio: 1 € = 1.050 KZ · Instantâneo entre Contas";
-            } else {
-                routeRate.textContent = "Rede Instantânea BankAO Angola";
-            }
+            const rate = fxRateLabel(sendCurr, "AOA");
+            routeRate.textContent = rate ? `${rate} · Instantâneo entre Contas` : "Rede Instantânea BankAO Angola";
         }
     }
 
@@ -85,12 +80,22 @@ function initInternalTransfer() {
         sendCurrSelect.addEventListener("change", updateInternalRealtime);
     }
 
-    // Busca e validação do e-mail do cliente em tempo real
+    // Destino: e-mail do cliente OU número de conta BankAO (8–14 dígitos)
+    const parseDest = (raw) => {
+        const v = (raw || "").trim();
+        if (v.includes("@")) return { kind: "email", value: v.toLowerCase() };
+        const digits = v.replace(/[\s.-]/g, "");
+        if (/^\d{8,14}$/.test(digits)) return { kind: "account", value: digits };
+        return { kind: "invalid", value: v };
+    };
+
+    // Busca e validação do destinatário em tempo real
     if (emailInput) {
         emailInput.addEventListener("input", (e) => {
             clearTimeout(lookupTimer);
-            const email = e.target.value.trim().toLowerCase();
-            if (!email || !email.includes("@") || email.length < 5) {
+            const dest = parseDest(e.target.value);
+            const tooShort = dest.kind === "invalid" || (dest.kind === "email" && dest.value.length < 5);
+            if (tooShort) {
                 if (statusBadge) {
                     statusBadge.textContent = "Verificar";
                     statusBadge.className = "iban-status-badge";
@@ -107,13 +112,14 @@ function initInternalTransfer() {
 
             lookupTimer = setTimeout(async () => {
                 try {
-                    const res = await fetch(`${API_BASE}/api/users/lookup?email=${encodeURIComponent(email)}`, {
+                    const qs = dest.kind === "email" ? `email=${encodeURIComponent(dest.value)}` : `account=${encodeURIComponent(dest.value)}`;
+                    const res = await fetch(`${API_BASE}/api/users/lookup?${qs}`, {
                         headers: state.token ? { "Authorization": `Bearer ${state.token}` } : {}
                     });
                     if (res.ok) {
                         const data = await res.json();
                         if (data.found) {
-                            verifiedInternalRecipient = { name: data.nome, email: data.email };
+                            verifiedInternalRecipient = { name: data.nome, email: data.email || null };
                             if (statusBadge) {
                                 statusBadge.textContent = "Cliente Verificado";
                                 statusBadge.className = "iban-status-badge valid";
@@ -132,7 +138,7 @@ function initInternalTransfer() {
                         }
                     }
                 } catch (err) {
-                    console.error("Erro na busca de usuário:", err);
+                    console.error("Erro na busca de destinatário:", err);
                 }
             }, 300);
         });
@@ -151,12 +157,13 @@ function initInternalTransfer() {
                 return;
             }
 
-            const email = emailInput ? emailInput.value.trim() : "";
+            const dest = parseDest(emailInput ? emailInput.value : "");
+            const email = dest.value;
             const amount = parseFloat(amountInput ? amountInput.value : 0) || 0;
             const desc = (descInput ? descInput.value.trim() : "") || "Transferência de conta BankAO";
 
-            if (!email || !email.includes("@")) {
-                toast("Por favor, insira um e-mail de cliente válido.");
+            if (dest.kind === "invalid") {
+                toast("Indique o e-mail do cliente ou o número da conta BankAO.");
                 if (emailInput) emailInput.focus();
                 return;
             }
@@ -174,7 +181,7 @@ function initInternalTransfer() {
                 return;
             }
 
-            const recipientName = verifiedInternalRecipient ? verifiedInternalRecipient.name : email.split("@")[0];
+            const recipientName = verifiedInternalRecipient ? verifiedInternalRecipient.name : (dest.kind === "email" ? email.split("@")[0] : `Conta ${email}`);
             const fee = amount * 0.01;
             const arrive = Math.max(0, amount - fee);
             const destCurr = sendCurr === "AOA" ? "USD" : "AOA";
@@ -190,7 +197,7 @@ function initInternalTransfer() {
                 sendCurrency: sendCurr,
                 destCountryCode: "AO",
                 destCurrency: destCurr,
-                rateNote: sendCurr === "USD" ? "Câmbio: 1 $ = 1.000 KZ · Transferência instantânea entre contas BankAO" : "Transferência instantânea entre contas BankAO",
+                rateNote: sendCurr !== "AOA" && fxRateLabel(sendCurr, "AOA") ? `${fxRateLabel(sendCurr, "AOA")} · Transferência instantânea entre contas BankAO` : "Transferência instantânea entre contas BankAO",
                 onConfirm: async () => {
                     const idempotencyKey = "tx_int_" + Date.now();
                     const res = await fetch(`${API_BASE}/api/transfers/internal`, {
@@ -201,7 +208,7 @@ function initInternalTransfer() {
                         },
                         body: JSON.stringify({
                             from_account_id: fromAccount.id,
-                            to_email: email,
+                            ...(dest.kind === "email" ? { to_email: email } : { to_account_number: email }),
                             amount: amount,
                             description: desc,
                             idempotency_key: idempotencyKey
@@ -209,17 +216,26 @@ function initInternalTransfer() {
                     });
                     const data = await res.json();
                     if (res.ok) {
-                        toast(`🎉 Transferência para ${recipientName} enviada com sucesso!`);
+                        // 1) apagar os dados do formulário
                         form.reset();
+                        verifiedInternalRecipient = null;
                         updateInternalRealtime();
                         if (liveNameBox) liveNameBox.style.display = "none";
                         if (statusBadge) {
                             statusBadge.textContent = "Verificar";
                             statusBadge.className = "iban-status-badge";
                         }
+                        // 2) mostrar que foi enviada
+                        showTransferSuccess({
+                            recipientName,
+                            recipientDest: email,
+                            amountText: formatTwoTierMoney(amount, sendCurr),
+                            arriveText: formatTwoTierMoney(arrive, sendCurr),
+                            lead: `A transferência para ${recipientName} foi enviada.`
+                        });
+                        toast("Transferência enviada");
                         addCopilotMessage("ai", `⚡ **Transferência de Conta Concluída!**\n- Beneficiário: **${recipientName}** (${email})\n- Quantia enviada: **${formatTwoTierMoney(amount, sendCurr)}**\n- Taxa BankAO (1%): **${formatTwoTierMoney(fee, sendCurr)}**\n- Quantia creditada: **${formatTwoTierMoney(arrive, sendCurr)}**`);
                         await loadUserData();
-                        closeTransferConfirmModal();
                     } else {
                         toast(data.detail || "Falha na transferência.");
                     }

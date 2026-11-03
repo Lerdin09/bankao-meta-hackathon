@@ -229,3 +229,22 @@
     justify-content: center;
     min-height: 44px;
 }
+
+
+/* ---------- Estado final: transferência enviada ---------- */
+.confirm-success { display: none; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 30px 24px 24px; }
+.confirm-transfer-modal.is-done > :not(.confirm-success) { display: none !important; }
+.confirm-transfer-modal.is-done > .confirm-success { display: flex; animation: csIn .35s cubic-bezier(.2, .8, .2, 1) both; }
+.cs-check { width: 68px; height: 68px; display: grid; place-items: center; border-radius: 50%; color: #052E1B; background: linear-gradient(135deg, #4ADE80, #34D399); box-shadow: 0 0 0 8px rgba(74, 222, 128, .14), 0 14px 30px -10px rgba(52, 211, 153, .7); }
+.cs-check svg { width: 34px; height: 34px; stroke-width: 3; }
+.confirm-success h3 { margin: 6px 0 0; font-size: 1.35rem; font-weight: 800; letter-spacing: -.02em; }
+.cs-lead { margin: 0; color: var(--text-2, #94A3B8); font-size: .9rem; line-height: 1.45; }
+.cs-amount { font-size: 1.9rem; font-weight: 800; letter-spacing: -.03em; color: #4ADE80; margin: 4px 0 2px; }
+.cs-facts { width: 100%; margin: 8px 0 4px; padding: 4px 14px; display: grid; border-radius: 14px; background: rgba(8, 13, 25, .55); border: 1px solid var(--line, rgba(255, 255, 255, .08)); }
+.cs-facts > div { display: flex; justify-content: space-between; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--line, rgba(255, 255, 255, .08)); text-align: right; }
+.cs-facts > div:last-child { border-bottom: 0; }
+.cs-facts dt { margin: 0; color: var(--text-2, #94A3B8); font-size: .8rem; text-align: left; white-space: nowrap; }
+.cs-facts dd { margin: 0; font-size: .86rem; font-weight: 700; overflow-wrap: anywhere; }
+.cs-done { width: 100%; min-height: 48px; margin-top: 8px; justify-content: center; }
+@keyframes csIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .confirm-transfer-modal.is-done > .confirm-success { animation: none; } }

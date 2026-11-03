@@ -1,13 +1,13 @@
 <!-- ============ MODAL: DEPOSITAR NUMA META DE POUPANÇA ============ -->
 <div class="modal-overlay" id="modalDepositGoal" style="display:none">
-    <div class="confirm-transfer-modal form-modal">
+    <div class="confirm-transfer-modal form-modal" role="dialog" aria-modal="true" aria-labelledby="depTitle">
         <div class="confirm-modal-header">
             <div class="confirm-modal-icon" style="background:linear-gradient(135deg,rgba(74,222,128,0.2),rgba(56,189,248,0.2));color:#4ADE80;">
                 <svg><use href="#i-down"/></svg>
             </div>
             <div class="confirm-header-text">
-                <h3>Depositar na Poupança</h3>
-                <p class="confirm-subtitle">Depósito extra, além da contribuição mensal automática</p>
+                <h3 id="depTitle">Depositar na Poupança</h3>
+                <p class="confirm-subtitle">Sai já da sua conta e vai para a meta</p>
             </div>
             <button type="button" class="confirm-close-btn" onclick="closeDepositGoalModal()" aria-label="Fechar">
                 <svg><use href="#i-x"/></svg>
@@ -47,41 +47,42 @@
                     </div>
                 </div>
 
-                <div class="form-grid-2">
-                    <div class="form-row">
-                        <label class="form-label" for="depAmount">Valor a depositar (KZ)</label>
-                        <div class="input-affix">
-                            <input type="text" inputmode="numeric" class="input js-money" id="depAmount" placeholder="Ex: 10.000" required autocomplete="off">
-                            <span>KZ</span>
-                        </div>
-                        <div class="form-quick-chips">
-                            <button type="button" class="chip-btn green" onclick="setDepositQuickAmount(5000)">+5K</button>
-                            <button type="button" class="chip-btn green" onclick="setDepositQuickAmount(10000)">+10K</button>
-                            <button type="button" class="chip-btn green" onclick="setDepositQuickAmount(25000)">+25K</button>
-                            <button type="button" class="chip-btn green" onclick="setDepositQuickAmount(50000)">+50K</button>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <label class="form-label" for="depDate">Data</label>
-                        <input type="date" class="input" id="depDate" required>
-                        <div class="form-quick-chips">
-                            <button type="button" class="chip-btn" onclick="setDepositDateToday()">Hoje</button>
-                            <button type="button" class="chip-btn" id="depFillRemainingChip" onclick="fillDepositRemaining()">Completar Meta</button>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="form-row">
-                    <label class="form-label" for="depNotes">Nota (opcional)</label>
-                    <input type="text" class="input" id="depNotes" placeholder="Ex: Bónus do trabalho, 13.º mês, poupança livre">
+                    <label class="form-label" for="depAmount">Valor a depositar (KZ)</label>
+                    <div class="input-affix">
+                        <input type="text" inputmode="numeric" class="input js-money" id="depAmount" placeholder="Ex: 10.000" required autocomplete="off" aria-describedby="depError">
+                        <span>KZ</span>
+                    </div>
+                    <div class="form-quick-chips">
+                        <button type="button" class="chip-btn green" onclick="setDepositQuickAmount(5000)">+5K</button>
+                        <button type="button" class="chip-btn green" onclick="setDepositQuickAmount(10000)">+10K</button>
+                        <button type="button" class="chip-btn green" onclick="setDepositQuickAmount(25000)">+25K</button>
+                        <button type="button" class="chip-btn green" onclick="setDepositQuickAmount(50000)">+50K</button>
+                        <button type="button" class="chip-btn" id="depFillRemainingChip" onclick="fillDepositRemaining()">Completar meta</button>
+                    </div>
+                    <p class="dep-error" id="depError" role="alert" hidden></p>
                 </div>
 
-                <p class="dep-hint">Este depósito fica registado em <strong>Despesas</strong> na categoria Poupança.</p>
+                <details class="dep-more">
+                    <summary>Data e nota (opcional)</summary>
+                    <div class="form-grid-2">
+                        <div class="form-row">
+                            <label class="form-label" for="depDate">Data</label>
+                            <input type="date" class="input" id="depDate" required>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label" for="depNotes">Nota</label>
+                            <input type="text" class="input" id="depNotes" placeholder="Ex: Bónus, 13.º mês" maxlength="120">
+                        </div>
+                    </div>
+                </details>
+
+                <p class="dep-hint">O valor <strong>sai da conta principal</strong> e fica registado em <strong>Despesas</strong> (Poupança).</p>
             </div>
 
             <div class="confirm-modal-actions">
                 <button type="button" class="btn btn-secondary" onclick="closeDepositGoalModal()">Cancelar</button>
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" id="btnDepSubmit" disabled>
                     <span>Depositar</span>
                     <svg><use href="#i-check"/></svg>
                 </button>

@@ -100,3 +100,24 @@ Calcula o índice de conformidade e risco da transação antes de ser enviada ao
 
 * **Parâmetros**: `amount`, `currency`, `tx_type`
 * **Retorno**: Avaliação de risco (`baixo`, `médio`, `elevado`) com alertas de conformidade com o Banco Nacional de Angola (BNA).
+
+
+---
+
+## 3. Agente (v3) — modelo primeiro
+
+`POST /api/ai/chat-v2` → `CopilotOrchestrator.process_message`:
+
+1. Com chave de modelo configurada, corre `backend/ai/agent.py::run_agent`: o modelo lê o pedido + histórico + contexto
+   (data de hoje, ecrã aberto, última ação preparada), chama ferramentas em várias voltas (até 6) e responde.
+   Se falhar, repete uma vez; depois usa o plano B local.
+2. Ferramentas de **ação** (`backend/ai/tools/actions.py`): `prepare_savings_goal`, `prepare_expense`,
+   `prepare_transfer` (`method=account|iban`, nunca misturados), `prepare_deposit`. Só PREPARAM — devolvem `action`
+   para pré-preencher o formulário; o utilizador conclui sempre.
+3. Ferramentas de leitura: contas, extrato, despesas, comparação, cartões, investimentos, contactos, metas,
+   foto financeira, compras por registar (só a pedido) e `show_chart` (gráficos inline).
+4. Sem chave (ou modelo em baixo): regras locais em `orchestrator._offline_chain`. Nunca responde com saudação/apresentação
+   automática nem com lembretes não pedidos; se não percebeu, diz-o numa frase.
+5. Rede de segurança: se o modelo afirmar que concluiu algo, a resposta recebe a correção «ainda não foi concluído».
+
+Testes: `tests/test_copilot_agent.py` (modelo simulado, sem rede).

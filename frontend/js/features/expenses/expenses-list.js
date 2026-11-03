@@ -26,7 +26,8 @@ function updateExpenseAssistantCard(catTotals, periodExpenses) {
     const topPct = Math.round((topAmt / total) * 100);
 
     const overs = Object.entries(catTotals)
-        .map(([c, a]) => ({ c, excess: a - (budgets[c] || 35000) * factor }))
+        .filter(([c]) => (budgets[c] || 0) > 0)
+        .map(([c, a]) => ({ c, excess: a - budgets[c] * factor }))
         .filter(o => o.excess > 0)
         .sort((a, b) => b.excess - a.excess);
     const overTotal = overs.reduce((a, o) => a + o.excess, 0);
@@ -44,7 +45,7 @@ function updateExpenseAssistantCard(catTotals, periodExpenses) {
         out.push(block("tip", "#i-trending", "Como poupar",
             `Trazer ${overs.length === 1 ? "esta categoria" : "estas categorias"} de volta à meta liberta até <b>${fmtKz(overTotal)}</b>.`));
     } else {
-        const margin = Object.entries(catTotals).reduce((a, [c, v]) => a + Math.max(0, (budgets[c] || 35000) * factor - v), 0);
+        const margin = Object.entries(catTotals).filter(([c]) => (budgets[c] || 0) > 0).reduce((a, [c, v]) => a + Math.max(0, budgets[c] * factor - v), 0);
         out.push(block("good", "#i-check", "Dentro das metas",
             `Todas as categorias estão dentro da meta. Margem total de <b>${fmtKz(margin)}</b>.`));
         const sav = catTotals["Poupança"] || 0;

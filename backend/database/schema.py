@@ -1,11 +1,13 @@
 """
-Criação das tabelas do livro-razão, migrações seguras e dados iniciais (sandbox).
+Criação das tabelas do livro-razão e migrações seguras. Não insere saldos nem movimentos fictícios:
+só há dados reais (criados pelos utilizadores) e as taxas de câmbio de referência.
 """
 import random
 import sqlite3
 import uuid
 
 from backend.database.connection import get_connection
+from backend.services.iban import gerar_iban_ficticio
 
 
 def init_db():
@@ -100,6 +102,21 @@ def init_db():
             FOREIGN KEY (from_account_id) REFERENCES accounts(id)
         );
 
+        CREATE TABLE IF NOT EXISTS contacts (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            kind TEXT NOT NULL,            -- 'internal' (cliente BankAO) | 'iban'
+            ref_key TEXT NOT NULL,         -- 'u:<user_id>' (interno) ou 'i:<IBAN>' (externo); evita duplicados
+            name TEXT NOT NULL,
+            nickname TEXT,
+            account_number TEXT,           -- só internos
+            iban TEXT,                     -- só externos
+            favorite INTEGER NOT NULL DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE (user_id, ref_key),
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+
         CREATE TABLE IF NOT EXISTS fx_rates (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             base_currency TEXT NOT NULL,
@@ -119,11 +136,54 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
 
+        CREATE TABLE IF NOT EXISTS savings_goals (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            target_minor INTEGER NOT NULL,
+            saved_minor INTEGER NOT NULL DEFAULT 0,
+            monthly_minor INTEGER NOT NULL DEFAULT 0,
+            deadline TEXT,
+            icon_key TEXT DEFAULT 'target',
+            status TEXT DEFAULT 'on-track', -- 'on-track', 'at-risk', 'completed'
+            currency TEXT NOT NULL DEFAULT 'AOA',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS expenses (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            category TEXT NOT NULL DEFAULT 'Outros',
+            amount_minor INTEGER NOT NULL,
+            currency TEXT NOT NULL DEFAULT 'AOA',
+            expense_date TEXT NOT NULL,          -- AAAA-MM-DD
+            origin TEXT NOT NULL DEFAULT 'manual', -- 'manual', 'ai', 'savings'
+            notes TEXT,
+            goal_id TEXT,                         -- preenchido nos depósitos em metas de poupança
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (goal_id) REFERENCES savings_goals(id) ON DELETE SET NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS category_budgets (
+            user_id TEXT NOT NULL,
+            category TEXT NOT NULL,
+            amount_minor INTEGER NOT NULL,
+            currency TEXT NOT NULL DEFAULT 'AOA',
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (user_id, category),
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+
         -- Índices para performance
         CREATE INDEX IF NOT EXISTS idx_ledger_account ON ledger_entries(account_id);
         CREATE INDEX IF NOT EXISTS idx_ledger_tx ON ledger_entries(transaction_id);
         CREATE INDEX IF NOT EXISTS idx_accounts_user ON accounts(user_id);
         CREATE INDEX IF NOT EXISTS idx_transactions_created ON transactions(created_at);
+        CREATE INDEX IF NOT EXISTS idx_expenses_user_date ON expenses(user_id, expense_date);
+        CREATE INDEX IF NOT EXISTS idx_goals_user ON savings_goals(user_id);
         """)
 
         # Migração segura para colunas adicionais de KYC se o banco já existir
@@ -144,7 +204,14 @@ def init_db():
             except sqlite3.OperationalError:
                 pass
         
-        # Insere taxas de câmbio de referência simuladas caso ainda não existam
+        # Débito automático das metas de poupança (dia do mês + primeira data de débito)
+        for col_nome, col_tipo in [("debit_day", "INTEGER"), ("start_date", "TEXT")]:
+            try:
+                conn.execute(f"ALTER TABLE savings_goals ADD COLUMN {col_nome} {col_tipo};")
+            except sqlite3.OperationalError:
+                pass
+
+        # Taxas de câmbio de referência (tabela fx_rates): são a fonte única de câmbio da aplicação
         conn.execute("""
         INSERT OR IGNORE INTO fx_rates (base_currency, quote_currency, rate, fee_percentage)
         VALUES 
@@ -166,30 +233,357 @@ def init_db():
                 uid = u["id"]
                 aid = str(uuid.uuid4())
                 anum = f"0060{random.randint(10000000, 99999999)}"
-                iban = f"AO069999{random.randint(100000000000000, 999999999999999)}"
+                iban = gerar_iban_ficticio("US")
                 conn.execute(
                     "INSERT INTO accounts (id, user_id, account_number, iban_virtual, currency) VALUES (?, ?, ?, ?, 'USD')",
                     (aid, uid, anum, iban)
                 )
+        except Exception:
+            pass
 
-            # Garantir saldo sandbox inicial de USD e EUR para testes suaves
-            accs_zero = conn.execute("""
-                SELECT a.id, a.currency FROM accounts a
-                WHERE a.currency IN ('USD', 'EUR')
-                  AND NOT EXISTS (SELECT 1 FROM ledger_entries le WHERE le.account_id = a.id)
+        # Tabelas do Módulo de Investimentos
+        conn.executescript("""
+        CREATE TABLE IF NOT EXISTS investment_products (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            category TEXT NOT NULL, -- 'deposito_prazo', 'obrigacoes', 'etf', 'fundos', 'acoes'
+            institution TEXT NOT NULL,
+            provider_api TEXT DEFAULT 'open_banking',
+            currency TEXT NOT NULL DEFAULT 'AOA',
+            rate_annual REAL NOT NULL, -- Ex: 18.5 para 18.5% ao ano
+            term_months INTEGER,       -- null se aberto/contínuo
+            min_amount_minor INTEGER NOT NULL DEFAULT 1000000, -- em cêntimos (ex: 10.000,00 kz)
+            risk_level TEXT NOT NULL DEFAULT 'baixo', -- 'baixo', 'moderado', 'alto', 'muito_alto'
+            liquidity TEXT NOT NULL DEFAULT 'no_vencimento',
+            fees_info TEXT,
+            redemption_conditions TEXT,
+            description TEXT,
+            current_price REAL DEFAULT 1.0,
+            is_active INTEGER DEFAULT 1,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS user_investments (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            product_id TEXT,
+            name TEXT NOT NULL,
+            category TEXT NOT NULL,
+            institution TEXT NOT NULL,
+            is_external INTEGER NOT NULL DEFAULT 0, -- 0 = BankAO, 1 = Externo
+            account_id TEXT,
+            amount_invested_minor INTEGER NOT NULL,
+            current_value_minor INTEGER NOT NULL,
+            accumulated_yield_minor INTEGER NOT NULL DEFAULT 0,
+            currency TEXT NOT NULL DEFAULT 'AOA',
+            rate_annual REAL DEFAULT 0.0,
+            start_date TEXT NOT NULL,
+            maturity_date TEXT,
+            status TEXT NOT NULL DEFAULT 'ativo', -- 'ativo', 'resgatado', 'vencido'
+            notes TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (product_id) REFERENCES investment_products(id) ON DELETE SET NULL,
+            FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE SET NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS investment_operations (
+            id TEXT PRIMARY KEY,
+            investment_id TEXT NOT NULL,
+            user_id TEXT NOT NULL,
+            operation_type TEXT NOT NULL, -- 'aplicacao', 'reforco', 'resgate_parcial', 'resgate_total', 'juros_dividendo', 'ajuste_cotacao', 'vencimento'
+            amount_minor INTEGER NOT NULL,
+            currency TEXT NOT NULL DEFAULT 'AOA',
+            operation_date TEXT NOT NULL,
+            description TEXT,
+            transaction_id TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (investment_id) REFERENCES user_investments(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE SET NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS investment_notifications (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            investment_id TEXT,
+            type TEXT NOT NULL, -- 'vencimento_proximo', 'vencimento_liquidado', 'rendimento_creditado', 'atualizacao_mercado', 'alerta_risco'
+            title TEXT NOT NULL,
+            message TEXT NOT NULL,
+            is_read INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (investment_id) REFERENCES user_investments(id) ON DELETE CASCADE
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_invest_user ON user_investments(user_id);
+        CREATE INDEX IF NOT EXISTS idx_invest_ops_user ON investment_operations(user_id);
+        CREATE INDEX IF NOT EXISTS idx_invest_notif_user ON investment_notifications(user_id);
+        """)
+
+        # Catálogo inicial de produtos de investimento
+        produtos_iniciais = [
+            (
+                "DP-BANKAO-MAX",
+                "Depósito a Prazo Super Rendimento BankAO",
+                "deposito_prazo",
+                "BankAO",
+                "open_banking",
+                "AOA",
+                18.5,
+                12,
+                10000000, # 100.000 AOA
+                "baixo",
+                "no_vencimento",
+                "Isento de comissões de abertura, manutenção e custódia.",
+                "Capital 100% garantido. Resgate antecipado sujeito a penalização de 35% dos juros corridos.",
+                "O depósito a prazo com maior rendimento anual do mercado bancário nacional. Ideal para maximizar poupanças com retorno fixo garantido pelo Fundo de Garantia de Depósitos (FGD).",
+                1.0
+            ),
+            (
+                "DP-BFA-CRESCENTE",
+                "Depósito Trimestral Crescente BFA",
+                "deposito_prazo",
+                "Banco BFA",
+                "open_banking_angola",
+                "AOA",
+                15.0,
+                3,
+                5000000, # 50.000 AOA
+                "baixo",
+                "trimestral",
+                "Sem comissões de custódia.",
+                "Liquidez trimestral com opção de renovação automática e capitalização de juros.",
+                "Depósito de curto prazo com pagamento trimestral de juros para reinvestimento contínuo ou disponibilidade periódica de liquidez.",
+                1.0
+            ),
+            (
+                "DP-STDBK-USD",
+                "Depósito Moeda Estrangeira USD Standard Bank",
+                "deposito_prazo",
+                "Standard Bank Angola",
+                "open_banking_angola",
+                "USD",
+                4.5,
+                12,
+                100000, # 1.000 USD
+                "baixo",
+                "no_vencimento",
+                "Comissão de manutenção de 0.1% a.a. inclusa na taxa líquida.",
+                "Resgate no vencimento. Manutenção em moeda forte com cobertura cambial integral.",
+                "Rentabilize a sua carteira em dólares com taxa de juro fixa competitiva num dos bancos com maior solidez do continente.",
+                1.0
+            ),
+            (
+                "BODIVA-OT-2027",
+                "Obrigações do Tesouro OT-NR 2027",
+                "obrigacoes",
+                "BODIVA / MinFin",
+                "bodiva_feed",
+                "AOA",
+                17.2,
+                24,
+                25000000, # 250.000 AOA
+                "baixo",
+                "diaria",
+                "Comissão de corretagem BODIVA: 0.25% sobre o valor nominal negociado.",
+                "Negociável em mercado secundário da BODIVA a qualquer momento com liquidação T+2.",
+                "Títulos de dívida soberana de médio prazo emitidos pela República de Angola com cupão semestral e garantia do Tesouro Nacional.",
+                100.0
+            ),
+            (
+                "BODIVA-BT-364",
+                "Bilhetes do Tesouro BT 364 Dias",
+                "obrigacoes",
+                "BODIVA / MinFin",
+                "bodiva_feed",
+                "AOA",
+                16.4,
+                12,
+                10000000, # 100.000 AOA
+                "baixo",
+                "no_vencimento",
+                "Isento de comissão de corretagem na subscrição primária.",
+                "Reembolso de 100% do valor facial no vencimento.",
+                "Investimento soberano de curto prazo com taxa de desconto pré-fixada, ideal para reservas institucionais e tesouraria pessoal segura.",
+                100.0
+            ),
+            (
+                "ETF-VWCE-GLOBAL",
+                "Vanguard FTSE All-World UCITS ETF (VWCE)",
+                "etf",
+                "Vanguard / Interactive Brokers",
+                "global_broker_api",
+                "USD",
+                10.2,
+                None,
+                5000, # 50 USD
+                "moderado",
+                "diaria",
+                "TER (Total Expense Ratio): 0.22% ao ano retido diretamente no fundo.",
+                "Negociação contínua durante o horário de funcionamento das principais bolsas mundiais.",
+                "Exposição direta a mais de 3.800 empresas cotadas em países desenvolvidos e emergentes. Dividendos automaticamente reinvestidos para crescimento composto.",
+                128.40
+            ),
+            (
+                "ETF-CSPX-SP500",
+                "iShares Core S&P 500 UCITS ETF (CSPX)",
+                "etf",
+                "BlackRock / Saxo Bank",
+                "global_broker_api",
+                "USD",
+                12.8,
+                None,
+                10000, # 100 USD
+                "moderado",
+                "diaria",
+                "TER: 0.07% ao ano. Cotação em tempo real.",
+                "Venda e resgate instantâneo em dias úteis com liquidação em carteira USD.",
+                "Replicação física das 500 maiores corporações dos Estados Unidos da América (Apple, Microsoft, Nvidia, Amazon, Alphabet e outras).",
+                542.15
+            ),
+            (
+                "FII-ATLANTICO",
+                "Fundo de Investimento Imobiliário Atlântico",
+                "fundos",
+                "Banco Atlântico Gestão de Ativos",
+                "open_banking_angola",
+                "AOA",
+                14.8,
+                36,
+                20000000, # 200.000 AOA
+                "moderado",
+                "trimestral",
+                "Comissão de gestão: 1.2% ao ano sobre o património líquido.",
+                "Distribuição trimestral de rendas e resgate programado no fecho do exercício.",
+                "Portfólio de imóveis de escritórios e logística prime em Luanda e Benguela. Geração estável de fluxo de caixa com proteção contra a inflação.",
+                1050.0
+            ),
+            (
+                "FND-BAI-LIQUIDEZ",
+                "Fundo de Liquidez e Tesouraria BAI",
+                "fundos",
+                "BAI Gestão de Ativos",
+                "open_banking_angola",
+                "AOA",
+                16.6,
+                None,
+                2500000, # 25.000 AOA
+                "baixo",
+                "diaria",
+                "Comissão de gestão reduzida de 0.75% a.a.",
+                "Resgate em 24h úteis sem perda de rendimentos capitalizados.",
+                "Fundo monetário investido maioritariamente em instrumentos do mercado interbancário e títulos do Tesouro de curtíssimo prazo.",
+                1.0
+            )
+        ]
+
+        for p in produtos_iniciais:
+            conn.execute("""
+            INSERT OR IGNORE INTO investment_products (
+                id, name, category, institution, provider_api, currency, rate_annual,
+                term_months, min_amount_minor, risk_level, liquidity, fees_info,
+                redemption_conditions, description, current_price, is_active
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+            """, p)
+
+        # ──────────────────────────────────────────────────────────────────────
+        # Módulo de Cartões
+        # ──────────────────────────────────────────────────────────────────────
+        conn.executescript("""
+        CREATE TABLE IF NOT EXISTS cards (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            account_id TEXT NOT NULL,
+            card_type TEXT NOT NULL DEFAULT 'debit',   -- 'debit', 'credit', 'virtual'
+            network TEXT NOT NULL DEFAULT 'multicaixa', -- 'visa', 'mastercard', 'multicaixa'
+            last_four TEXT NOT NULL,
+            cardholder_name TEXT NOT NULL,
+            expires_month INTEGER NOT NULL,
+            expires_year INTEGER NOT NULL,
+            status TEXT NOT NULL DEFAULT 'active',      -- 'active', 'blocked', 'cancelled'
+            is_virtual INTEGER NOT NULL DEFAULT 0,
+            is_single_use INTEGER NOT NULL DEFAULT 0,
+            label TEXT,
+            color_scheme TEXT DEFAULT 'blue',
+            online_payments INTEGER DEFAULT 1,
+            international_payments INTEGER DEFAULT 1,
+            atm_withdrawals INTEGER DEFAULT 1,
+            contactless INTEGER DEFAULT 1,
+            daily_limit_minor INTEGER DEFAULT 50000000,    -- 500 000 AOA
+            monthly_limit_minor INTEGER DEFAULT 200000000, -- 2 000 000 AOA
+            daily_spent_minor INTEGER DEFAULT 0,
+            monthly_spent_minor INTEGER DEFAULT 0,
+            credit_limit_minor INTEGER DEFAULT 0,
+            credit_used_minor INTEGER DEFAULT 0,
+            currency TEXT DEFAULT 'AOA',
+            institution TEXT DEFAULT 'BankAO',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS card_movements (
+            id TEXT PRIMARY KEY,
+            card_id TEXT NOT NULL,
+            user_id TEXT NOT NULL,
+            amount_minor INTEGER NOT NULL,
+            currency TEXT NOT NULL DEFAULT 'AOA',
+            merchant_name TEXT,
+            merchant_category TEXT DEFAULT 'outros',
+            merchant_logo TEXT,
+            operation_type TEXT NOT NULL DEFAULT 'compra', -- 'compra', 'levantamento', 'reembolso', 'pagamento', 'taxa'
+            status TEXT NOT NULL DEFAULT 'completed',      -- 'completed', 'pending', 'reversed', 'failed'
+            description TEXT,
+            is_debit INTEGER NOT NULL DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS card_notifications (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            card_id TEXT,
+            type TEXT NOT NULL,   -- 'transacao', 'controlo', 'limite', 'suspeita', 'virtual_criado'
+            title TEXT NOT NULL,
+            message TEXT NOT NULL,
+            is_read INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE SET NULL
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_cards_user ON cards(user_id);
+        CREATE INDEX IF NOT EXISTS idx_card_mvt_card ON card_movements(card_id);
+        CREATE INDEX IF NOT EXISTS idx_card_notif_user ON card_notifications(user_id);
+        """)
+
+        # Seed: criar cartão de débito BankAO para utilizadores que ainda não têm cartão
+        import random as _rnd
+        try:
+            users_sem_cartao = conn.execute("""
+                SELECT u.id, u.nome, a.id as account_id, a.currency
+                FROM users u
+                JOIN accounts a ON a.user_id = u.id AND a.currency = 'AOA'
+                WHERE NOT EXISTS (SELECT 1 FROM cards c WHERE c.user_id = u.id)
             """).fetchall()
-            for az in accs_zero:
-                tx_id = str(uuid.uuid4())
-                bonus = 1000000 # 10.000,00
-                curr = az["currency"]
-                conn.execute(
-                    "INSERT INTO transactions (id, type, status, description) VALUES (?, 'deposit', 'completed', ?)",
-                    (tx_id, f"Bónus Inicial Sandbox ({curr})")
-                )
-                conn.execute(
-                    "INSERT INTO ledger_entries (transaction_id, account_id, amount_minor, currency) VALUES (?, ?, ?, ?)",
-                    (tx_id, az["id"], bonus, curr)
-                )
+            for u in users_sem_cartao:
+                card_id = str(__import__('uuid').uuid4())
+                last_four = str(_rnd.randint(1000, 9999))
+                conn.execute("""
+                    INSERT OR IGNORE INTO cards (
+                        id, user_id, account_id, card_type, network, last_four,
+                        cardholder_name, expires_month, expires_year, status,
+                        is_virtual, color_scheme, institution
+                    ) VALUES (?, ?, ?, 'debit', 'multicaixa', ?, ?, ?, ?, 'active', 0, 'blue', 'BankAO')
+                """, (
+                    card_id, u["id"], u["account_id"],
+                    last_four,
+                    (u["nome"] or "CLIENTE BANKAO").upper(),
+                    12, 2028
+                ))
         except Exception:
             pass
 

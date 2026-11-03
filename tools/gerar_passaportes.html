@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Gerador de passaportes fictícios – Nova Atlântida</title>
+    <title>Gerador de Passaportes – República de Angola</title>
     <style>
         :root {
             --bg: #eef1f6;
@@ -265,11 +265,9 @@
 
 <body>
     <div class="wrap">
-        <h1>Gerador de passaportes fictícios</h1>
-        <p class="sub">Cria pessoas inventadas da República de Nova Atlântida (país fictício) com passaporte: página de
-            dados e página de assinatura e impressão digital. Escolhe a idade; o resto é gerado ao acaso.</p>
-        <div class="notice">Todos os dados, o país e o passaporte são inventados e cada página leva uma marca de água
-            “AMOSTRA”. Servem apenas para testes de sistemas e nunca representam documentos reais.</div>
+        <h1>Gerador de Passaportes – República de Angola</h1>
+        <p class="sub">Gera perfis de teste com passaporte angolano: página de dados e página de assinatura e impressão digital. Escolhe a idade; o resto é gerado ao acaso.</p>
+        <div class="notice">Todos os dados são fictícios e gerados aleatoriamente para fins de teste. Cada página leva uma marca de água "AMOSTRA". Não representam documentos reais.</div>
 
         <section class="panel" aria-label="Opções de geração">
             <div class="controls">
@@ -345,8 +343,8 @@
             const NOMES_F = ['Maria', 'Ana', 'Beatriz', 'Carla', 'Daniela', 'Elisa', 'Filipa', 'Helena', 'Inês', 'Joana', 'Laura', 'Marta', 'Núria', 'Olívia', 'Paula', 'Rita', 'Sara', 'Teresa', 'Vera', 'Luísa', 'Mariana', 'Catarina', 'Isabel', 'Leonor', 'Sofia', 'Clara'];
             const NOMES_M = ['João', 'Pedro', 'Carlos', 'Daniel', 'Eduardo', 'Fábio', 'Gonçalo', 'Hugo', 'Ivo', 'José', 'Luís', 'Miguel', 'Nuno', 'Paulo', 'Rafael', 'Rui', 'Sérgio', 'Tiago', 'Vítor', 'André', 'Bruno', 'Diogo', 'Henrique', 'Manuel', 'Ricardo', 'Tomás'];
             const APELIDOS = ['Silva', 'Santos', 'Ferreira', 'Costa', 'Pereira', 'Oliveira', 'Rodrigues', 'Martins', 'Sousa', 'Gomes', 'Lopes', 'Marques', 'Almeida', 'Ribeiro', 'Carvalho', 'Teixeira', 'Moreira', 'Correia', 'Mendes', 'Nunes', 'Pinto', 'Fonseca', 'Cardoso', 'Barros', 'Neves', 'Matos'];
-            const RUAS = ['Rua das Acácias', 'Avenida do Mar', 'Travessa do Sol', 'Rua dos Pescadores', 'Largo da Fonte', 'Rua da Esperança', 'Avenida Central', 'Rua do Farol', 'Rua das Palmeiras', 'Alameda dos Pinheiros', 'Rua do Comércio', 'Rua das Flores', 'Rua Nova', 'Avenida dos Navegantes'];
-            const CIDADES = ['Vila do Mar', 'Porto Azul', 'Monte Alto', 'Cabo Sereno', 'Baía Nova', 'Vale Verde', 'Ilha Dourada', 'Santa Aurora'];
+            const RUAS = ['Rua Rainha Ginga', 'Av. 4 de Fevereiro', 'Rua Major Kanhangulo', 'Rua Amilcar Cabral', 'Av. Comandante Valódia', 'Rua dos Coqueiros', 'Av. Ho Chi Minh', 'Rua Patrice Lumumba', 'Av. 21 de Janeiro', 'Rua Engenheiro Armindo de Andrade', 'Av. Revolução de Outubro', 'Rua Kwame Nkrumah', 'Av. Pedro de Castro Van-Dunem', 'Rua Salvador Allende'];
+            const CIDADES = ['Luanda', 'Talatona', 'Benguela', 'Huambo', 'Lubango', 'Malanje', 'Cabinda', 'Lobito', 'Namibe', 'Uíge', 'Saurimo', 'Kuito'];
 
             /* ---------- aleatório com semente ---------- */
             function hashStr(s) { let h = 1779033703 ^ s.length; for (let i = 0; i < s.length; i++) { h = Math.imul(h ^ s.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; } return h >>> 0; }
@@ -366,11 +364,11 @@
             function buildMRZ(p) {
                 const sur = strip(p.apelidos.join(' ')).replace(/ /g, '<');
                 const giv = strip(p.nomes.join(' ')).replace(/ /g, '<');
-                const l1 = ('P<NAT' + sur + '<<' + giv + '<'.repeat(44)).slice(0, 44);
+                const l1 = ('P<AGO' + sur + '<<' + giv + '<'.repeat(44)).slice(0, 44);
                 const doc = p.passaporte, dc = chk(doc);
                 const b = yymmdd(p.nascimento), e = yymmdd(p.validade);
                 const pers = (p.numero + '<'.repeat(14)).slice(0, 14);
-                let l2 = doc + dc + 'NAT' + b + chk(b) + p.sexo + e + chk(e) + pers + chk(pers);
+                let l2 = doc + dc + 'AGO' + b + chk(b) + p.sexo + e + chk(e) + pers + chk(pers);
                 l2 += chk(doc + dc + b + chk(b) + e + chk(e) + pers + chk(pers));
                 return [l1, l2];
             }
@@ -401,7 +399,7 @@
                 const validade = addDays(addYears(emissao, anos), -1);
 
                 const numero = String(ri(1, 9)) + Array.from({ length: 9 }, () => ri(0, 9)).join('');
-                const passaporte = 'NA' + Array.from({ length: 7 }, () => ri(0, 9)).join('');
+                const passaporte = 'N' + Array.from({ length: 7 }, () => ri(0, 9)).join('');
 
                 const p = {
                     idade, sexo, nomes, apelidos: [apMae, apPai], nascimento, emissao, validade, numero, passaporte,
@@ -525,7 +523,7 @@
                 const c = setup(cv, DW, DH);
                 paperBase(c, DW, DH, 16);
                 crest(c, 84, 72, .5, 'doc');
-                fitTxt(c, 'REPÚBLICA DE NOVA ATLÂNTIDA', 150, 66, 600, 36, '800', NAVY);
+                fitTxt(c, 'REPÚBLICA DE ANGOLA', 150, 66, 600, 36, '800', NAVY);
                 fitTxt(c, 'PASSAPORTE / PASSPORT', 150, 98, 340, 24, '600', NAVY);
                 flagBox(c, 800, 36, 150, 70);
                 c.fillStyle = 'rgba(20,30,60,.35)'; c.fillRect(40, 120, 920, 1.5);
@@ -536,13 +534,13 @@
                 const val = (s, x, y, maxW, size) => fitTxt(c, s, x, y, maxW, size || 28, '700', INK);
 
                 lbl('Tipo / Type', 300, 150); val('P', 300, 180, 60);
-                lbl('Código do país / Code', 400, 150); val('NAT', 400, 180, 100);
+                lbl('Código do país / Code', 400, 150); val('AGO', 400, 180, 100);
                 lbl('N.º do passaporte / Passport No.', 600, 150); val(p.passaporte, 600, 180, 300);
 
                 lbl('Apelidos / Surname', 300, 212); val(p.apelidos.join(' ').toUpperCase(), 300, 242, 640);
                 lbl('Nomes / Given names', 300, 274); val(p.nomes.join(' ').toUpperCase(), 300, 304, 640);
 
-                lbl('Nacionalidade / Nationality', 300, 336); val('NOVA-ATLANTE', 300, 366, 270);
+                lbl('Nacionalidade / Nationality', 300, 336); val('ANGOLANA', 300, 366, 270);
                 lbl('Data de nascimento / Date of birth', 600, 336); val(fmt(p.nascimento), 600, 366, 330);
 
                 lbl('Sexo / Sex', 300, 398); val(p.sexo, 300, 428, 40);
@@ -552,7 +550,7 @@
                 lbl('Data de validade / Date of expiry', 600, 460); val(fmt(p.validade), 600, 490, 330);
 
                 lbl('Autoridade / Authority', 300, 522);
-                val('SERVIÇO DE IDENTIFICAÇÃO DE NOVA ATLÂNTIDA', 300, 550, 640, 22);
+                val('SME – SERVIÇO DE MIGRAÇÃO E ESTRANGEIROS', 300, 550, 640, 22);
 
                 // zona legível por máquina
                 c.save(); rr(c, 0, 0, DW, DH, 16); c.clip();
@@ -593,7 +591,7 @@
                 const c = setup(cv, DW, DH);
                 paperBase(c, DW, DH, 16);
                 crest(c, 84, 72, .5, 'doc');
-                fitTxt(c, 'REPÚBLICA DE NOVA ATLÂNTIDA', 150, 66, 600, 36, '800', NAVY);
+                fitTxt(c, 'REPÚBLICA DE ANGOLA', 150, 66, 600, 36, '800', NAVY);
                 fitTxt(c, 'ASSINATURA E IMPRESSÃO DIGITAL', 150, 98, 470, 24, '600', NAVY);
                 flagBox(c, 800, 36, 150, 70);
                 c.fillStyle = 'rgba(20,30,60,.35)'; c.fillRect(40, 120, 920, 1.5);
@@ -627,22 +625,22 @@
 
             function dadosJSON(p) {
                 return {
-                    aviso: 'DADOS FICTÍCIOS – apenas para testes',
-                    pais: 'República de Nova Atlântida',
+                    aviso: 'DADOS FICTÍCIOS – apenas para testes de sistemas',
+                    pais: 'República de Angola',
                     tipo: 'P',
-                    codigo_pais: 'NAT',
+                    codigo_pais: 'AGO',
                     numero_passaporte: p.passaporte,
                     apelidos: p.apelidos.join(' '),
                     nomes: p.nomes.join(' '),
-                    nacionalidade: 'NOVA-ATLANTE',
+                    nacionalidade: 'ANGOLANA',
                     sexo: p.sexo,
                     idade: p.idade,
                     data_nascimento: iso(p.nascimento),
                     local_nascimento: p.localNasc,
                     data_emissao: iso(p.emissao),
                     data_validade: iso(p.validade),
-                    autoridade: 'Serviço de Identificação de Nova Atlântida',
-                    numero_pessoal: p.numero + '-NAT',
+                    autoridade: 'SME – Serviço de Migração e Estrangeiros',
+                    numero_pessoal: p.numero,
                     mrz: p.mrz
                 };
             }

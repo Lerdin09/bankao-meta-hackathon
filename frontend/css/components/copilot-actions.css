@@ -144,3 +144,17 @@
     background: rgba(230, 184, 92, .08) !important;
     border-color: rgba(230, 184, 92, .35) !important;
 }
+
+.action-card-note {
+    margin: 8px 2px 0;
+    font-size: .7rem;
+    color: #94A3B8;
+    text-align: center;
+}
+.chat-bubble code.mono {
+    font-size: .78rem;
+    padding: 1px 5px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, .08);
+    word-break: break-all;
+}

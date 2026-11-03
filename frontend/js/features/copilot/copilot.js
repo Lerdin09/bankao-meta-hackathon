@@ -1,45 +1,112 @@
 /**
- * Copilot — inicialização
- * Liga o chat ao endpoint de IA e ao histórico.
+ * Copilot v2 — inicialização e envio de mensagens
+ * Usa /api/ai/chat-v2 com contexto real, memória e gráficos inline.
  */
 
-// Inicialização do BankAO AI Copilot
 function initCopilot() {
-    const inputForm = document.getElementById("copilotInputForm");
-    const userInput = document.getElementById("copilotUserInput");
+    const inputForm  = document.getElementById("copilotInputForm");
+    const userInput  = document.getElementById("copilotUserInput");
+    const wide       = window.matchMedia("(min-width: 1024px)");
+    let busy = false;
+
+    if (!inputForm) return;
+
+    // Auto-resize do textarea
+    userInput?.addEventListener("input", () => {
+        userInput.style.height = "auto";
+        userInput.style.height = Math.min(userInput.scrollHeight, 120) + "px";
+    });
 
     inputForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const message = userInput.value.trim();
-        if (!message) return;
+        if (!message || busy) return;
+        busy = true;
+        userInput.style.height = "auto";
 
         addCopilotMessage("user", message);
         userInput.value = "";
 
-        // Enviar para o backend com Meta Model API
         const typing = showTyping();
         try {
-            const res = await fetch(`${API_BASE}/api/ai/chat`, {
+            // Usar chat-v2 se o utilizador estiver autenticado
+            const endpoint = state.token ? "/api/ai/chat-v2" : "/api/ai/chat";
+            const headers = {
+                "Content-Type": "application/json",
+                ...(state.token ? { "Authorization": `Bearer ${state.token}` } : {})
+            };
+
+            const res = await fetch(`${API_BASE}${endpoint}`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers,
                 body: JSON.stringify({
-                    message: message,
-                    history: state.chatHistory
+                    message,
+                    history: (state.chatHistory || []).slice(-17, -1), // sem a mensagem atual (vai à parte)
+                    pending: state.copilotPending || null,
+                    // Passar contexto do frontend (saldos visíveis, etc.)
+                    context: {
+                        current_view: document.querySelector(".view.active")?.id || null
+                    }
                 })
             });
+            if (!res.ok) throw new Error("HTTP " + res.status);
             const data = await res.json();
             typing.remove();
-            
-            // Exibir resposta da IA com o card de ação se houver
-            addCopilotMessage("ai", data.reply, data.action);
 
-            // Se a IA gerou uma ação de transferência/depósito, pré-preencher o painel imediatamente
+            state.copilotPending = data.pending || null;
+
+            // Renderizar resposta (com ou sem gráfico)
+            addCopilotMessage("ai", data.reply, data.action, data.chart);
+
+            // Abrir formulário ou painel correspondente (poupanças, investimentos, operações)
             if (data.action) {
-                applyCopilotAction(data.action, true);
+                if (wide.matches || data.action.type === "OPEN_INVESTMENTS" || data.action.type === "CREATE_SAVINGS_GOAL") {
+                    applyCopilotAction(data.action, true);
+                }
+            } else if (data.reply && (
+                data.reply.includes("Investimentos") ||
+                data.reply.includes("investimento") ||
+                data.reply.includes("BODIVA") ||
+                data.reply.includes("Depósito a Prazo")
+            )) {
+                // Abre o painel de investimentos no final da resposta, igual nas poupanças
+                if (typeof window.showView === "function") {
+                    window.showView("view-investments");
+                    if (typeof switchInvestTab === "function") switchInvestTab("portfolio");
+                }
             }
         } catch (err) {
             typing.remove();
-            addCopilotMessage("ai", "Desculpe, ocorreu uma instabilidade ao conectar ao modelo da Meta.");
+            console.error("Copilot error:", err);
+            // Erro honesto + botão para repetir o mesmo pedido (sem entrar no histórico da conversa)
+            const errBubble = addCopilotMessage("ai",
+                "Não consegui contactar o assistente agora. O seu pedido não foi processado.",
+                null, null, false
+            );
+            const retry = document.createElement("button");
+            retry.type = "button";
+            retry.className = "btn btn-sm quick-prompt-btn";
+            retry.textContent = "Tentar de novo";
+            retry.addEventListener("click", () => {
+                retry.remove();
+                // retira a última mensagem do utilizador do histórico: vai ser reenviada
+                if (state.chatHistory?.length && state.chatHistory[state.chatHistory.length - 1].role === "user") {
+                    state.chatHistory.pop();
+                }
+                userInput.value = message;
+                inputForm.dispatchEvent(new Event("submit", { cancelable: true }));
+            });
+            errBubble?.querySelector(".bubble-content")?.appendChild(retry);
+        } finally {
+            busy = false;
+        }
+    });
+
+    // Enter envia, Shift+Enter nova linha
+    userInput?.addEventListener("keydown", e => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            inputForm.dispatchEvent(new Event("submit", { cancelable: true }));
         }
     });
 
@@ -47,8 +114,11 @@ function initCopilot() {
     document.querySelectorAll(".quick-prompt-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             const prompt = btn.getAttribute("data-prompt");
-            userInput.value = prompt;
-            inputForm.dispatchEvent(new Event("submit"));
+            if (userInput) userInput.value = prompt;
+            inputForm.dispatchEvent(new Event("submit", { cancelable: true }));
         });
     });
+
+    // Botão de limpar conversa
+    document.getElementById("btnCopilotReset")?.addEventListener("click", resetCopilotConversation);
 }

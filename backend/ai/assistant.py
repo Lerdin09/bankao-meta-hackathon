@@ -13,7 +13,7 @@ import re
 from typing import Any, Dict, List
 
 from backend.ai.client import get_meta_client
-from backend.ai.intents import extract_action_intent
+from backend.ai.intents import analyze_action_reply, analyze_message, extract_action_intent
 from backend.ai.prompts import COUNTRY_MAP, SYSTEM_PROMPT  # noqa: F401 (reexportados para compatibilidade)
 from backend.core.config import settings
 
@@ -51,7 +51,7 @@ class BankaoAssistant:
                         {"role": "system", "content": SYSTEM_PROMPT},
                         {"role": "user", "content": prompt}
                     ],
-                    max_tokens=2048,
+                    max_tokens=400,
                     temperature=0.3
                 )
                 content = response.choices[0].message.content
@@ -60,14 +60,10 @@ class BankaoAssistant:
             except Exception as e:
                 logger.error(f"Erro ao chamar Meta Model API (explain_transfer): {e}")
 
-        # Fallback local humanizado e informativo
+        # Fallback local curto
         return (
-            f"Transferência para **{beneficiary_name}** ({dest_iban[:4]}...{dest_iban[-4:]}):\n"
-            f"- **Montante debitado:** {source_amount:,.2f} {source_currency}\n"
-            f"- **Taxa de serviço e processamento:** {fee:,.2f} {source_currency}\n"
-            f"- **Câmbio aplicado:** 1 {source_currency} = {fx_rate} {dest_currency}\n"
-            f"- **O beneficiário receberá:** {dest_amount:,.2f} {dest_currency}\n\n"
-            f"💡 *Nota do Copilot:* O envio para IBAN segue os padrões de compensação bancária com total rastreabilidade. Nenhum custo oculto é cobrado ao destinatário."
+            f"**{beneficiary_name}** ({dest_iban[:4]}...{dest_iban[-4:]}) recebe **{dest_amount:,.2f} {dest_currency}**.\n"
+            f"Debitado: {source_amount:,.2f} {source_currency} · Taxa: {fee:,.2f} {source_currency} · Câmbio: 1 {source_currency} = {fx_rate} {dest_currency}."
         )
 
     @staticmethod
@@ -105,7 +101,7 @@ class BankaoAssistant:
                             {"role": "system", "content": SYSTEM_PROMPT},
                             {"role": "user", "content": prompt}
                         ],
-                        max_tokens=2048,
+                        max_tokens=200,
                         temperature=0.2
                     )
                     content = resp.choices[0].message.content
@@ -129,12 +125,20 @@ class BankaoAssistant:
         }
 
     @staticmethod
-    def chat_with_action(message: str, history: List[Dict[str, str]] = None) -> Dict[str, Any]:
-        """Processa a mensagem com Meta Model API e extrai payload de ação (Action Calling)."""
+    def chat_with_action(message: str, history: List[Dict[str, str]] = None, pending: Dict[str, Any] = None) -> Dict[str, Any]:
+        """
+        Processa a mensagem. Pedidos operacionais (poupança, despesa, transferência, depósito) são
+        interpretados de forma determinística: a resposta descreve exatamente o que foi preparado e
+        NUNCA afirma que algo foi feito — a conclusão é sempre do utilizador, no formulário.
+        """
+        parsed = analyze_message(message, pending)
+        if parsed["reply"]:
+            return {"reply": parsed["reply"], "action": parsed["action"], "pending": parsed["pending"]}
+
         client = get_meta_client()
         messages = [{"role": "system", "content": SYSTEM_PROMPT}]
         if history:
-            messages.extend(history[-4:])
+            messages.extend(history[-6:])
         messages.append({"role": "user", "content": message})
 
         ai_content = ""
@@ -143,93 +147,55 @@ class BankaoAssistant:
                 response = client.chat.completions.create(
                     model=settings.MODEL_NAME,
                     messages=messages,
-                    max_tokens=2048,
+                    max_tokens=300,
                     temperature=0.3
                 )
                 ai_content = response.choices[0].message.content or ""
             except Exception as e:
                 logger.error(f"Erro ao chamar Meta Model API (chat): {e}")
 
-        # Extrair ação pretendida
+        # Ação sugerida pelo modelo: só é aceite depois de validada (e recalculada) no backend
         action = extract_action_intent(message, ai_content)
+        if action:
+            built = analyze_action_reply(action)
+            return {"reply": built, "action": action, "pending": None}
 
-        # Se houver ação de transferência
-        if action and action.get("type") == "TRANSFER_IBAN":
-            clean_reply = re.sub(r"```(?:json:action|json).*?```", "", ai_content, flags=re.DOTALL).strip()
-            if not clean_reply or len(clean_reply) < 30:
-                clean_reply = (
-                    f"Com certeza! Preparei a sua transferência para **{action['beneficiary_name']}** no valor de **{action['amount']:,.2f} {action['currency']}**.\n\n"
-                    f"📋 **Resumo da Operação:**\n"
-                    f"• **Beneficiário:** {action['beneficiary_name']}\n"
-                    f"• **Destino (IBAN):** `{action['to_iban']}`\n"
-                    f"• **País:** {action['country_name']}\n"
-                    f"• **Quantia enviada:** {action['amount']:,.2f} {action['currency']}\n"
-                    f"• **Taxa de serviço ({action['fee_percent']:.0f}%):** {action['fee_amount']:,.2f} {action['currency']}\n"
-                    f"• **Valor líquido a receber:** {action['net_amount']:,.2f} {action['currency']}\n\n"
-                    f"⚡ *Abri o painel de transferências com todos os dados preenchidos. Só falta conferir e clicar em **Confirmar e enviar**!*"
-                )
-            return {
-                "reply": clean_reply,
-                "action": action
-            }
-
-        # Se houver ação de registo de despesa
-        if action and action.get("type") == "REGISTER_EXPENSE":
-            clean_reply = re.sub(r"```(?:json:action|json).*?```", "", ai_content, flags=re.DOTALL).strip()
-            if not clean_reply or len(clean_reply) < 20:
-                clean_reply = (
-                    f"✅ **Despesa registada com sucesso!**\n\n"
-                    f"Registei o gasto de **{action['amount']:,.2f} {action.get('currency', 'AOA')}** em **{action.get('category', 'Outros')}** "
-                    f"({action.get('name', 'Despesa')}).\n\n"
-                    f"📊 Já atualizei a sua aba **Despesas** e o gráfico donut com esta nova divisão de gastos."
-                )
-            return {
-                "reply": clean_reply,
-                "action": action
-            }
-
-        # Caso geral com resposta da IA
+        # Caso geral com resposta da IA (os blocos de ação, se existirem, nunca chegam ao utilizador)
         if ai_content:
             clean_reply = re.sub(r"```(?:json:action|json).*?```", "", ai_content, flags=re.DOTALL).strip()
-            return {
-                "reply": clean_reply,
-                "action": action
-            }
+            return {"reply": clean_reply, "action": None, "pending": None}
 
         # Resposta inteligente para dúvidas frequentes no modo offline/simulado
         msg_lower = message.lower()
         if "multicaixa" in msg_lower or "depositar" in msg_lower or "referência" in msg_lower:
-            fallback = (
-                "Para depositar no BankAO em Angola você tem duas opções muito fáceis:\n\n"
-                "1. **Multicaixa Express:** Digite o seu número de telemóvel associado ao aplicativo e aprove a notificação no seu telefone.\n"
-                "2. **Pagamento por Referência:** Geramos um código de Entidade (00543) e Referência de 9 dígitos para você pagar em qualquer ATM ou no Internet Banking do seu banco (ex: BAI, BFA, BIC)."
-            )
+            fallback = "Podes depositar por **Multicaixa Express** (aprovas no telemóvel) ou por **Referência** (pagas em qualquer ATM)."
         elif "iban" in msg_lower or "portugal" in msg_lower or "europa" in msg_lower or "transferir" in msg_lower:
-            fallback = (
-                "Para transferir para Portugal ou outro país da Europa:\n\n"
-                "1. Acesse **Enviar Dinheiro** e selecione a aba **Para IBAN Internacional**.\n"
-                "2. Introduza o IBAN do destinatário (validamos automaticamente o algoritmo Mod 97 para evitar erros).\n"
-                "3. Veja a cotação em tempo real entre Kwanzas (AOA) e Euros (EUR) com as taxas transparentes.\n"
-                "4. Confirme a operação com o seu código de segurança."
-            )
+            fallback = "Em **Enviar Dinheiro** escolhe «Para IBAN», indica o IBAN e o valor. Vês a taxa e quanto chega antes de confirmar."
         elif "taxa" in msg_lower or "cambio" in msg_lower or "câmbio" in msg_lower:
+            fallback = "Taxas: **1%** entre contas BankAO e **2,5%** por IBAN. O câmbio de referência aparece antes de confirmares."
+        elif any(k in msg_lower for k in ["invest", "aplicar", "rendimento", "bodiva", "prazo", "juros", "lucro", "etf"]):
             fallback = (
-                "No BankAO praticamos uma política de taxa de câmbio transparente: "
-                "a cotação de referência é atualizada e aplicamos uma taxa de serviço fixa de apenas 1,5% sobre o valor convertido, sem comissões ocultas para quem recebe."
+                "📈 **Investimentos no BankAO:**\n"
+                "• **Depósito a Prazo (até 18,5% ao ano):** Capital 100% garantido e juros creditados diretamente na conta.\n"
+                "• **Obrigações do Tesouro na BODIVA (17,2% a.a.):** Títulos soberanos com pagamentos de cupão semestrais.\n"
+                "• **ETFs Globais:** Proteção cambial e valorização internacional.\n\n"
+                "Pode consultar a aba **Investimentos** para aplicar ou pedir-me uma simulação (ex.: *«Se poupar 30 mil por mês, quanto terei daqui a um ano?»*)."
             )
+        elif any(k in msg_lower for k in ["despesa", "gasto", "gastei", "compras", "consumo"]):
+            fallback = (
+                "📊 **Controlo de Despesas:**\n"
+                "Analiso os seus consumos por categoria e comparo o mês atual com o anterior.\n\n"
+                "Experimente perguntar: *«Quanto gastei este mês?»*, *«Onde estou a gastar mais?»* ou pedir para registar uma despesa (ex.: *«Regista 8000 em combustível»*)."
+            )
+        elif any(k in msg_lower for k in ["saldo", "dinheiro", "conta"]):
+            fallback = "Pode consultar o seu saldo consolidado em Kwanzas, Dólares ou Euros perguntando-me: *«Quanto dinheiro tenho?»* ou *«Qual é o meu saldo?»*."
         else:
-            fallback = (
-                f"Olá! Sou o **BankAO Copilot**, alimentado pela tecnologia **Meta Muse Spark**.\n\n"
-                f"Posso ajudar com:\n"
-                f"• Como fazer depósitos por Multicaixa Express ou Referência\n"
-                f"• Como enviar dinheiro para contas internas ou IBAN em Portugal/Europa\n"
-                f"• Explicação das taxas de câmbio e simulação de valores recebidos\n"
-                f"• Esclarecimento sobre segurança e regras de conformidade."
-            )
+            fallback = "Olá! Sou o **BankAO Copilot**. Posso ajudar com consulta de saldos, análise de despesas, simulação de investimentos, depósitos e transferências seguras. Como posso ser útil?"
 
         return {
             "reply": fallback,
-            "action": action
+            "action": None,
+            "pending": None
         }
 
     @staticmethod

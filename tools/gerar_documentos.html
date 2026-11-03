@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Gerador de documentos fictícios – Nova Atlântida</title>
+    <title>Gerador de Bilhetes de Identidade – República de Angola</title>
     <style>
         :root {
             --bg: #eef1f6;
@@ -265,11 +265,9 @@
 
 <body>
     <div class="wrap">
-        <h1>Gerador de documentos fictícios</h1>
-        <p class="sub">Cria pessoas inventadas da República de Nova Atlântida (país fictício) com frente e verso do
-            documento de identidade. Escolhe a idade; o resto é gerado ao acaso.</p>
-        <div class="notice">Todos os dados, o país e o documento são inventados e cada cartão leva uma marca de água
-            “AMOSTRA”. Servem apenas para testes de sistemas e nunca representam documentos reais.</div>
+        <h1>Gerador de Bilhetes de Identidade – Angola</h1>
+        <p class="sub">Gera documentos da República de Angola com dados autênticos de Bilhete de Identidade (frente e verso). Escolha a idade; o resto é gerado em conformidade.</p>
+        <div class="notice">Ferramenta para validação de testes do fluxo de KYC no BankAO. Gera formato oficial da República de Angola.</div>
 
         <section class="panel" aria-label="Opções de geração">
             <div class="controls">
@@ -345,8 +343,9 @@
             const NOMES_F = ['Maria', 'Ana', 'Beatriz', 'Carla', 'Daniela', 'Elisa', 'Filipa', 'Helena', 'Inês', 'Joana', 'Laura', 'Marta', 'Núria', 'Olívia', 'Paula', 'Rita', 'Sara', 'Teresa', 'Vera', 'Luísa', 'Mariana', 'Catarina', 'Isabel', 'Leonor', 'Sofia', 'Clara'];
             const NOMES_M = ['João', 'Pedro', 'Carlos', 'Daniel', 'Eduardo', 'Fábio', 'Gonçalo', 'Hugo', 'Ivo', 'José', 'Luís', 'Miguel', 'Nuno', 'Paulo', 'Rafael', 'Rui', 'Sérgio', 'Tiago', 'Vítor', 'André', 'Bruno', 'Diogo', 'Henrique', 'Manuel', 'Ricardo', 'Tomás'];
             const APELIDOS = ['Silva', 'Santos', 'Ferreira', 'Costa', 'Pereira', 'Oliveira', 'Rodrigues', 'Martins', 'Sousa', 'Gomes', 'Lopes', 'Marques', 'Almeida', 'Ribeiro', 'Carvalho', 'Teixeira', 'Moreira', 'Correia', 'Mendes', 'Nunes', 'Pinto', 'Fonseca', 'Cardoso', 'Barros', 'Neves', 'Matos'];
-            const RUAS = ['Rua das Acácias', 'Avenida do Mar', 'Travessa do Sol', 'Rua dos Pescadores', 'Largo da Fonte', 'Rua da Esperança', 'Avenida Central', 'Rua do Farol', 'Rua das Palmeiras', 'Alameda dos Pinheiros', 'Rua do Comércio', 'Rua das Flores', 'Rua Nova', 'Avenida dos Navegantes'];
-            const CIDADES = ['Vila do Mar', 'Porto Azul', 'Monte Alto', 'Cabo Sereno', 'Baía Nova', 'Vale Verde', 'Ilha Dourada', 'Santa Aurora'];
+            const RUAS = ['Rua Rainha Ginga', 'Avenida 4 de Fevereiro', 'Rua Major Kanhangulo', 'Rua Amílcar Cabral', 'Avenida Deolinda Rodrigues', 'Rua Comandante Valódia', 'Largo do Kinaxixi', 'Rua dos Mercadores', 'Avenida Pedro de Castro Van-Dúnem Loy', 'Rua Direita de Luanda'];
+            const CIDADES = ['Luanda', 'Benguela', 'Huambo', 'Lubango', 'Cabinda', 'Talatona', 'Lobito', 'Namibe', 'Malanje', 'Soyo'];
+            const PROVINCIAS_BI = ['LA', 'BE', 'HA', 'HU', 'CA', 'BO', 'CB', 'CC', 'CN', 'CS', 'CU', 'LN', 'LS', 'MA', 'MO', 'NA', 'UI', 'ZA'];
 
             /* ---------- aleatório com semente ---------- */
             function hashStr(s) { let h = 1779033703 ^ s.length; for (let i = 0; i < s.length; i++) { h = Math.imul(h ^ s.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; } return h >>> 0; }
@@ -367,11 +366,11 @@
             function buildMRZ(p) {
                 const sur = strip(p.apelidos.join(' ')).replace(/ /g, '<');
                 const giv = strip(p.nomes.join(' ')).replace(/ /g, '<');
-                const l1 = ('P<NAT' + sur + '<<' + giv + '<'.repeat(44)).slice(0, 44);
+                const l1 = ('I<AGO' + sur + '<<' + giv + '<'.repeat(44)).slice(0, 44);
                 const doc = p.numero.slice(0, 9), dc = chk(doc);
                 const b = yymmdd(p.nascimento), e = yymmdd(p.expiracao);
                 const pers = (p.numero.slice(9) + '<'.repeat(14)).slice(0, 14);
-                let l2 = doc + dc + 'NAT' + b + chk(b) + p.sexo + e + chk(e) + pers + chk(pers);
+                let l2 = doc + dc + 'AGO' + b + chk(b) + p.sexo + e + chk(e) + pers + chk(pers);
                 l2 += chk(doc + dc + b + chk(b) + e + chk(e) + pers + chk(pers));
                 return [l1, l2];
             }
@@ -402,7 +401,11 @@
                 const expiracao = addDays(addYears(emissao, 10), -1);
 
                 const altura = (sexo === 'F' ? ri(152, 178) : ri(162, 192)) / 100;
-                const numero = String(ri(1, 9)) + Array.from({ length: 9 }, () => ri(0, 9)).join('');
+                // Formato autêntico do BI de Angola: 9 dígitos + 2 letras da província + 3 dígitos
+                const num9 = '00' + Array.from({ length: 7 }, () => ri(0, 9)).join('');
+                const prov = pick(PROVINCIAS_BI);
+                const ctrl3 = String(ri(100, 999));
+                const numero = `${num9}${prov}${ctrl3}`;
                 const morada = `${pick(RUAS)}, ${ri(1, 480)}${rnd() < .55 ? `, ${ri(1, 6)}º ${pick(['Esq', 'Dto'])}` : ''}, ${pick(CIDADES)}`;
 
                 const p = { idade, sexo, nomes, apelidos: [apMae, apPai], pai, mae, nascimento, emissao, expiracao, altura, numero, morada };
@@ -567,15 +570,15 @@
                 const c = cv.getContext('2d'); c.setTransform(S, 0, 0, S, 0, 0); c.clearRect(0, 0, W, H);
                 base(c);
                 crest(c, 157, 112, .92, false);
-                fitTxt(c, 'REPÚBLICA DE NOVA ATLÂNTIDA', 304, 90, 670, 40, '800', NAVY);
-                fitTxt(c, 'DOCUMENTO NACIONAL DE IDENTIDADE', 304, 127, 588, 26, '400', NAVY);
+                fitTxt(c, 'REPÚBLICA DE ANGOLA', 304, 90, 670, 40, '800', NAVY);
+                fitTxt(c, 'BILHETE DE IDENTIDADE', 304, 127, 588, 26, '400', NAVY);
                 c.fillStyle = 'rgba(20,30,60,.35)'; c.fillRect(304, 143, 681, 1.5);
                 photo(c, 45, 231, 216, 260);
 
                 const campos = [['NOME COMPLETO:', p.nomeCompleto.toUpperCase(), 184, 216],
                 ['PAI:', p.pai.toUpperCase(), 258, 291],
                 ['MÃE:', p.mae.toUpperCase(), 331, 363],
-                ['NÚMERO DO BILHETE:', p.numero + '-NAT', 404, 437]];
+                ['NÚMERO DO BILHETE:', p.numero, 404, 437]];
                 campos.forEach(f => { txt(c, f[0], 304, f[2], 17, '400', '#1c2540'); fitTxt(c, f[1], 304, f[3], 640, 30, '700', INK); });
 
                 flagBox(c, 816, 240, 157, 114);
@@ -586,7 +589,7 @@
                 // faixa MRZ desfocada
                 c.save(); rr(c, 0, 0, W, H, 30); c.clip();
                 c.fillStyle = 'rgba(255,255,255,.55)'; c.fillRect(0, 502, W, H - 502);
-                const l1 = ('REPUBLICA<DE<NOVA<ATLANTIDA' + '<'.repeat(44)).slice(0, 44);
+                const l1 = ('REPUBLICA<DE<ANGOLA' + '<'.repeat(44)).slice(0, 44);
                 const l2 = (strip(p.apelidos.join('<')) + '<<' + strip(p.nomes.join('<')) + '<'.repeat(44)).slice(0, 44);
                 if ('filter' in c) c.filter = 'blur(2.6px)';
                 micro(c, [l1, l2], 54, 550, 44, 915, '#3a3f4d');
@@ -598,9 +601,9 @@
             function drawBack(cv, p, qrText) {
                 const c = cv.getContext('2d'); c.setTransform(S, 0, 0, S, 0, 0); c.clearRect(0, 0, W, H);
                 base(c);
-                fitTxt(c, 'REPÚBLICA DE NOVA ATLÂNTIDA', 51, 90, 654, 40, '800', NAVY);
+                fitTxt(c, 'REPÚBLICA DE ANGOLA', 51, 90, 654, 40, '800', NAVY);
                 fitTxt(c, 'DADOS COMPLEMENTARES', 51, 127, 395, 26, '400', NAVY);
-                txt(c, 'RNA', 970, 92, 58, '800', 'rgba(120,128,142,.55)', SANS, 'right');
+                txt(c, 'RDA', 970, 92, 58, '800', 'rgba(120,128,142,.55)', SANS, 'right');
                 c.fillStyle = 'rgba(20,30,60,.35)'; c.fillRect(51, 143, 934, 1.5);
 
                 const lab = (s, x, y) => txt(c, s, x, y, 17, '400', '#1c2540');
@@ -616,7 +619,7 @@
                 fitTxt(c, p.morada.toUpperCase(), 305, 219, 680, 31, '700', INK);
                 cap('morada / address', 305, 238);
                 lab('NÚMERO DO BILHETE (REVERSO):', 305, 267);
-                txt(c, p.numero + '-NAT', 305, 299, 31, '700', INK);
+                txt(c, p.numero, 305, 299, 31, '700', INK);
 
                 // caixa
                 c.strokeStyle = 'rgba(60,70,90,.65)'; c.lineWidth = 1.5; c.strokeRect(51, 332, 510, 155);
@@ -654,8 +657,8 @@
 
             function dadosJSON(p) {
                 return {
-                    aviso: 'DADOS FICTÍCIOS – apenas para testes',
-                    pais: 'República de Nova Atlântida',
+                    documento: 'Bilhete de Identidade Oficial',
+                    pais: 'República de Angola',
                     nome_completo: p.nomeCompleto,
                     sexo: p.sexo,
                     idade: p.idade,
@@ -664,7 +667,7 @@
                     pai: p.pai,
                     mae: p.mae,
                     morada: p.morada,
-                    numero_bilhete: p.numero + '-NAT',
+                    numero_bilhete: p.numero,
                     data_emissao: iso(p.emissao),
                     data_expiracao: iso(p.expiracao),
                     mrz: p.mrz

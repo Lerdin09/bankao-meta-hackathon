@@ -121,44 +121,6 @@ function handleDocPhoto(side, input) {
     };
     reader.readAsDataURL(file);
 }
-async function loadSampleDocument() {
-    const btn = document.getElementById('btnUseSample');
-    const origText = btn.textContent;
-    btn.textContent = 'A carregar amostra...';
-    btn.disabled = true;
-    try {
-        const docType = kycState.docType || 'bilhete';
-        const res = await fetch(`${API_BASE}/api/kyc/samples/${docType}`, {
-            headers: state.token ? { 'Authorization': `Bearer ${state.token}` } : {}
-        });
-        if (!res.ok) throw new Error('Amostra não disponível.');
-        const data = await res.json();
-
-        // Preencher frente
-        kycState.fotoFrente = data.foto_frente;
-        const previewF = document.getElementById('previewFrente');
-        previewF.src = data.foto_frente;
-        previewF.style.display = 'block';
-        document.getElementById('placeholderFrente').style.display = 'none';
-        document.getElementById('zoneFrente').classList.add('has-photo');
-
-        // Preencher verso
-        kycState.fotoVerso = data.foto_verso;
-        const previewV = document.getElementById('previewVerso');
-        previewV.src = data.foto_verso;
-        previewV.style.display = 'block';
-        document.getElementById('placeholderVerso').style.display = 'none';
-        document.getElementById('zoneVerso').classList.add('has-photo');
-
-        document.getElementById('btnKycStep2Next').disabled = false;
-        toast('Documento de amostra carregado. Pronto para validar com IA!', 'success');
-    } catch (err) {
-        toast('Erro ao carregar amostra: ' + err.message, 'error');
-    } finally {
-        btn.textContent = origText;
-        btn.disabled = false;
-    }
-}
 async function extractKYCData() {
     const statusEl = document.getElementById('kycAiStatus');
     statusEl.innerHTML = 'A comprimir e enviar imagens ao modelo de IA...<br>Aguarde, este processo pode demorar alguns segundos.';

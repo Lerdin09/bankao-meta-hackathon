@@ -9,7 +9,7 @@ window.openEditCategoryBudgetModal = function(cat) {
     currentCategoryBeingEdited = targetCat;
     const info = EXPENSE_CATEGORIES[targetCat] || { icon: "📦", label: targetCat };
     const budgets = getCategoryBudgets();
-    const currentBudget = budgets[targetCat] || 35000;
+    const currentBudget = budgets[targetCat] || 0;
 
     const modal = document.getElementById("modalEditCategoryBudget");
     const iconEl = document.getElementById("budgetEditCatIcon");
@@ -25,7 +25,7 @@ window.openEditCategoryBudgetModal = function(cat) {
 
     if (iconEl) iconEl.innerHTML = `<svg><use href="${iconHref}"/></svg>`;
     if (nameEl) nameEl.textContent = targetCat;
-    if (inputEl) inputEl.value = formatNumberWithDots(currentBudget);
+    if (inputEl) inputEl.value = currentBudget > 0 ? formatNumberWithDots(currentBudget) : "";
 
     if (modal) modal.style.display = "flex";
 };
@@ -37,20 +37,23 @@ window.closeEditCategoryBudgetModal = function() {
     const modal = document.getElementById("modalEditCategoryBudget");
     if (modal) modal.style.display = "none";
 };
-window.handleSaveCategoryBudget = function(e) {
+window.handleSaveCategoryBudget = async function(e) {
     e.preventDefault();
     const inputEl = document.getElementById("budgetEditInputAmount");
     const newBudget = parseCleanNumber(inputEl?.value || "0");
     if (newBudget <= 0) {
         return toast("Indique um montante habitual válido.", "error");
     }
-
-    const budgets = getCategoryBudgets();
-    budgets[currentCategoryBeingEdited] = newBudget;
-    saveCategoryBudgets(budgets);
+    try {
+        await apiRequest("PUT", `/api/budgets/${encodeURIComponent(currentCategoryBeingEdited)}`, { amount: newBudget });
+        financeStore.budgets[currentCategoryBeingEdited] = newBudget;
+    } catch (err) {
+        return toast(err.message, "error");
+    }
 
     closeEditCategoryBudgetModal();
     renderExpensesView();
+    if (typeof refreshCardChart === "function") refreshCardChart();
     toast(`Meta habitual de ${currentCategoryBeingEdited} atualizada para ${formatMoney(newBudget, "AOA")}!`, "success");
 };
 window.openExpenseAssistantHelpModal = function() {

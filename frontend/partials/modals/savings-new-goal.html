@@ -89,7 +89,7 @@
 
                 <div class="form-grid-2">
                     <div class="form-row">
-                        <label class="form-label" for="goalInitial">Saldo Inicial (KZ)</label>
+                        <label class="form-label" for="goalInitial">Saldo Inicial (sai da conta)</label>
                         <div class="input-affix">
                             <input type="text" inputmode="numeric" class="input js-money" id="goalInitial" placeholder="0" value="0" oninput="calculateSavingsSimulation()">
                             <span>KZ</span>
@@ -100,6 +100,21 @@
                         <input type="month" class="input" id="goalDeadline" required onchange="calculateSavingsSimulation()">
                     </div>
                 </div>
+
+
+                <div class="form-grid-2">
+                    <div class="form-row">
+                        <label class="form-label" for="goalDebitDay">Débito automático mensal</label>
+                        <select class="input" id="goalDebitDay" onchange="syncGoalSchedule('goal')">
+                            <option value="">Sem débito automático</option><option value="1">Dia 1</option><option value="2">Dia 2</option><option value="3">Dia 3</option><option value="4">Dia 4</option><option value="5">Dia 5</option><option value="6">Dia 6</option><option value="7">Dia 7</option><option value="8">Dia 8</option><option value="9">Dia 9</option><option value="10">Dia 10</option><option value="11">Dia 11</option><option value="12">Dia 12</option><option value="13">Dia 13</option><option value="14">Dia 14</option><option value="15">Dia 15</option><option value="16">Dia 16</option><option value="17">Dia 17</option><option value="18">Dia 18</option><option value="19">Dia 19</option><option value="20">Dia 20</option><option value="21">Dia 21</option><option value="22">Dia 22</option><option value="23">Dia 23</option><option value="24">Dia 24</option><option value="25">Dia 25</option><option value="26">Dia 26</option><option value="27">Dia 27</option><option value="28">Dia 28</option><option value="29">Dia 29</option><option value="30">Dia 30</option><option value="31">Dia 31</option>
+                        </select>
+                    </div>
+                    <div class="form-row" id="goalStartRow" hidden>
+                        <label class="form-label" for="goalStart">Começa em</label>
+                        <input type="month" class="input" id="goalStart" onchange="syncGoalSchedule('goal', true)">
+                    </div>
+                </div>
+                <p class="dep-hint" id="goalAutoHint" hidden></p>
 
                 <!-- Simulador inteligente com cálculo dinâmico -->
                 <div class="savings-smart-simulator">

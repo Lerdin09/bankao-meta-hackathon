@@ -127,10 +127,13 @@ function logout() {
     state.accounts = [];
     state.accountAoa = null;
     state.accountEur = null;
+    state.accountUsd = null;
+    state.transactions = [];
+    clearFinanceData();
     localStorage.removeItem('bankao_token');
     localStorage.removeItem('bankao_user');
-    updateTopbarUser(null);
-    toast('Sessão terminada. Até breve!', 'info');
+    // Recarrega para não ficar nenhum dado da sessão anterior no ecrã
+    location.reload();
 }
 function updateTopbarUser(user) {
     const nameEl   = document.getElementById('userNameDisplay');

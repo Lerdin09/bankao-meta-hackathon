@@ -620,3 +620,81 @@
     border: 1px solid rgba(255, 255, 255, 0.12);
     color: #94A3B8;
 }
+
+
+/* ---------- 6. Mobile / tablet vertical (< 1024px): Copilot como página sobreposta ----------
+   Ocupa a área realmente visível (--vvh acompanha o teclado), fecha no X, e o campo de escrita
+   fica sempre colado ao teclado. Os seletores com # vencem as regras antigas de altura fixa. */
+.copilot-close-btn { display: none; }
+
+@media (max-width: 1023px) {
+    #view-copilot {
+        display: none;
+        position: fixed;
+        left: 0; right: 0;
+        top: var(--vv-top, 0px);
+        height: var(--vvh, 100dvh);
+        z-index: 105;                 /* acima da navegação (99), abaixo dos modais (110) e avisos (130) */
+        margin: 0; padding: 0;
+        background: #0A0F1C;
+        overflow: hidden;
+        animation: none;
+    }
+    #view-copilot.active {
+        display: flex;
+        flex-direction: column;
+        animation: copilotSheetIn .28s cubic-bezier(.2, .8, .2, 1);
+    }
+    #view-copilot .copilot-sidebar {
+        flex: 1;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        width: 100%;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    #view-copilot .copilot-header { padding: calc(10px + var(--safe-t, 0px)) 12px 10px 16px; }
+    body.copilot-kbd #view-copilot .copilot-header { padding-top: 10px; }
+
+    .copilot-close-btn {
+        display: grid;
+        width: 40px; height: 40px;
+        border-radius: 12px;
+        color: #F8FAFC;
+    }
+    .copilot-close-btn:hover { transform: none; }
+    #view-copilot .copilot-tool-btn { width: 40px; height: 40px; }
+    #view-copilot .copilot-tool-btn svg { width: 18px; height: 18px; }
+
+    #view-copilot .copilot-chat-messages {
+        flex: 1;
+        min-height: 0;
+        padding: 14px 12px;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+    #view-copilot .chat-bubble { max-width: 100%; }
+
+    /* Perguntas frequentes: uma linha deslizante; desaparecem com o teclado aberto para dar espaço */
+    #view-copilot .copilot-quick-prompts-section { padding: 8px 12px; }
+    #view-copilot .quick-prompts-label { display: none; }
+    body.copilot-kbd #view-copilot .copilot-quick-prompts-section { display: none; }
+
+    /* Campo de escrita confortável: 16px evita o zoom automático do iOS ao focar */
+    #view-copilot .copilot-input-form { padding: 8px 12px calc(10px + var(--safe-b, 0px)); }
+    body.copilot-kbd #view-copilot .copilot-input-form { padding-bottom: 8px; }
+    #view-copilot .copilot-input-container input { height: 44px; font-size: 16px; }
+    #view-copilot .copilot-input-container input::placeholder { font-size: 15px; }
+    #view-copilot .btn-send-copilot { width: 44px; height: 44px; }
+    #view-copilot .btn-send-copilot svg { width: 18px; height: 18px; }
+    #view-copilot .copilot-input-hint { display: none; }
+
+    body.copilot-open { overflow: hidden; }
+}
+
+@keyframes copilotSheetIn {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: none; }
+}

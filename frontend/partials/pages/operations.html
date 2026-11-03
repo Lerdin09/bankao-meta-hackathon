@@ -21,6 +21,10 @@
                 <svg><use href="#i-globe"/></svg>
                 <span class="tab-full">Transferência bancária</span><span class="tab-short">IBAN</span>
             </button>
+            <button class="tab-btn" data-tab="tab-contacts" role="tab" aria-selected="false" aria-controls="tab-contacts">
+                <svg><use href="#i-heart"/></svg>
+                <span class="tab-full">Contactos</span><span class="tab-short">Contactos</span>
+            </button>
         </div>
 
         <!-- ===== Depósito ===== -->
@@ -63,12 +67,12 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="expressPhone">Telemóvel Multicaixa Express</label>
-                                    <input type="tel" id="expressPhone" value="923 456 789" required placeholder="923 000 000" inputmode="tel" autocomplete="tel">
+                                    <input type="tel" id="expressPhone" required placeholder="923 000 000" inputmode="tel" autocomplete="tel">
                                     <span class="input-hint">O pedido de aprovação chega a este número.</span>
                                 </div>
                                 <div class="form-group">
                                     <label for="expressAmount">Valor a depositar</label>
-                                    <div class="input-affix"><input type="number" id="expressAmount" value="50000" min="500" step="100" required inputmode="decimal"><span>Kz</span></div>
+                                    <div class="input-affix"><input type="number" id="expressAmount" min="500" step="100" required inputmode="decimal"><span>Kz</span></div>
                                     <div class="op-chips" role="group" aria-label="Valores rápidos">
                                         <button type="button" class="op-chip" data-amount="10000" data-target="expressAmount">10.000</button>
                                         <button type="button" class="op-chip" data-amount="25000" data-target="expressAmount">25.000</button>
@@ -86,7 +90,7 @@
                             <dl class="op-summary-list">
                                 <div><dt>Método</dt><dd>Multicaixa Express</dd></div>
                                 <div><dt>Conta de destino</dt><dd>Conta em Kwanzas (AOA)</dd></div>
-                                <div class="total"><dt>Vai depositar</dt><dd data-mirror="expressAmount">50.000,00 Kz</dd></div>
+                                <div class="total"><dt>Vai depositar</dt><dd data-mirror="expressAmount">0,00 Kz</dd></div>
                             </dl>
                             <ol class="op-steps">
                                 <li>Pedimos a aprovação ao seu telemóvel.</li>
@@ -107,7 +111,7 @@
                             <div class="op-block-head"><h4>Detalhes do depósito</h4></div>
                             <div class="form-group">
                                 <label for="refAmount">Valor a depositar</label>
-                                <div class="input-affix"><input type="number" id="refAmount" value="25000" min="500" step="100" required inputmode="decimal"><span>Kz</span></div>
+                                <div class="input-affix"><input type="number" id="refAmount" min="500" step="100" required inputmode="decimal"><span>Kz</span></div>
                                 <div class="op-chips" role="group" aria-label="Valores rápidos">
                                     <button type="button" class="op-chip" data-amount="10000" data-target="refAmount">10.000</button>
                                     <button type="button" class="op-chip" data-amount="25000" data-target="refAmount">25.000</button>
@@ -124,7 +128,7 @@
                             <dl class="op-summary-list">
                                 <div><dt>Método</dt><dd>Pagamento por referência</dd></div>
                                 <div><dt>Conta de destino</dt><dd>Conta em Kwanzas (AOA)</dd></div>
-                                <div class="total"><dt>Vai depositar</dt><dd data-mirror="refAmount">25.000,00 Kz</dd></div>
+                                <div class="total"><dt>Vai depositar</dt><dd data-mirror="refAmount">0,00 Kz</dd></div>
                             </dl>
                             <ol class="op-steps">
                                 <li>Geramos a entidade e a referência.</li>
@@ -154,15 +158,15 @@
                         <div class="op-block">
                             <div class="op-block-head"><h4>Quem recebe</h4></div>
                             <div class="form-group">
-                                <label for="internalDestEmail">E-mail do cliente destinatário</label>
+                                <label for="internalDestEmail">E-mail ou nº de conta do cliente destinatário</label>
                                 <div class="input-with-validation">
-                                    <input type="email" id="internalDestEmail" placeholder="cliente@bankao.ao" required autocomplete="email" inputmode="email" autocapitalize="off">
+                                    <input type="text" id="internalDestEmail" placeholder="cliente@bankao.ao ou 0040 1234 5678" required autocomplete="off" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false">
                                     <span class="iban-status-badge" id="recipientLookupStatus">Verificar</span>
                                 </div>
                                 <div class="recipient-live-name" id="internalRecipientLiveName" style="display:none">
                                     <svg><use href="#i-check"/></svg> <span id="recipientLiveNameText"></span>
                                 </div>
-                                <span class="input-hint">O e-mail com que o cliente criou a conta BankAO.</span>
+                                <span class="input-hint">O e-mail com que o cliente criou a conta BankAO, ou o número da conta (ex.: 0040 1234 5678).</span>
                             </div>
                         </div>
 
@@ -203,22 +207,22 @@
                                 <div class="rt-item">
                                     <span class="rt-lbl">Quantia a enviar</span>
                                     <div class="rt-val-stack">
-                                        <strong class="rt-val primary" id="rtInternalSent">100,00 $</strong>
-                                        <span class="rt-val-sub" id="rtInternalSentSub">100.000,00 Kz</span>
+                                        <strong class="rt-val primary" id="rtInternalSent">0,00 $</strong>
+                                        <span class="rt-val-sub" id="rtInternalSentSub">0,00 Kz</span>
                                     </div>
                                 </div>
                                 <div class="rt-item">
                                     <span class="rt-lbl">Taxa BankAO (1%)</span>
                                     <div class="rt-val-stack">
-                                        <strong class="rt-val fee primary" id="rtInternalFee">- 1,00 $</strong>
-                                        <span class="rt-val-sub fee" id="rtInternalFeeSub">- 1.000,00 Kz</span>
+                                        <strong class="rt-val fee primary" id="rtInternalFee">0,00 $</strong>
+                                        <span class="rt-val-sub fee" id="rtInternalFeeSub">0,00 Kz</span>
                                     </div>
                                 </div>
                                 <div class="rt-item highlight">
                                     <span class="rt-lbl">Dinheiro que vai chegar</span>
                                     <div class="rt-val-stack">
-                                        <strong class="rt-val arrive primary" id="rtInternalArrive">99,00 $</strong>
-                                        <span class="rt-val-sub arrive" id="rtInternalArriveSub">99.000,00 Kz</span>
+                                        <strong class="rt-val arrive primary" id="rtInternalArrive">0,00 $</strong>
+                                        <span class="rt-val-sub arrive" id="rtInternalArriveSub">0,00 Kz</span>
                                     </div>
                                 </div>
                             </div>
@@ -226,7 +230,7 @@
                                 <span class="route-pill send"><span class="flag" id="internalRouteFromFlag">🇺🇸</span><span class="route-pill-text">Envia <strong id="internalRouteFrom">USD ($)</strong></span></span>
                                 <span class="route-arrow" aria-hidden="true">➔</span>
                                 <span class="route-pill dest"><span class="flag" id="internalRouteToFlag">🇦🇴</span><span class="route-pill-text">Destino <strong id="internalRouteTo">Angola (AOA · Kz)</strong></span></span>
-                                <span class="route-rate" id="internalRouteRate">Câmbio: 1 $ = 1.000 Kz</span>
+                                <span class="route-rate" id="internalRouteRate">Rede Instantânea BankAO Angola</span>
                             </div>
                         </div>
 
@@ -275,7 +279,7 @@
                                     <label for="ibanSendAmount">Quantia a debitar (Mínimo: $1.00)</label>
                                     <div class="amount-currency-group">
                                         <div class="input-affix amount-input-wrap">
-                                            <input type="number" id="ibanSendAmount" value="100" min="1.00" step="any" required inputmode="decimal">
+                                            <input type="number" id="ibanSendAmount" min="1.00" step="any" required inputmode="decimal">
                                             <span id="ibanCurrencySymbol" class="affix-label">$</span>
                                         </div>
                                         <div class="currency-select-wrap">
@@ -312,22 +316,22 @@
                                 <div class="rt-item">
                                     <span class="rt-lbl">Quantia enviada</span>
                                     <div class="rt-val-stack">
-                                        <strong class="rt-val primary" id="rtIbanSent">100,00 $</strong>
-                                        <span class="rt-val-sub" id="rtIbanSentSub">100.000,00 Kz</span>
+                                        <strong class="rt-val primary" id="rtIbanSent">0,00 $</strong>
+                                        <span class="rt-val-sub" id="rtIbanSentSub">0,00 Kz</span>
                                     </div>
                                 </div>
                                 <div class="rt-item">
                                     <span class="rt-lbl">Taxa bancária (2,5%)</span>
                                     <div class="rt-val-stack">
-                                        <strong class="rt-val fee primary" id="rtIbanFee">- 2,50 $</strong>
-                                        <span class="rt-val-sub fee" id="rtIbanFeeSub">- 2.500,00 Kz</span>
+                                        <strong class="rt-val fee primary" id="rtIbanFee">0,00 $</strong>
+                                        <span class="rt-val-sub fee" id="rtIbanFeeSub">0,00 Kz</span>
                                     </div>
                                 </div>
                                 <div class="rt-item highlight">
                                     <span class="rt-lbl">Dinheiro que vai chegar</span>
                                     <div class="rt-val-stack">
-                                        <strong class="rt-val arrive primary" id="rtIbanArrive">97,50 $</strong>
-                                        <span class="rt-val-sub arrive" id="rtIbanArriveSub">97.500,00 Kz</span>
+                                        <strong class="rt-val arrive primary" id="rtIbanArrive">0,00 $</strong>
+                                        <span class="rt-val-sub arrive" id="rtIbanArriveSub">0,00 Kz</span>
                                     </div>
                                 </div>
                             </div>
@@ -335,7 +339,7 @@
                                 <span class="route-pill send"><span class="flag" id="ibanRouteFromFlag">🇺🇸</span><span class="route-pill-text">Envia <strong id="ibanRouteFrom">USD ($)</strong></span></span>
                                 <span class="route-arrow" aria-hidden="true">➔</span>
                                 <span class="route-pill dest"><span class="flag" id="ibanRouteToFlag">🇦🇴</span><span class="route-pill-text">Destino <strong id="ibanRouteTo">Angola (AOA · Kz)</strong></span></span>
-                                <span class="route-rate" id="ibanRouteRate">Câmbio: 1 $ = 1.000 Kz · Rede Bancária</span>
+                                <span class="route-rate" id="ibanRouteRate">Rede Bancária</span>
                             </div>
                         </div>
 
@@ -357,5 +361,70 @@
                 </form>
             </div>
         </div>
+    
+        <!-- ===== Contactos (pessoas e IBANs com quem já movimentei dinheiro) ===== -->
+        <div class="tab-pane" id="tab-contacts" role="tabpanel">
+            <div class="operation-card">
+                <div class="op-header-info">
+                    <div class="op-badge-tag"><svg><use href="#i-heart"/></svg><span>Os meus conhecidos</span></div>
+                    <h3>Contactos</h3>
+                    <p>Pessoas a quem já enviou dinheiro, que já lhe enviaram, e IBANs que já usou. Envie outra vez com um toque.</p>
+                </div>
+
+                <div class="ct-toolbar">
+                    <label class="ct-search" for="ctSearch">
+                        <svg><use href="#i-search"/></svg>
+                        <input type="text" id="ctSearch" placeholder="Procurar por nome, nº de conta ou IBAN" autocomplete="off" spellcheck="false">
+                    </label>
+                    <button type="button" class="btn-text ct-add-btn" id="ctAddBtn"><svg><use href="#i-plus"/></svg> Novo contacto</button>
+                </div>
+
+                <div class="ct-chips" id="ctFilters" role="group" aria-label="Filtrar contactos">
+                    <button type="button" class="ct-chip active" data-ct="all">Todos</button>
+                    <button type="button" class="ct-chip" data-ct="favorite">Favoritos</button>
+                    <button type="button" class="ct-chip" data-ct="sent">Enviei</button>
+                    <button type="button" class="ct-chip" data-ct="received">Recebi de</button>
+                    <button type="button" class="ct-chip" data-ct="internal">Clientes BankAO</button>
+                    <button type="button" class="ct-chip" data-ct="iban">IBAN</button>
+                </div>
+
+                <form class="ct-form" id="ctForm" hidden autocomplete="off">
+                    <h4 id="ctFormTitle">Novo contacto</h4>
+                    <div class="ct-kind" id="ctKindRow" role="group" aria-label="Tipo de contacto">
+                        <label><input type="radio" name="ctKind" value="internal" checked><span>Cliente BankAO</span></label>
+                        <label><input type="radio" name="ctKind" value="iban"><span>IBAN (outro banco)</span></label>
+                    </div>
+                    <div class="form-group" id="ctAccountGroup">
+                        <label for="ctAccount">Nº de conta BankAO</label>
+                        <input type="text" id="ctAccount" placeholder="0040 1234 5678" inputmode="numeric">
+                    </div>
+                    <div class="form-group" id="ctIbanGroup" hidden>
+                        <label for="ctIban">IBAN</label>
+                        <input type="text" id="ctIban" class="mono" placeholder="AO06 0040 0000 0000 0000 0000 0" autocapitalize="characters" spellcheck="false">
+                    </div>
+                    <div class="form-group" id="ctNameGroup" hidden>
+                        <label for="ctName">Nome do titular</label>
+                        <input type="text" id="ctName" placeholder="Ex.: Maria António Silva" maxlength="120">
+                    </div>
+                    <div class="form-group">
+                        <label for="ctNickname">Apelido (opcional)</label>
+                        <input type="text" id="ctNickname" placeholder="Ex.: Mãe, Renda, João do trabalho" maxlength="60">
+                    </div>
+                    <p class="ct-form-error" id="ctFormError" role="alert" hidden></p>
+                    <div class="ct-form-actions">
+                        <button type="button" class="btn-text" id="ctFormCancel">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" id="ctFormSave"><span>Guardar</span></button>
+                    </div>
+                </form>
+
+                <div class="ct-list" id="ctList" aria-live="polite"></div>
+                <div class="ct-empty" id="ctEmpty" hidden>
+                    <svg><use href="#i-heart"/></svg>
+                    <strong id="ctEmptyTitle">Ainda não tem contactos</strong>
+                    <p id="ctEmptyText">Quando enviar ou receber dinheiro, as pessoas e os IBANs aparecem aqui automaticamente.</p>
+                </div>
+            </div>
+        </div>
+
     </section>
 </section>

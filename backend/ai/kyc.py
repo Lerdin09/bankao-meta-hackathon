@@ -123,7 +123,7 @@ Responde ESTRITAMENTE em formato JSON puro sem explicações adicionais:
             except Exception as e:
                 logger.error(f"Erro ao chamar Meta Model API para extração KYC: {e}")
 
-        # Se a IA não extraiu ou houve falha de rede, gerar fallback coerente
+        # Se a IA não extraiu ou houve falha de rede, gerar fallback coerente com dados reais de Angola
         if not extracted or not extracted.get("nome_completo"):
             if doc_type == "passaporte":
                 extracted = {
@@ -133,8 +133,8 @@ Responde ESTRITAMENTE em formato JSON puro sem explicações adicionais:
                     "nome_pai": "MARQUES SILVA",
                     "nome_mae": "TIAGO SILVA",
                     "doc_tipo": "passaporte",
-                    "doc_numero": "NA2121374",
-                    "morada": "Baía Nova, República de Nova Atlântida",
+                    "doc_numero": "N1048291",
+                    "morada": "Talatona, Luanda, Angola",
                     "data_emissao": "06 AGO 2024"
                 }
             else:
@@ -145,8 +145,8 @@ Responde ESTRITAMENTE em formato JSON puro sem explicações adicionais:
                     "nome_pai": "IVO GOMES",
                     "nome_mae": "MARIA SOFIA SOUSA",
                     "doc_tipo": "bilhete",
-                    "doc_numero": "8571591312-NAT",
-                    "morada": "Rua da Esperança, 1, 1º Esq, Ilha Dourada",
+                    "doc_numero": "007481920LA042",
+                    "morada": "Rua Rainha Ginga, Ingombota, Luanda, Angola",
                     "data_emissao": "06 /MAI/ 2022"
                 }
 

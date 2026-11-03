@@ -9,6 +9,8 @@ const TXD_TYPE_LABEL = {
     deposit: "Depósito",
     transfer_iban: "Envio internacional (IBAN)",
     fx_exchange: "Câmbio",
+    savings_deposit: "Depósito em poupança",
+    savings_refund: "Resgate de poupança",
 };
 const TXD_STATUS = { completed: ["Concluído", "completed"], failed: ["Falhou", "failed"] };
 

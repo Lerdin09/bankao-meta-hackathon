@@ -93,19 +93,11 @@ function initFxQuoteCalculator() {
         if (routeTo) routeTo.textContent = `${destInfo.name} (${countryLabel})`;
 
         if (routeRate) {
-            if (sendCurr === "USD" && destCurr === "AOA") {
-                routeRate.textContent = "Câmbio: 1 $ = 1.000 KZ · Taxa: 2,5% · Rede Bancária";
-            } else if (sendCurr === "USD" && destCurr === "EUR") {
-                routeRate.textContent = "Câmbio: 1 $ = 0,925 € · Taxa: 2,5% · Rede Bancária SEPA";
-            } else if (sendCurr === "EUR" && destCurr === "AOA") {
-                routeRate.textContent = "Câmbio: 1 € = 1.050 KZ · Taxa: 2,5% · Rede Bancária";
-            } else if (sendCurr === "AOA" && destCurr === "EUR") {
-                routeRate.textContent = "Câmbio: 1 € = 1.050 KZ · Taxa: 2,5% · Rede Bancária SEPA";
-            } else if (sendCurr === "AOA" && destCurr === "USD") {
-                routeRate.textContent = "Câmbio: 1 $ = 1.000 KZ · Taxa: 2,5% · Rede Bancária";
-            } else {
-                routeRate.textContent = `Taxa Bancária: 2,5% · Rede Internacional / SEPA`;
-            }
+            const rate = fxRateLabel(sendCurr, destCurr);
+            const net = destCurr === "EUR" ? "Rede Bancária SEPA" : "Rede Bancária";
+            routeRate.textContent = rate
+                ? `${rate} · Taxa: 2,5% · ${net}`
+                : `Taxa Bancária: 2,5% · Rede Internacional / SEPA`;
         }
     }
 
@@ -209,8 +201,9 @@ function initFxQuoteCalculator() {
 
             const fee = amount * 0.025;
             const arriveAmount = Math.max(0, amount - fee);
-            const rateNote = sendCurr === "USD" && destCurr === "AOA"
-                ? "Câmbio: 1 $ = 1.000 KZ · Taxa: 2,5% · Rede Bancária Nacional"
+            const fxLabel = fxRateLabel(sendCurr, destCurr);
+            const rateNote = fxLabel
+                ? `${fxLabel} · Taxa: 2,5% · Rede Bancária`
                 : `Taxa: 2,5% · Rede de Liquidação Bancária (${destCountryCode})`;
 
             openTransferConfirmModal({
@@ -245,12 +238,24 @@ function initFxQuoteCalculator() {
 
                     const data = await res.json();
                     if (res.ok) {
-                        toast(`Sucesso! Envio bancário de ${formatTwoTierMoney(amount, sendCurr)} para ${beneficiary} processado.`);
+                        // 1) apagar os dados do formulário
                         form.reset();
                         updateIbanRealtime();
+                        const vBadge = document.getElementById("ibanValidationStatus");
+                        if (vBadge) { vBadge.textContent = "Aguardando"; vBadge.className = "iban-status-badge"; }
+                        const vHint = document.getElementById("ibanFeedbackText");
+                        if (vHint) vHint.textContent = "Validado com algoritmo Mod 97 (ISO 7064).";
+                        // 2) mostrar que foi enviada
+                        showTransferSuccess({
+                            recipientName: beneficiary,
+                            recipientDest: iban,
+                            amountText: formatTwoTierMoney(amount, sendCurr),
+                            arriveText: `${data.dest_amount_decimal} ${destCurr}`,
+                            lead: `O envio bancário para ${beneficiary} foi enviado.`
+                        });
+                        toast("Transferência enviada");
                         addCopilotMessage("ai", `🌍 **Transferência Bancária Concluída!**\n- Titular: **${beneficiary}**\n- IBAN: \`${iban}\`\n- Quantia enviada: **${formatTwoTierMoney(amount, sendCurr)}**\n- Taxa bancária (2.5%): **${formatTwoTierMoney(fee, sendCurr)}**\n- Creditado ao destino: **${data.dest_amount_decimal} ${destCurr}**`);
                         await loadUserData();
-                        closeTransferConfirmModal();
                     } else {
                         toast(data.detail || "Erro na transferência para IBAN.");
                     }

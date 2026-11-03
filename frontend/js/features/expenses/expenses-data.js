@@ -20,54 +20,42 @@ const EXPENSE_CATEGORIES = {
     "Poupança": { icon: "#i-piggy", color: "#4ADE80", label: "Depósitos em Poupança" },
     "Outros": { icon: "#i-receipt", color: "#64748B", label: "Outras Despesas" }
 };
-const DEFAULT_EXPENSES = [
-    { id: "e1", name: "Supermercado Kero Kilamba", category: "Alimentação", amount: 45000, date: "2026-10-29", origin: "manual", notes: "Compras do mês" },
-    { id: "e2", name: "Combustível Sonangol Palanca", category: "Transporte", amount: 18000, date: "2026-10-27", origin: "ai", notes: "Gasóleo para a semana" },
-    { id: "e3", name: "Renda de Casa & Condomínio", category: "Habitação", amount: 75000, date: "2026-10-25", origin: "manual", notes: "Pagamento mensal" },
-    { id: "e4", name: "Unitel Net Casa Fibra", category: "Telecomunicações", amount: 25000, date: "2026-10-22", origin: "ai", notes: "Mensalidade fibra 50Mbps" },
-    { id: "e5", name: "Almoço Restaurante Miami Beach", category: "Lazer", amount: 22000, date: "2026-10-19", origin: "manual", notes: "Almoço de domingo com família" },
-    { id: "e6", name: "Farmácia Luanda Saúde", category: "Saúde", amount: 9500, date: "2026-10-15", origin: "manual", notes: "Medicamentos e vitaminas" },
-    { id: "e7", name: "Yango Táxis Luanda", category: "Transporte", amount: 12500, date: "2026-10-12", origin: "ai", notes: "Deslocações trabalho" },
-    { id: "e8", name: "ZAP Satélite Mensalidade", category: "Telecomunicações", amount: 16500, date: "2026-10-08", origin: "manual", notes: "Pacote Max" }
-];
+// Dados financeiros do utilizador: vêm da base de dados (API) e ficam em cache enquanto a sessão está aberta
+const financeStore = { expenses: [], goals: [], budgets: {}, loaded: false };
+
+async function loadFinanceData() {
+    if (!state.token) return;
+    const [expenses, goals, budgets] = await Promise.all([
+        apiRequest("GET", "/api/expenses"),
+        apiRequest("GET", "/api/savings/goals"),
+        apiRequest("GET", "/api/budgets")
+    ]);
+    financeStore.expenses = expenses;
+    financeStore.goals = goals;
+    financeStore.budgets = budgets;
+    financeStore.loaded = true;
+}
+function clearFinanceData() {
+    financeStore.expenses = [];
+    financeStore.goals = [];
+    financeStore.budgets = {};
+    financeStore.loaded = false;
+}
 let activeExpenseCategoryFilter = "all";
 let currentExpensesMonth = null;          // null = todos os meses, senão "AAAA-MM"
 let selectedSpotlightCategory = null;     // categoria em destaque no card do gráfico
 let selectedCategoriesForChart = new Set(Object.keys(EXPENSE_CATEGORIES)); // categorias visíveis no donut
 let currentCategoryBeingEdited = "Alimentação";
-const DEFAULT_CATEGORY_BUDGETS = {
-    "Alimentação": 45000,
-    "Transporte": 25000,
-    "Habitação": 80000,
-    "Telecomunicações": 25000,
-    "Lazer": 20000,
-    "Saúde": 15000,
-    "Poupança": 30000,
-    "Outros": 20000
-};
+/** Metas habituais por categoria definidas pelo utilizador (só as que existem na base de dados) */
 function getCategoryBudgets() {
-    try {
-        const raw = localStorage.getItem("bankao_category_budgets");
-        if (raw) return { ...DEFAULT_CATEGORY_BUDGETS, ...JSON.parse(raw) };
-    } catch (e) { /* ignore */ }
-    return { ...DEFAULT_CATEGORY_BUDGETS };
+    return financeStore.budgets;
 }
-function saveCategoryBudgets(budgets) {
-    try {
-        localStorage.setItem("bankao_category_budgets", JSON.stringify(budgets));
-    } catch (e) { /* ignore */ }
+/** Meta mensal da categoria; 0 = o utilizador ainda não definiu nenhuma */
+function getCategoryBudget(cat) {
+    return Number(financeStore.budgets[cat]) || 0;
 }
 function getExpenses() {
-    try {
-        const raw = localStorage.getItem("bankao_expenses");
-        if (raw) return JSON.parse(raw);
-    } catch (e) { /* ignore */ }
-    return DEFAULT_EXPENSES;
-}
-function saveExpenses(expenses) {
-    try {
-        localStorage.setItem("bankao_expenses", JSON.stringify(expenses));
-    } catch (e) { /* ignore */ }
+    return financeStore.expenses;
 }
 
 // ==========================================================================

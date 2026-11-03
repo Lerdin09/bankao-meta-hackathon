@@ -15,7 +15,13 @@ from backend.api.routes import (
     iban,
     fx,
     transactions,
+    expenses,
+    savings,
     ai,
+    analytics,
+    investments,
+    cards,
+    contacts,
 )
 
 api_router = APIRouter()
@@ -29,6 +35,12 @@ for _module in (
     iban,
     fx,
     transactions,
+    expenses,
+    savings,
     ai,
+    analytics,
+    investments,
+    cards,
+    contacts,
 ):
     api_router.include_router(_module.router)

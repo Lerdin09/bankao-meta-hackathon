@@ -54,44 +54,45 @@ window.handleQuickAiExpense = async function(e) {
     if (/anteontem/i.test(text)) date = localISODate(-2);
     else if (/ontem/i.test(text)) date = localISODate(-1);
 
-    const expenses = getExpenses();
-    const newExp = {
-        id: "exp_ai_" + Date.now(),
-        name: cleanName.charAt(0).toUpperCase() + cleanName.slice(1),
-        category,
-        amount,
-        currency: "AOA",
-        date,
-        origin: "ai",
-        notes: `Registado pelo Copilot: "${text.length > 40 ? text.substring(0, 40) + "…" : text}"`
-    };
-
-    expenses.unshift(newExp);
-    saveExpenses(expenses);
+    const name = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+    let created;
+    try {
+        created = await apiRequest("POST", "/api/expenses", {
+            name, category, amount, currency: "AOA", date, origin: "ai",
+            notes: `Registado pelo Copilot: "${text.length > 40 ? text.substring(0, 40) + "…" : text}"`
+        });
+        financeStore.expenses.unshift(created);
+    } catch (err) {
+        return toast(err.message, "error");
+    }
 
     if (input) input.value = "";
     // Mostrar logo a despesa: muda para o mês dela se o filtro for outro
     if (currentExpensesMonth && currentExpensesMonth !== date.substring(0, 7)) currentExpensesMonth = date.substring(0, 7);
     activeExpenseCategoryFilter = "all";
     renderExpensesView();
-    toast(`✨ Copilot registou despesa: ${newExp.name} (${formatTwoTierMoney(amount, "AOA")})`, "success");
+    refreshHomeFinance();
+    toast(`✨ Copilot registou despesa: ${created.name} (${formatTwoTierMoney(amount, "AOA")})`, "success");
 };
-function registerExpenseFromAction(action) {
+async function registerExpenseFromAction(action) {
     if (!action) return;
-    const expenses = getExpenses();
-    const newExp = {
-        id: "exp_copilot_" + Date.now(),
-        name: action.name || "Despesa Copilot",
-        category: action.category || "Outros",
-        amount: Number(action.amount) || 10000,
-        currency: action.currency || "AOA",
-        date: new Date().toISOString().split("T")[0],
-        origin: "ai",
-        notes: action.notes || "Registado via Copilot IA"
-    };
-
-    expenses.unshift(newExp);
-    saveExpenses(expenses);
-    renderExpensesView();
-    toast(`✨ Copilot registou a sua despesa de ${formatMoney(newExp.amount, newExp.currency)} em ${newExp.category}!`, "success");
+    const amount = Number(action.amount);
+    if (!(amount > 0)) return toast("O Copilot não encontrou o valor da despesa. Indique-o na mensagem.", "error");
+    try {
+        const created = await apiRequest("POST", "/api/expenses", {
+            name: action.name || "Despesa",
+            category: action.category || "Outros",
+            amount,
+            currency: action.currency || "AOA",
+            date: localISODate(0),
+            origin: "ai",
+            notes: action.notes || "Registado via Copilot IA"
+        });
+        financeStore.expenses.unshift(created);
+        renderExpensesView();
+        refreshHomeFinance();
+        toast(`✨ Copilot registou a sua despesa de ${formatMoney(created.amount, created.currency)} em ${created.category}!`, "success");
+    } catch (err) {
+        toast(err.message, "error");
+    }
 }

@@ -1,0 +1,416 @@
+<!-- ============ CARTÕES ============ -->
+<section class="view" id="view-cards" aria-labelledby="cardsPageTitle">
+    <div class="page-head">
+        <div>
+            <p class="eyebrow">Gestão &amp; Segurança de Cartões</p>
+            <h1 id="cardsPageTitle">Cartões</h1>
+        </div>
+        <div class="page-head-actions">
+            <button type="button" class="btn btn-secondary" id="btnRefreshCards" onclick="loadCardsData(true)" aria-label="Atualizar cartões">
+                <svg><use href="#i-refresh"/></svg><span class="cd-hide-sm">Atualizar</span>
+            </button>
+            <button type="button" class="btn btn-primary" onclick="openVirtualCardModal()">
+                <svg><use href="#i-plus"/></svg><span>Cartão virtual</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="cd-layout">
+        <!-- ═════════ COLUNA ESQUERDA: cartão + ações ═════════ -->
+        <aside class="cd-side">
+            <div class="cd-carousel-wrap">
+                <button type="button" class="cd-arrow cd-arrow-prev" id="cdPrev" aria-label="Cartão anterior" hidden>
+                    <svg><use href="#i-chevron-right"/></svg>
+                </button>
+                <div class="cd-carousel" id="cardsCarousel" aria-label="Os seus cartões"></div>
+                <button type="button" class="cd-arrow cd-arrow-next" id="cdNext" aria-label="Cartão seguinte" hidden>
+                    <svg><use href="#i-chevron-right"/></svg>
+                </button>
+            </div>
+            <div class="cd-dots" id="cardsCarouselDots" role="tablist" aria-label="Escolher cartão"></div>
+
+            <div class="cd-actions" id="cardsQuickActions">
+                <button type="button" class="cd-action" id="cBtnBlock" onclick="quickBlockCard()">
+                    <span class="cd-action-icon danger"><svg><use href="#i-lock"/></svg></span>
+                    <span id="cBtnBlockLabel">Bloquear</span>
+                </button>
+                <button type="button" class="cd-action" onclick="switchCardsTab('security', true)">
+                    <span class="cd-action-icon"><svg><use href="#i-gear"/></svg></span>
+                    <span>Limites</span>
+                </button>
+                <button type="button" class="cd-action" onclick="exportCardMovements()">
+                    <span class="cd-action-icon"><svg><use href="#i-receipt"/></svg></span>
+                    <span>Exportar</span>
+                </button>
+                <button type="button" class="cd-action" onclick="openVirtualCardModal()">
+                    <span class="cd-action-icon accent"><svg><use href="#i-plus"/></svg></span>
+                    <span>Virtual</span>
+                </button>
+            </div>
+
+            <div class="cd-info" id="cardInfoStrip" hidden>
+                <h3 class="cd-info-title">Detalhes do cartão</h3>
+                <dl class="cd-info-list">
+                    <div><dt>Titular</dt><dd id="cInfoHolder">—</dd></div>
+                    <div><dt>Validade</dt><dd id="cInfoExpiry">—</dd></div>
+                    <div><dt>Rede</dt><dd id="cInfoNetwork">—</dd></div>
+                    <div><dt>Estado</dt><dd id="cInfoStatus">—</dd></div>
+                    <div><dt>Instituição</dt><dd id="cInfoInst">—</dd></div>
+                    <div><dt>Emitido em</dt><dd id="cInfoCreated">—</dd></div>
+                </dl>
+            </div>
+        </aside>
+
+        <!-- ═════════ COLUNA DIREITA: separadores ═════════ -->
+        <div class="cd-main">
+            <nav class="cd-tabs" role="tablist" aria-label="Secções de cartão">
+                <button type="button" class="cd-tab active" role="tab" id="ctabBtnOverview" aria-selected="true" aria-controls="ctabPanelOverview" onclick="switchCardsTab('overview')">
+                    <svg><use href="#i-card"/></svg><span>Visão geral</span>
+                </button>
+                <button type="button" class="cd-tab" role="tab" id="ctabBtnMovements" aria-selected="false" aria-controls="ctabPanelMovements" onclick="switchCardsTab('movements')">
+                    <svg><use href="#i-list"/></svg><span>Movimentos</span>
+                </button>
+                <button type="button" class="cd-tab" role="tab" id="ctabBtnSpending" aria-selected="false" aria-controls="ctabPanelSpending" onclick="switchCardsTab('spending')">
+                    <svg><use href="#i-pie"/></svg><span>Despesas</span>
+                </button>
+                <button type="button" class="cd-tab" role="tab" id="ctabBtnSecurity" aria-selected="false" aria-controls="ctabPanelSecurity" onclick="switchCardsTab('security')">
+                    <svg><use href="#i-shield"/></svg><span>Segurança</span>
+                </button>
+                <button type="button" class="cd-tab" role="tab" id="ctabBtnAlerts" aria-selected="false" aria-controls="ctabPanelAlerts" onclick="switchCardsTab('alerts')">
+                    <svg><use href="#i-bell"/></svg><span>Alertas</span>
+                    <span class="cd-tab-count" id="cardsAlertsDot" hidden>0</span>
+                </button>
+            </nav>
+
+            <!-- ══════════ 1 · VISÃO GERAL ══════════ -->
+            <div class="cd-panel active" id="ctabPanelOverview" role="tabpanel" aria-labelledby="ctabBtnOverview">
+                <div class="cd-alert" id="cdLimitAlert" hidden></div>
+
+                <div class="cd-kpis">
+                    <div class="cd-kpi">
+                        <span class="cd-kpi-label">Gasto este mês</span>
+                        <strong class="cd-kpi-val" id="cdKpiMonth">—</strong>
+                        <span class="cd-delta" id="cdKpiMonthDelta" hidden></span>
+                    </div>
+                    <div class="cd-kpi">
+                        <span class="cd-kpi-label">Gasto hoje</span>
+                        <strong class="cd-kpi-val" id="cdKpiToday">—</strong>
+                        <span class="cd-kpi-sub" id="cdKpiTodaySub">—</span>
+                    </div>
+                    <div class="cd-kpi">
+                        <span class="cd-kpi-label">Maior compra</span>
+                        <strong class="cd-kpi-val" id="cdKpiBiggest">—</strong>
+                        <span class="cd-kpi-sub" id="cdKpiBiggestSub">—</span>
+                    </div>
+                    <div class="cd-kpi">
+                        <span class="cd-kpi-label">Média diária</span>
+                        <strong class="cd-kpi-val" id="cdKpiAvg">—</strong>
+                        <span class="cd-kpi-sub" id="cdKpiCount">—</span>
+                    </div>
+                </div>
+
+                <div class="cd-section-head"><h3>Limites de utilização</h3>
+                    <button type="button" class="cd-link" onclick="switchCardsTab('security', true)">Editar</button>
+                </div>
+                <div class="cd-limits" id="cardsLimitsGrid">
+                    <div class="cd-limit">
+                        <div class="cd-ring" id="cdRingDaily"></div>
+                        <div class="cd-limit-body">
+                            <span class="cd-limit-label">Limite diário</span>
+                            <strong class="cd-limit-val" id="cLimitDailyUsed">—</strong>
+                            <span class="cd-limit-remain" id="cLimitDailyRemain">—</span>
+                        </div>
+                    </div>
+                    <div class="cd-limit">
+                        <div class="cd-ring" id="cdRingMonthly"></div>
+                        <div class="cd-limit-body">
+                            <span class="cd-limit-label">Limite mensal</span>
+                            <strong class="cd-limit-val" id="cLimitMonthlyUsed">—</strong>
+                            <span class="cd-limit-remain" id="cLimitMonthlyRemain">—</span>
+                        </div>
+                    </div>
+                    <div class="cd-limit" id="cCreditCard" hidden>
+                        <div class="cd-ring" id="cdRingCredit"></div>
+                        <div class="cd-limit-body">
+                            <span class="cd-limit-label">Crédito disponível</span>
+                            <strong class="cd-limit-val" id="cCreditAvail">—</strong>
+                            <span class="cd-limit-remain" id="cCreditUsed">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cd-section-head"><h3>Últimos movimentos</h3>
+                    <button type="button" class="cd-link" onclick="switchCardsTab('movements')">Ver todos</button>
+                </div>
+                <div class="cd-list" id="cardsMovementsPreview"></div>
+                <div class="cd-empty" id="cardsEmptyMovements" hidden>
+                    <svg><use href="#i-receipt"/></svg>
+                    <p>Ainda não há movimentos neste cartão.</p>
+                </div>
+            </div>
+
+            <!-- ══════════ 2 · MOVIMENTOS ══════════ -->
+            <div class="cd-panel" id="ctabPanelMovements" role="tabpanel" aria-labelledby="ctabBtnMovements">
+                <div class="cd-toolbar">
+                    <label class="cd-search">
+                        <svg><use href="#i-search"/></svg>
+                        <input type="search" id="cdMovSearch" placeholder="Pesquisar comerciante, categoria…" autocomplete="off" aria-label="Pesquisar movimentos">
+                    </label>
+                    <button type="button" class="cd-ghost-btn" onclick="exportCardMovements()" aria-label="Exportar CSV">
+                        <svg><use href="#i-receipt"/></svg><span class="cd-hide-sm">Exportar CSV</span>
+                    </button>
+                </div>
+                <div class="cd-chips" id="cardsMovFilter" role="group" aria-label="Filtrar por tipo">
+                    <button type="button" class="cd-chip active" data-op="all">Todos</button>
+                    <button type="button" class="cd-chip" data-op="compra">Compras</button>
+                    <button type="button" class="cd-chip" data-op="levantamento">Levantamentos</button>
+                    <button type="button" class="cd-chip" data-op="pagamento">Pagamentos</button>
+                    <button type="button" class="cd-chip" data-op="reembolso">Reembolsos</button>
+                </div>
+                <div class="cd-summary" id="cdMovSummary" hidden>
+                    <span id="cdMovCount">0 movimentos</span>
+                    <span class="cd-out" id="cdMovOut">−0,00 KZ</span>
+                    <span class="cd-in" id="cdMovIn">+0,00 KZ</span>
+                </div>
+                <div class="cd-list cd-list-grouped" id="cardsMovementsList"></div>
+                <div class="cd-empty" id="cardsEmptyMovsFull" hidden>
+                    <svg><use href="#i-search"/></svg>
+                    <p>Nenhum movimento encontrado com estes filtros.</p>
+                </div>
+                <button type="button" class="cd-more" id="cardsLoadMoreBtn" onclick="loadMoreMovements()" hidden>Carregar mais movimentos</button>
+            </div>
+
+            <!-- ══════════ 3 · DESPESAS ══════════ -->
+            <div class="cd-panel" id="ctabPanelSpending" role="tabpanel" aria-labelledby="ctabBtnSpending">
+                <div class="cd-hero">
+                    <div>
+                        <span class="cd-hero-label">Total gasto este mês</span>
+                        <strong class="cd-hero-total" id="cardsMonthTotal">0,00 KZ</strong>
+                        <span class="cd-delta" id="cdSpendDelta" hidden></span>
+                    </div>
+                    <span class="cd-hero-period" id="cardsSpendingPeriod">—</span>
+                </div>
+
+                <div class="cd-card">
+                    <div class="cd-card-head">
+                        <h4>Evolução dos últimos 30 dias</h4>
+                        <span class="cd-card-note" id="cdChartNote"></span>
+                    </div>
+                    <div class="cd-chart" id="cardsBarChart"></div>
+                </div>
+
+                <div class="cd-section-head"><h3>Por categoria</h3></div>
+                <div class="cd-cats">
+                    <div class="cd-donut" id="cdDonut" aria-hidden="true"></div>
+                    <div class="cd-cat-list" id="cardsCatList"></div>
+                </div>
+                <div class="cd-empty" id="cardsEmptySpending" hidden>
+                    <svg><use href="#i-pie"/></svg>
+                    <p>Ainda não há despesas registadas neste mês.</p>
+                </div>
+            </div>
+
+            <!-- ══════════ 4 · SEGURANÇA ══════════ -->
+            <div class="cd-panel" id="ctabPanelSecurity" role="tabpanel" aria-labelledby="ctabBtnSecurity">
+                <div class="cd-status" id="cdStatusBanner">
+                    <div class="cd-status-icon"><svg><use href="#i-shield"/></svg></div>
+                    <div class="cd-status-text">
+                        <strong id="cdStatusTitle">Cartão ativo</strong>
+                        <span id="cdStatusDesc">Pode ser usado normalmente.</span>
+                    </div>
+                    <button type="button" class="cd-status-btn" id="cToggleBlock" onclick="quickBlockCard()">
+                        <span id="cToggleBlockLabel">Bloquear</span>
+                    </button>
+                </div>
+
+                <div class="cd-grid-2">
+                    <div class="cd-card">
+                        <div class="cd-card-head"><h4>Funcionalidades</h4></div>
+                        <div class="cd-toggle-row">
+                            <span class="cd-toggle-icon"><svg><use href="#i-globe"/></svg></span>
+                            <div><strong>Pagamentos online</strong><span>Lojas online e aplicações</span></div>
+                            <label class="cd-switch"><input type="checkbox" id="cToggleOnline" onchange="updateCardToggle('online_payments', this.checked)"><span class="cd-switch-track"></span></label>
+                        </div>
+                        <div class="cd-toggle-row">
+                            <span class="cd-toggle-icon"><svg><use href="#i-plane"/></svg></span>
+                            <div><strong>Pagamentos internacionais</strong><span>Transações em moeda estrangeira</span></div>
+                            <label class="cd-switch"><input type="checkbox" id="cToggleIntl" onchange="updateCardToggle('international_payments', this.checked)"><span class="cd-switch-track"></span></label>
+                        </div>
+                        <div class="cd-toggle-row">
+                            <span class="cd-toggle-icon"><svg><use href="#i-wallet"/></svg></span>
+                            <div><strong>Levantamentos ATM</strong><span>Caixas automáticos</span></div>
+                            <label class="cd-switch"><input type="checkbox" id="cToggleAtm" onchange="updateCardToggle('atm_withdrawals', this.checked)"><span class="cd-switch-track"></span></label>
+                        </div>
+                        <div class="cd-toggle-row">
+                            <span class="cd-toggle-icon"><svg><use href="#i-phone"/></svg></span>
+                            <div><strong>Contactless</strong><span>NFC e aproximação</span></div>
+                            <label class="cd-switch"><input type="checkbox" id="cToggleNfc" onchange="updateCardToggle('contactless', this.checked)"><span class="cd-switch-track"></span></label>
+                        </div>
+                    </div>
+
+                    <div class="cd-card" id="cdLimitsCard">
+                        <div class="cd-card-head"><h4>Limites de utilização</h4></div>
+                        <form id="formCardLimits" onsubmit="handleCardLimitsSubmit(event)" novalidate>
+                            <div class="cd-field">
+                                <label for="cLimitDailyInput">Limite diário</label>
+                                <div class="cd-input"><input type="text" inputmode="numeric" id="cLimitDailyInput" placeholder="500 000" autocomplete="off"><span>Kz</span></div>
+                                <div class="cd-presets" data-target="cLimitDailyInput">
+                                    <button type="button" data-v="100000">100 mil</button>
+                                    <button type="button" data-v="250000">250 mil</button>
+                                    <button type="button" data-v="500000">500 mil</button>
+                                    <button type="button" data-v="1000000">1 M</button>
+                                </div>
+                            </div>
+                            <div class="cd-field">
+                                <label for="cLimitMonthlyInput">Limite mensal</label>
+                                <div class="cd-input"><input type="text" inputmode="numeric" id="cLimitMonthlyInput" placeholder="2 000 000" autocomplete="off"><span>Kz</span></div>
+                                <div class="cd-presets" data-target="cLimitMonthlyInput">
+                                    <button type="button" data-v="1000000">1 M</button>
+                                    <button type="button" data-v="2000000">2 M</button>
+                                    <button type="button" data-v="5000000">5 M</button>
+                                    <button type="button" data-v="10000000">10 M</button>
+                                </div>
+                            </div>
+                            <p class="cd-form-error" id="cdLimitsError" hidden></p>
+                            <button type="submit" class="btn btn-primary cd-save" id="cdLimitsSave">
+                                <svg><use href="#i-check"/></svg><span>Guardar limites</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="cd-danger" id="cdDangerZone">
+                    <div>
+                        <strong>Cancelar cartão</strong>
+                        <span>Ação permanente. O cartão não poderá ser reativado.</span>
+                    </div>
+                    <button type="button" class="cd-btn-danger" onclick="confirmCancelCard()">Cancelar cartão</button>
+                </div>
+            </div>
+
+            <!-- ══════════ 5 · ALERTAS ══════════ -->
+            <div class="cd-panel" id="ctabPanelAlerts" role="tabpanel" aria-labelledby="ctabBtnAlerts">
+                <div class="cd-section-head"><h3>Notificações</h3>
+                    <button type="button" class="cd-link" id="cdReadAll" onclick="markAllCardNotifsRead()" hidden>Marcar todas como lidas</button>
+                </div>
+                <div class="cd-list" id="cardsNotifsList"></div>
+                <div class="cd-empty" id="cardsEmptyAlerts" hidden>
+                    <svg><use href="#i-bell"/></svg>
+                    <p>Sem alertas. Está tudo em ordem!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ════════ FOLHAS (modais) DE CARTÕES ════════ -->
+
+<!-- Criar cartão virtual -->
+<div class="modal-overlay cd-sheet-overlay" id="modalVirtualCard" aria-hidden="true">
+    <div class="cd-sheet" role="dialog" aria-modal="true" aria-labelledby="mvcTitle">
+        <div class="cd-sheet-grab" aria-hidden="true"></div>
+        <div class="cd-sheet-head">
+            <div>
+                <h3 id="mvcTitle">Novo cartão virtual</h3>
+                <p>Para compras online seguras, com limite próprio</p>
+            </div>
+            <button type="button" class="cd-sheet-close" onclick="closeCardsSheet('modalVirtualCard')" aria-label="Fechar"><svg><use href="#i-x"/></svg></button>
+        </div>
+        <form id="formVirtualCard" onsubmit="handleCreateVirtualCard(event)" novalidate>
+            <div class="cd-sheet-body">
+                <div class="bank-card scheme-virtual cd-preview" id="mvcPreview" aria-hidden="true">
+                    <div class="bank-card-top"><span class="bank-card-inst">BankAO</span><span class="bank-card-virtual-badge" style="position:static">Virtual</span></div>
+                    <div class="bank-card-chip"></div>
+                    <div class="bank-card-number">•••• •••• •••• ••••</div>
+                    <div class="bank-card-bottom"><span class="bank-card-holder" id="mvcPreviewLabel">Cartão virtual</span>
+                        <div class="bank-card-expiry-group"><span class="bank-card-expiry-label">Válido até</span><span class="bank-card-expiry" id="mvcPreviewExp">—</span></div></div>
+                </div>
+                <div class="cd-field">
+                    <label for="mvcLabel">Nome do cartão</label>
+                    <div class="cd-input"><input type="text" id="mvcLabel" placeholder="Ex.: Compras online, Subscrições" maxlength="40" autocomplete="off"></div>
+                </div>
+                <div class="cd-field">
+                    <label for="mvcAccountSelect">Conta associada</label>
+                    <div class="cd-input"><select id="mvcAccountSelect" required aria-label="Conta para débito"></select></div>
+                </div>
+                <div class="cd-row-2">
+                    <div class="cd-field">
+                        <label for="mvcLimitInput">Limite de despesa</label>
+                        <div class="cd-input"><input type="text" inputmode="numeric" id="mvcLimitInput" placeholder="500 000" autocomplete="off"><span>Kz</span></div>
+                    </div>
+                    <div class="cd-field">
+                        <label for="mvcExpireDays">Validade</label>
+                        <div class="cd-input"><select id="mvcExpireDays">
+                            <option value="30">30 dias</option>
+                            <option value="90">90 dias</option>
+                            <option value="180">6 meses</option>
+                            <option value="365" selected>1 ano</option>
+                        </select></div>
+                    </div>
+                </div>
+                <label class="cd-check">
+                    <input type="checkbox" id="mvcSingleUse">
+                    <span class="cd-check-box"><svg><use href="#i-check"/></svg></span>
+                    <span><strong>Utilização única</strong><small>Fica invalidado depois do primeiro pagamento</small></span>
+                </label>
+                <p class="cd-form-error" id="mvcError" hidden></p>
+            </div>
+            <div class="cd-sheet-foot">
+                <button type="button" class="btn btn-secondary" onclick="closeCardsSheet('modalVirtualCard')">Cancelar</button>
+                <button type="submit" class="btn btn-primary" id="mvcSubmitBtn"><svg><use href="#i-spark"/></svg><span>Criar cartão</span></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Confirmar cancelamento -->
+<div class="modal-overlay cd-sheet-overlay" id="modalCancelCard" aria-hidden="true">
+    <div class="cd-sheet cd-sheet-sm" role="dialog" aria-modal="true" aria-labelledby="mccTitle">
+        <div class="cd-sheet-grab" aria-hidden="true"></div>
+        <div class="cd-sheet-head">
+            <div>
+                <h3 id="mccTitle" class="cd-danger-text">Cancelar cartão</h3>
+                <p>Esta ação é permanente e irreversível</p>
+            </div>
+            <button type="button" class="cd-sheet-close" onclick="closeCardsSheet('modalCancelCard')" aria-label="Fechar"><svg><use href="#i-x"/></svg></button>
+        </div>
+        <div class="cd-sheet-body">
+            <p class="cd-sheet-text">O cartão terminado em <strong id="mccLastFour">????</strong> será <strong class="cd-danger-text">cancelado definitivamente</strong>. Todas as transações em curso serão recusadas.</p>
+            <div class="cd-field">
+                <label for="mccReason">Motivo (opcional)</label>
+                <div class="cd-input"><input type="text" id="mccReason" placeholder="Ex.: perdido, substituição…" autocomplete="off"></div>
+            </div>
+            <label class="cd-check">
+                <input type="checkbox" id="mccAck">
+                <span class="cd-check-box"><svg><use href="#i-check"/></svg></span>
+                <span><strong>Compreendo que não pode ser desfeito</strong></span>
+            </label>
+        </div>
+        <div class="cd-sheet-foot">
+            <button type="button" class="btn btn-secondary" onclick="closeCardsSheet('modalCancelCard')">Manter cartão</button>
+            <button type="button" class="btn cd-btn-danger-solid" id="mccConfirmBtn" onclick="handleCancelCard()" disabled><svg><use href="#i-x"/></svg><span>Cancelar definitivamente</span></button>
+        </div>
+    </div>
+</div>
+
+<!-- Detalhe de movimento -->
+<div class="modal-overlay cd-sheet-overlay" id="modalCardMovement" aria-hidden="true">
+    <div class="cd-sheet cd-sheet-sm" role="dialog" aria-modal="true" aria-labelledby="cmvTitle">
+        <div class="cd-sheet-grab" aria-hidden="true"></div>
+        <div class="cd-sheet-head">
+            <div><h3 id="cmvTitle">Detalhe do movimento</h3><p id="cmvSub">—</p></div>
+            <button type="button" class="cd-sheet-close" onclick="closeCardsSheet('modalCardMovement')" aria-label="Fechar"><svg><use href="#i-x"/></svg></button>
+        </div>
+        <div class="cd-sheet-body">
+            <div class="cd-mv-hero">
+                <div class="cd-mov-icon" id="cmvIcon">💳</div>
+                <strong id="cmvAmount">—</strong>
+                <span id="cmvMerchant">—</span>
+            </div>
+            <dl class="cd-info-list cd-info-list-flat" id="cmvList"></dl>
+        </div>
+        <div class="cd-sheet-foot">
+            <button type="button" class="btn btn-secondary" onclick="closeCardsSheet('modalCardMovement')">Fechar</button>
+        </div>
+    </div>
+</div>

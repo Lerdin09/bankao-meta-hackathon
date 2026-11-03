@@ -193,7 +193,7 @@ function buildTxRow(tx) {
     const when = date.toLocaleDateString("pt-AO", { day: "2-digit", month: "short" }) + " · " +
                  date.toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit" });
     const isCredit = (tx.amount_minor > 0) || (tx.amount_decimal > 0);
-    const typeLabel = { deposit: "Depósito", transfer_iban: "Envio IBAN", transfer_internal: "Transferência" };
+    const typeLabel = { deposit: "Depósito", transfer_iban: "Envio IBAN", transfer_internal: "Transferência", savings_deposit: "Poupança", savings_refund: "Resgate poupança" };
     const label = typeLabel[tx.type] || "Movimento";
     const iconUse = tx.type === "transfer_iban" ? "i-globe" : tx.type === "deposit" ? "i-down" : isCredit ? "i-down" : "i-up";
     const statusMap = { completed: "Concluído", failed: "Falhou" };

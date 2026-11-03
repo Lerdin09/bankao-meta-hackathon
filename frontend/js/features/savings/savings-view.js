@@ -86,6 +86,7 @@ function renderSavingsView() {
                     <div class="sg-title">
                         <h4>${escapeHtml(g.name)}</h4>
                         <span><svg><use href="#i-calendar"/></svg>Prazo: ${escapeHtml(g.deadline)}</span>
+                        ${g.debitDay && !done ? `<span><svg><use href="#i-refresh"/></svg>Débito automático: dia ${g.debitDay}${g.nextDebit ? ` · próximo ${new Date(g.nextDebit + "T00:00:00").toLocaleDateString("pt-AO", { day: "numeric", month: "short" })}` : ""}</span>` : ""}
                     </div>
                     <span class="sg-status ${statusClass}">${statusLabel}</span>
                 </header>

@@ -22,6 +22,10 @@
                 <button type="button" class="copilot-tool-btn" id="btnCopilotReset" title="Limpar conversa" aria-label="Limpar conversa" onclick="resetCopilotConversation()">
                     <svg><use href="#i-refresh"/></svg>
                 </button>
+                <!-- Só aparece no telemóvel/tablet: o Copilot abre como página sobreposta -->
+                <button type="button" class="copilot-tool-btn copilot-close-btn" id="btnCopilotClose" title="Fechar" aria-label="Fechar Copilot" onclick="closeCopilot()">
+                    <svg><use href="#i-x"/></svg>
+                </button>
             </div>
         </div>
 
@@ -68,13 +72,21 @@
         <!-- 4. Barra de Envio (Design moderno com glow e tecla de atalho) -->
         <form class="copilot-input-form" id="copilotInputForm">
             <div class="copilot-input-container">
-                <input type="text" id="copilotUserInput" placeholder="Pergunte algo ou simule uma operação…" autocomplete="off" aria-label="Mensagem para o Copilot">
+                <input type="text" id="copilotUserInput" placeholder="Escreva ou fale «Hi Bank Copilot»…" autocomplete="off" autocapitalize="sentences" enterkeyhint="send" aria-label="Mensagem para o Copilot">
+                <button type="button" class="btn-mic-copilot" id="btnCopilotMic" aria-label="Ativar assistente de voz" title="Falar com o Copilot (Siri / GPT)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                        <line x1="12" y1="19" x2="12" y2="23"/>
+                        <line x1="8" y1="23" x2="16" y2="23"/>
+                    </svg>
+                </button>
                 <button type="submit" class="btn-send-copilot" aria-label="Enviar mensagem" id="btnSendCopilot">
                     <svg><use href="#i-send"/></svg>
                 </button>
             </div>
             <div class="copilot-input-hint">
-                <span>Pressione <kbd>Enter</kbd> para enviar · Alimentado por Meta Muse Spark</span>
+                <span>Pressione <kbd>Enter</kbd> ou diga «Hi bank copilot» / «E aí copiloto do banco» 🎙️</span>
             </div>
         </form>
     </aside>

@@ -53,7 +53,7 @@ bankao/
 │   │   ├── features/           # auth, dashboard, statement, accounts, payments, savings,
 │   │   │                       #   expenses, operations, copilot, shell, qr, kyc
 │   │   └── main.js             # arranque (DOMContentLoaded) — carrega por último
-│   └── assets/samples/         # imagens de demonstração do KYC
+│   └── assets/                 # recursos estáticos
 │
 ├── tests/                      # pytest + integration/ (scripts manuais)
 ├── tools/                      # utilitários de apoio: scrapers SWIFT e geradores de documentos/passaportes KYC
@@ -96,3 +96,5 @@ reexportados em `schemas/__init__.py`); regras de negócio em `backend/services/
 ## Gráfico do cartão
 
 Ao tocar no cartão de saldo do início abre-se `view-card-chart` (`frontend/js/features/card-chart/`): linhas verde (recebido), vermelha (saído) e azul (ritmo ideal). Intervalos: 7 dias, 30 dias, 3 meses, 6 meses, 1 ano e Total. A linha azul vem de `POST /api/ai/ideal-pace` (`backend/ai/ideal_pace.py`): a Meta Model API propõe o gasto mensal ideal para cumprir as metas de poupança, limitado a ±25 % do cálculo local, que também é o fallback sem chave, sem sessão ou sem rede. Sem sessão ou sem histórico o gráfico mostra dados de demonstração.
+
+O menu da página tem 6 gráficos: 1 Evolução do saldo, 2 Entradas vs. saídas, 3 Fluxo de gastos do cartão (`card-spend-chart.js`: barras por dia, semana ou mês com compras, levantamentos, pendentes e estornos; um cartão por moeda; comparação de períodos e lista de operações), 4 Gastos por comerciante (`merchants-chart.js`: barras horizontais com o total gasto por comerciante, filtros de moeda, intervalo e tipo de destino, e detalhe com as operações), 5 Fluxo entre contas (`accounts-flow-chart.js`: diagrama de Sankey em três colunas — origem do dinheiro → contas AOA/EUR/USD → destino — com transferências entre contas, conversões cambiais (faixas tracejadas), poupanças, compras, levantamentos, taxas e o que «Ficou na conta»; filtros de moeda de apresentação e intervalo; tocar num bloco ou faixa mostra o detalhe e as operações) e 6 em breve (Previsão do saldo). Os gráficos 3, 4 e 5 usam só dados reais do extrato (sem dados de demonstração). A «Despesas por categoria» saiu do menu porque já existe na página Despesas.

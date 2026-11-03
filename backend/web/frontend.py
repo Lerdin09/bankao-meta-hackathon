@@ -9,12 +9,21 @@ from backend.core.config import settings
 from backend.web.includes import CachedPage
 
 
+class NoCacheStaticFiles(StaticFiles):
+    """Ficheiros estáticos que o navegador revalida sempre (evita o telemóvel ficar com JS/CSS antigos)."""
+
+    def file_response(self, *args, **kwargs):
+        response = super().file_response(*args, **kwargs)
+        response.headers["Cache-Control"] = "no-cache"
+        return response
+
+
 def mount_frontend(app: FastAPI) -> None:
     root = settings.FRONTEND_DIR
     if not root.exists():
         return
 
-    app.mount("/static", StaticFiles(directory=root), name="static")
+    app.mount("/static", NoCacheStaticFiles(directory=root), name="static")
     page = CachedPage(root / "index.html", root)
 
     @app.get("/")

@@ -1,0 +1,580 @@
+<!-- ============ INVESTIMENTOS ============ -->
+<section class="view" id="view-investments" aria-labelledby="invPageTitle">
+    <div class="page-head">
+        <div>
+            <p class="eyebrow">Gestão de Património & Mercados Financeiros</p>
+            <h1 id="invPageTitle">Investimentos</h1>
+        </div>
+        <div class="page-head-actions">
+            <button type="button" class="btn btn-secondary" onclick="openExternalInvestModal()">
+                <svg><use href="#i-plus"/></svg><span>Registar Externo</span>
+            </button>
+            <button type="button" class="btn btn-primary" onclick="switchInvestTab('catalog')">
+                <svg><use href="#i-spark"/></svg><span>Explorar Catálogo</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Hero: Resumo Consolidado da Carteira de Investimentos -->
+    <div class="inv-hero-card">
+        <div class="inv-hero-main">
+            <span class="inv-hero-label">Valor Atual Consolidado</span>
+            <div class="inv-hero-amount">
+                <span class="bal-swap">
+                    <span class="bal-mask acc-bal-masked" aria-hidden="true">••••••••</span>
+                    <span class="bal-real" id="invTotalValueAoa">0,00 Kz</span>
+                </span>
+            </div>
+            <div class="inv-hero-pills">
+                <span class="inv-gain-badge up" id="invTotalGainBadge">
+                    <i class="inv-gain-arrow">↑</i> <span id="invTotalGainText">+0,00 Kz (0.0%)</span>
+                </span>
+                <span class="inv-hero-note">Rendimento global acumulado</span>
+            </div>
+        </div>
+
+        <div class="inv-hero-grid">
+            <div class="inv-metric-box">
+                <span class="inv-metric-title">Total Aplicado</span>
+                <strong class="inv-metric-val" id="invTotalInvestedAoa">0,00 Kz</strong>
+                <span class="inv-metric-sub" id="invActiveCountText">0 ativos em carteira</span>
+            </div>
+            <div class="inv-metric-box">
+                <span class="inv-metric-title">Juros & Dividendos</span>
+                <strong class="inv-metric-val highlight" id="invTotalYieldAoa">+0,00 Kz</strong>
+                <span class="inv-metric-sub">Total creditado</span>
+            </div>
+            <div class="inv-metric-box">
+                <span class="inv-metric-title">Próximo Vencimento</span>
+                <strong class="inv-metric-val" id="invNextMaturityText">—</strong>
+                <span class="inv-metric-sub" id="invNextMaturitySub">Sem vencimentos próximos</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegação de Abas do Módulo de Investimentos -->
+    <nav class="inv-tabs" role="tablist" aria-label="Navegação de investimentos">
+        <button type="button" class="inv-tab-btn active" role="tab" id="tabBtnPortfolio" aria-selected="true" onclick="switchInvestTab('portfolio')">
+            <svg><use href="#i-wallet"/></svg>
+            <span>Carteira</span>
+            <span class="inv-tab-badge" id="invPortfolioBadge">0</span>
+        </button>
+        <button type="button" class="inv-tab-btn" role="tab" id="tabBtnCatalog" aria-selected="false" onclick="switchInvestTab('catalog')">
+            <svg><use href="#i-trending"/></svg>
+            <span>Catálogo</span>
+            <span class="inv-tab-badge" id="invCatalogBadge">9</span>
+        </button>
+        <button type="button" class="inv-tab-btn" role="tab" id="tabBtnHistory" aria-selected="false" onclick="switchInvestTab('history')">
+            <svg><use href="#i-list"/></svg>
+            <span>Histórico</span>
+        </button>
+        <button type="button" class="inv-tab-btn" role="tab" id="tabBtnAlerts" aria-selected="false" onclick="switchInvestTab('alerts')">
+            <svg><use href="#i-bell"/></svg>
+            <span>Alertas</span>
+            <span class="inv-tab-dot" id="invAlertsDot" hidden></span>
+        </button>
+    </nav>
+
+    <!-- ================= TAB 1: MINHA CARTEIRA ================= -->
+    <div class="inv-tab-panel active" id="invPanelPortfolio" role="tabpanel" aria-labelledby="tabBtnPortfolio">
+        
+        <!-- Evolução da carteira -->
+        <div class="inv-evo-card" id="invEvolutionCard" hidden>
+            <div class="inv-alloc-head">
+                <div>
+                    <h3>Evolução da Carteira</h3>
+                    <p class="text-muted">Valor atual vs. capital aplicado (últimos meses, em Kz)</p>
+                </div>
+                <div class="inv-evo-legend">
+                    <span><i style="background:#34D399"></i>Valor atual <b id="invEvoLastValue">—</b></span>
+                    <span><i style="background:#6C9BFF"></i>Capital aplicado</span>
+                </div>
+            </div>
+            <div class="inv-evo-chart" id="invEvolutionChart"></div>
+        </div>
+
+        <!-- Distribuição da Carteira (Alocação de Ativos) -->
+        <div class="inv-alloc-card" id="invAllocCard">
+            <div class="inv-alloc-head">
+                <div>
+                    <h3>Alocação de Ativos</h3>
+                    <p class="text-muted">Diversificação por classe de investimento e instituição</p>
+                </div>
+                <div class="inv-filter-group" id="invAllocToggle">
+                    <button type="button" class="inv-chip active" data-alloc="categories">Por classe</button>
+                    <button type="button" class="inv-chip" data-alloc="institutions">Por instituição</button>
+                </div>
+            </div>
+                        <!-- Barra visual multicolorida de alocação -->
+            <div class="inv-alloc-bar" id="invAllocBar" role="progressbar" aria-label="Distribuição da carteira"></div>
+            <div class="inv-alloc-legend" id="invAllocLegend"></div>
+        </div>
+
+        <!-- Filtros da Carteira e Lista de Ativos -->
+        <div class="inv-section-header">
+            <div>
+                <h3>Ativos em Carteira</h3>
+                <span class="text-muted" id="invAssetsCountLabel">Consulte os seus investimentos internos e externos</span>
+            </div>
+            <div class="inv-filter-group" id="invPortfolioFilters">
+                <button type="button" class="inv-chip active" data-filter="all">Todos</button>
+                <button type="button" class="inv-chip" data-filter="bankao">BankAO</button>
+                <button type="button" class="inv-chip" data-filter="external">Externos</button>
+                <button type="button" class="inv-chip" data-filter="aoa">AOA</button>
+                <button type="button" class="inv-chip" data-filter="usd">USD</button>
+            </div>
+        </div>
+
+        <!-- Lista de Cards de Ativos -->
+        <div class="inv-assets-grid" id="invAssetsList">
+            <!-- Preenchido via JavaScript -->
+        </div>
+
+        <div class="inv-empty-state" id="invEmptyPortfolio" hidden>
+            <div class="inv-empty-icon"><svg><use href="#i-trending"/></svg></div>
+            <h4>Nenhum investimento registado</h4>
+            <p>Descubra oportunidades com retorno garantido no catálogo ou registe os ativos que já possui noutros bancos e corretoras.</p>
+            <div class="inv-empty-actions">
+                <button type="button" class="btn btn-primary" onclick="switchInvestTab('catalog')">
+                    <svg><use href="#i-spark"/></svg><span>Explorar Catálogo</span>
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="openExternalInvestModal()">
+                    <svg><use href="#i-plus"/></svg><span>Registar Ativo Externo</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= TAB 2: CATÁLOGO DE INVESTIMENTOS ================= -->
+    <div class="inv-tab-panel" id="invPanelCatalog" role="tabpanel" aria-labelledby="tabBtnCatalog">
+        
+        <!-- Simulador Interativo Rápido -->
+        <div class="inv-sim-card">
+            <div class="inv-sim-head">
+                <div class="inv-sim-icon"><svg><use href="#i-spark"/></svg></div>
+                <div>
+                    <h4>Simulador de Rentabilidade</h4>
+                    <p class="text-muted">Estime quanto o seu capital pode render nos produtos de maior taxa do mercado</p>
+                </div>
+            </div>
+            <div class="inv-sim-body">
+                <div class="inv-sim-input-wrap">
+                    <label for="invSimAmountInput">Montante a simular:</label>
+                    <div class="inv-sim-input-box">
+                        <input type="number" id="invSimAmountInput" value="500000" step="50000" min="10000">
+                        <select id="invSimCurrencySelect" aria-label="Moeda de simulação">
+                            <option value="AOA" selected>Kwanza (AOA)</option>
+                            <option value="USD">Dólar (USD)</option>
+                            <option value="EUR">Euro (EUR)</option>
+                        </select>
+                    </div>
+                </div>
+                <p class="text-muted inv-sim-basis" id="invSimBasis"></p>
+                <div class="inv-sim-results" id="invSimResults">
+                    <div class="inv-sim-res-item">
+                        <span>A 3 meses</span>
+                        <strong id="invSim3m">—</strong>
+                    </div>
+                    <div class="inv-sim-res-item">
+                        <span>A 6 meses</span>
+                        <strong id="invSim6m">—</strong>
+                    </div>
+                    <div class="inv-sim-res-item featured">
+                        <span>A 12 meses (Ideal)</span>
+                        <strong id="invSim12m">—</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros do Catálogo -->
+        <div class="inv-catalog-controls">
+            <div class="inv-search-bar">
+                <svg><use href="#i-search"/></svg>
+                <input type="text" id="invCatalogSearch" placeholder="Pesquisar por produto, banco ou corretora..." aria-label="Pesquisar catálogo de investimentos">
+            </div>
+            <div class="inv-catalog-filters">
+                <select id="invCatalogRisk" aria-label="Filtrar por risco">
+                    <option value="all">Todos os riscos</option><option value="baixo">Risco baixo</option>
+                    <option value="medio">Risco moderado</option><option value="alto">Risco alto</option>
+                </select>
+                <select id="invCatalogCurrency" aria-label="Filtrar por moeda">
+                    <option value="all">Todas as moedas</option><option value="AOA">AOA</option>
+                    <option value="USD">USD</option><option value="EUR">EUR</option>
+                </select>
+            </div>
+            <div class="inv-catalog-chips" id="invCategoryChips">
+                <button type="button" class="inv-chip active" data-cat="all">Todos os Produtos</button>
+                <button type="button" class="inv-chip" data-cat="deposito_prazo">Depósitos a Prazo</button>
+                <button type="button" class="inv-chip" data-cat="obrigacoes">Obrigações & Bilhetes BODIVA</button>
+                <button type="button" class="inv-chip" data-cat="etf">ETFs Globais</button>
+                <button type="button" class="inv-chip" data-cat="fundos">Fundos de Investimento</button>
+            </div>
+        </div>
+
+        <!-- Grelha de Produtos do Catálogo -->
+        <div class="inv-catalog-grid" id="invCatalogList">
+            <!-- Inserido dinamicamente via JS -->
+        </div>
+    </div>
+
+    <!-- ================= TAB 3: HISTÓRICO DE OPERAÇÕES ================= -->
+    <div class="inv-tab-panel" id="invPanelHistory" role="tabpanel" aria-labelledby="tabBtnHistory">
+        <div class="inv-section-header">
+            <div>
+                <h3>Histórico de Movimentações</h3>
+                <span class="text-muted">Aplicações, resgates, juros, dividendos e ajustes de cotação</span>
+            </div>
+            <div class="inv-filter-group" id="invHistoryFilters">
+                <button type="button" class="inv-chip active" data-op="all">Todas</button>
+                <button type="button" class="inv-chip" data-op="aplicacao">Aplicações</button>
+                <button type="button" class="inv-chip" data-op="juros_dividendo">Rendimentos</button>
+                <button type="button" class="inv-chip" data-op="resgate">Resgates</button>
+            </div>
+        </div>
+
+        <div class="inv-history-toolbar">
+            <label class="inv-history-period" for="invHistoryPeriod">
+                <span>Período</span>
+                <select id="invHistoryPeriod" aria-label="Período do histórico">
+                    <option value="all">Todo o período</option>
+                    <option value="30">Últimos 30 dias</option>
+                    <option value="90">Últimos 90 dias</option>
+                    <option value="365">Últimos 12 meses</option>
+                    <option value="ytd">Este ano</option>
+                    <option value="custom">Personalizado…</option>
+                </select>
+            </label>
+            <span class="inv-history-range" id="invHistoryRange" hidden>
+                <input type="date" id="invHistoryFrom" aria-label="Data inicial">
+                <input type="date" id="invHistoryTo" aria-label="Data final">
+            </span>
+            <span class="inv-history-count text-muted" id="invHistoryCount"></span>
+            <button type="button" class="btn btn-ghost-sm" id="invHistoryExport"><span>Exportar CSV</span></button>
+        </div>
+
+        <div class="inv-history-table-card">
+            <div class="inv-history-list" id="invHistoryList">
+                <!-- Inserido dinamicamente via JS -->
+            </div>
+            <div class="inv-empty-state" id="invEmptyHistory" hidden>
+                <p>Nenhuma operação registada até ao momento.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= TAB 4: ALERTAS & VENCIMENTOS ================= -->
+    <div class="inv-tab-panel" id="invPanelAlerts" role="tabpanel" aria-labelledby="tabBtnAlerts">
+        <div class="inv-section-header">
+            <div>
+                <h3>Alertas & Notificações de Investimento</h3>
+                <span class="text-muted">Vencimentos próximos, pagamentos de cupões e novidades de mercado</span>
+            </div>
+        </div>
+
+        <div class="inv-notifications-list" id="invNotificationsList">
+            <!-- Inserido dinamicamente via JS -->
+        </div>
+
+        <div class="inv-empty-state" id="invEmptyAlerts" hidden>
+            <div class="inv-empty-icon"><svg><use href="#i-bell"/></svg></div>
+            <h4>Sem alertas pendentes</h4>
+            <p>Está a par de todas as atualizações e vencimentos da sua carteira.</p>
+        </div>
+    </div>
+</section>
+
+<!-- =====================================================================
+     MODAIS DE INVESTIMENTO (mesma estrutura .form-modal dos restantes formulários)
+===================================================================== -->
+
+<!-- Modal: Detalhes do Produto & Simulação -->
+<div class="modal-overlay" id="modalInvestDetails" style="display:none" role="dialog" aria-modal="true" aria-labelledby="mivDetTitle">
+    <div class="confirm-transfer-modal form-modal inv-modal" style="max-width:680px;">
+        <div class="confirm-modal-header">
+            <div class="confirm-modal-icon" style="background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(99,102,241,0.2));color:#38BDF8;">
+                <svg><use href="#i-trending"/></svg>
+            </div>
+            <div class="confirm-header-text">
+                <span class="inv-card-badge" id="mivDetCategoryBadge">Depósito a Prazo</span>
+                <h3 id="mivDetTitle">Detalhes do Investimento</h3>
+                <p class="confirm-subtitle" id="mivDetInstitution">Instituição fornecedora</p>
+            </div>
+            <button type="button" class="confirm-close-btn" onclick="invClose('modalInvestDetails')" aria-label="Fechar">
+                <svg><use href="#i-x"/></svg>
+            </button>
+        </div>
+
+        <div class="confirm-modal-body">
+            <div class="inv-modal-hero">
+                <div>
+                    <span class="inv-modal-rate-lbl">Taxa de rendimento anual</span>
+                    <strong class="inv-modal-rate-val" id="mivDetRateVal">—</strong>
+                </div>
+                <div class="inv-modal-hero-sub">
+                    <span id="mivDetTermVal">—</span>
+                    <span id="mivDetRiskVal" class="inv-risk-badge baixo">Risco Baixo</span>
+                </div>
+            </div>
+
+            <p class="inv-modal-desc" id="mivDetDesc"></p>
+
+            <div class="inv-modal-specs-grid">
+                <div class="inv-spec-item"><span>Montante mínimo</span><strong id="mivDetMinAmount">—</strong></div>
+                <div class="inv-spec-item"><span>Liquidez</span><strong id="mivDetLiquidity">—</strong></div>
+                <div class="inv-spec-item"><span>Moeda</span><strong id="mivDetCurrency">—</strong></div>
+                <div class="inv-spec-item"><span>Prazo</span><strong id="mivDetTermSpec">—</strong></div>
+            </div>
+
+            <div class="inv-modal-section">
+                <h4>Comissões &amp; Encargos</h4>
+                <p id="mivDetFees" class="text-muted"></p>
+            </div>
+
+            <div class="inv-modal-section">
+                <h4>Condições de Resgate</h4>
+                <p id="mivDetRedemption" class="text-muted"></p>
+            </div>
+
+            <div class="inv-modal-section">
+                <h4>Cenários de Retorno Estimado</h4>
+                <div class="inv-sim-table-wrap">
+                    <table class="inv-sim-table">
+                        <thead>
+                            <tr>
+                                <th>Capital</th>
+                                <th>Bruto</th>
+                                <th>Imposto est.</th>
+                                <th>Líquido</th>
+                                <th>Total no vencimento</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mivDetSimTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="confirm-modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="invClose('modalInvestDetails')">Fechar</button>
+            <button type="button" class="btn btn-primary" id="mivDetApplyBtn" onclick="openApplyFromDetails()">
+                <span>Subscrever</span><svg><use href="#i-check"/></svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Subscrição / Aplicação Direta no BankAO -->
+<div class="modal-overlay" id="modalInvestApply" style="display:none" role="dialog" aria-modal="true" aria-labelledby="mivAppTitle">
+    <div class="confirm-transfer-modal form-modal inv-modal" style="max-width:520px;">
+        <div class="confirm-modal-header">
+            <div class="confirm-modal-icon" style="background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(99,102,241,0.2));color:#38BDF8;">
+                <svg><use href="#i-trending"/></svg>
+            </div>
+            <div class="confirm-header-text">
+                <h3 id="mivAppTitle">Subscrição de Investimento</h3>
+                <p class="confirm-subtitle" id="mivAppSubtitle">Débito em conta BankAO com ativação imediata</p>
+            </div>
+            <button type="button" class="confirm-close-btn" onclick="invClose('modalInvestApply')" aria-label="Fechar">
+                <svg><use href="#i-x"/></svg>
+            </button>
+        </div>
+
+        <form id="formInvestApply" onsubmit="handleInvestApplySubmit(event)" novalidate>
+            <input type="hidden" id="mivAppProductId">
+            <div class="confirm-modal-body">
+                <div class="form-row">
+                    <label class="form-label" for="mivAppAccountSelect">Conta para débito</label>
+                    <select class="input" id="mivAppAccountSelect" required></select>
+                    <small class="form-hint" id="mivAppAccountBalanceHint">Saldo disponível: —</small>
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label" for="mivAppAmountInput">Montante a aplicar</label>
+                    <div class="input-affix">
+                        <input type="number" inputmode="decimal" class="input" id="mivAppAmountInput" required step="any" min="1" placeholder="Ex: 250000" autocomplete="off">
+                        <span id="mivAppCurrencyTag">AOA</span>
+                    </div>
+                    <small class="form-hint" id="mivAppMinAmountHint">Mínimo: —</small>
+                    <div class="form-quick-chips" id="mivAppQuickChips">
+                        <button type="button" class="chip-btn" data-mult="1">Mínimo</button>
+                        <button type="button" class="chip-btn" data-mult="2">2×</button>
+                        <button type="button" class="chip-btn" data-mult="5">5×</button>
+                        <button type="button" class="chip-btn" data-mult="10">10×</button>
+                        <button type="button" class="chip-btn" data-mult="max">Máx.</button>
+                    </div>
+                </div>
+
+                <div class="inv-apply-preview-box" id="mivAppPreviewBox">
+                    <div class="inv-preview-row"><span>Taxa anual</span><strong id="mivAppPreviewRate">—</strong></div>
+                    <div class="inv-preview-row"><span>Prazo / vencimento</span><strong id="mivAppPreviewTerm">—</strong></div>
+                    <div class="inv-preview-row is-highlight"><span>Estimativa de retorno</span><strong id="mivAppPreviewReturn">—</strong></div>
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label" for="mivAppNotesInput">Nota / objetivo (opcional)</label>
+                    <input type="text" class="input" id="mivAppNotesInput" maxlength="120" placeholder="Ex: Fundo de reserva 2027" autocomplete="off">
+                </div>
+
+                <p class="inv-form-error" id="mivAppError" role="alert" hidden></p>
+            </div>
+
+            <div class="confirm-modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="invClose('modalInvestApply')">Cancelar</button>
+                <button type="submit" class="btn btn-primary" id="mivAppSubmitBtn">
+                    <span>Confirmar</span><svg><use href="#i-check"/></svg>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: Registo de Investimento Externo -->
+<div class="modal-overlay" id="modalInvestExternal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="mivExtTitle">
+    <div class="confirm-transfer-modal form-modal inv-modal" style="max-width:560px;">
+        <div class="confirm-modal-header">
+            <div class="confirm-modal-icon" style="background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(99,102,241,0.2));color:#38BDF8;">
+                <svg><use href="#i-plus"/></svg>
+            </div>
+            <div class="confirm-header-text">
+                <h3 id="mivExtTitle">Registar Investimento Externo</h3>
+                <p class="confirm-subtitle">Organize e acompanhe ativos detidos fora do BankAO</p>
+            </div>
+            <button type="button" class="confirm-close-btn" onclick="invClose('modalInvestExternal')" aria-label="Fechar">
+                <svg><use href="#i-x"/></svg>
+            </button>
+        </div>
+
+        <form id="formInvestExternal" onsubmit="handleInvestExternalSubmit(event)" novalidate>
+            <div class="confirm-modal-body">
+                <div class="form-row">
+                    <label class="form-label" for="mivExtName">Nome do ativo ou produto</label>
+                    <input type="text" class="input" id="mivExtName" required maxlength="80" placeholder="Ex: Obrigações do Tesouro / ETF VWCE" autocomplete="off">
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-row">
+                        <label class="form-label" for="mivExtCategory">Categoria</label>
+                        <select class="input" id="mivExtCategory" required>
+                            <option value="deposito_prazo">Depósito a Prazo</option>
+                            <option value="obrigacoes" selected>Títulos &amp; Obrigações</option>
+                            <option value="etf">ETF Global</option>
+                            <option value="fundos">Fundo de Investimento</option>
+                            <option value="acoes">Ações</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" for="mivExtInstitution">Instituição / corretora</label>
+                        <input type="text" class="input" id="mivExtInstitution" required maxlength="80" placeholder="Ex: BFA / BODIVA / Saxo" autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-row">
+                        <label class="form-label" for="mivExtAmount">Montante aplicado</label>
+                        <input type="number" inputmode="decimal" class="input" id="mivExtAmount" required step="any" min="0.01" placeholder="Ex: 500000" autocomplete="off">
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" for="mivExtCurrency">Moeda</label>
+                        <select class="input" id="mivExtCurrency">
+                            <option value="AOA" selected>Kwanza (AOA)</option>
+                            <option value="USD">Dólar (USD)</option>
+                            <option value="EUR">Euro (EUR)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-row">
+                        <label class="form-label" for="mivExtRate">Taxa anual esperada (%)</label>
+                        <input type="number" inputmode="decimal" class="input" id="mivExtRate" step="any" min="0" max="500" placeholder="Ex: 17,0" autocomplete="off">
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" for="mivExtStartDate">Data da aplicação</label>
+                        <input type="date" id="mivExtStartDate" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label" for="mivExtMaturityDate">Data de vencimento (se aplicável)</label>
+                    <input type="date" id="mivExtMaturityDate">
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label" for="mivExtNotes">Notas (opcional)</label>
+                    <input type="text" class="input" id="mivExtNotes" maxlength="160" placeholder="Ex: Carteira de títulos na conta de custódia" autocomplete="off">
+                </div>
+
+                <p class="inv-form-error" id="mivExtError" role="alert" hidden></p>
+            </div>
+
+            <div class="confirm-modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="invClose('modalInvestExternal')">Cancelar</button>
+                <button type="submit" class="btn btn-primary">
+                    <span>Guardar</span><svg><use href="#i-check"/></svg>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: Resgate de Investimento -->
+<div class="modal-overlay" id="modalInvestRedeem" style="display:none" role="dialog" aria-modal="true" aria-labelledby="mivRedTitle">
+    <div class="confirm-transfer-modal form-modal inv-modal" style="max-width:500px;">
+        <div class="confirm-modal-header">
+            <div class="confirm-modal-icon" style="background:rgba(248,113,113,0.14);color:#F87171;">
+                <svg><use href="#i-minus"/></svg>
+            </div>
+            <div class="confirm-header-text">
+                <h3 id="mivRedTitle">Resgate de Investimento</h3>
+                <p class="confirm-subtitle" id="mivRedSubtitle">Liquidar e creditar fundos na sua conta</p>
+            </div>
+            <button type="button" class="confirm-close-btn" onclick="invClose('modalInvestRedeem')" aria-label="Fechar">
+                <svg><use href="#i-x"/></svg>
+            </button>
+        </div>
+
+        <form id="formInvestRedeem" onsubmit="handleInvestRedeemSubmit(event)" novalidate>
+            <input type="hidden" id="mivRedInvestmentId">
+            <div class="confirm-modal-body">
+                <div class="inv-redeem-info-box">
+                    <div><span class="text-muted">Ativo</span><strong id="mivRedAssetName">—</strong></div>
+                    <div><span class="text-muted">Valor disponível</span><strong class="inv-hl" id="mivRedAvailableVal">—</strong></div>
+                </div>
+
+                <div class="form-row">
+                    <span class="form-label" id="mivRedTypeLabel">Tipo de resgate</span>
+                    <div class="inv-radio-row" role="radiogroup" aria-labelledby="mivRedTypeLabel">
+                        <label class="inv-radio-lbl">
+                            <input type="radio" name="redeemType" value="total" checked onchange="toggleRedeemAmountField()">
+                            <span>Total</span>
+                        </label>
+                        <label class="inv-radio-lbl">
+                            <input type="radio" name="redeemType" value="partial" onchange="toggleRedeemAmountField()">
+                            <span>Parcial</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-row" id="mivRedAmountGroup" hidden>
+                    <label class="form-label" for="mivRedAmountInput">Montante a resgatar</label>
+                    <input type="number" inputmode="decimal" class="input" id="mivRedAmountInput" step="any" min="0.01" autocomplete="off">
+                </div>
+
+                <div class="form-row" id="mivRedAccountGroup">
+                    <label class="form-label" for="mivRedAccountSelect">Creditar na conta BankAO</label>
+                    <select class="input" id="mivRedAccountSelect"></select>
+                </div>
+
+                <p class="inv-form-error" id="mivRedError" role="alert" hidden></p>
+            </div>
+
+            <div class="confirm-modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="invClose('modalInvestRedeem')">Cancelar</button>
+                <button type="submit" class="btn btn-primary" id="mivRedSubmitBtn">
+                    <span>Resgatar</span><svg><use href="#i-check"/></svg>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

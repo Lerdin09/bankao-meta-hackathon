@@ -10,17 +10,77 @@ function initShell() {
     // Páginas abertas a partir de outra: o menu continua a marcar a página de origem
     const PARENT_VIEW = { "view-card-chart": "view-home" };
 
+    // ---------- Copilot no telemóvel/tablet: página sobreposta que se fecha no X ----------
+    let copilotHistoryPushed = false;
+
+    // Acompanha a área realmente visível (o teclado encolhe-a) para o campo de escrita nunca ficar tapado
+    function syncCopilotViewport() {
+        const vv = window.visualViewport;
+        const root = document.documentElement.style;
+        if (!vv || !document.body.classList.contains("copilot-open")) return;
+        root.setProperty("--vvh", Math.round(vv.height) + "px");
+        root.setProperty("--vv-top", Math.round(vv.offsetTop) + "px");
+        const kbd = window.innerHeight - vv.height > 120;
+        document.body.classList.toggle("copilot-kbd", kbd);
+        const box = document.getElementById("copilotChatMessages");
+        if (box) box.scrollTop = box.scrollHeight;
+    }
+
+    function openCopilot() {
+        const v = document.getElementById("view-copilot");
+        if (!v || document.body.classList.contains("copilot-open")) return;
+        if (window.closeMobileMenu) window.closeMobileMenu();
+        document.body.classList.add("copilot-open");
+        v.classList.add("active");
+        syncCopilotViewport();
+        const box = document.getElementById("copilotChatMessages");
+        if (box) box.scrollTop = box.scrollHeight;
+        try { history.pushState({ copilot: true }, ""); copilotHistoryPushed = true; } catch (_) { /* ignorar */ }
+    }
+
+    function closeCopilot(fromPopState) {
+        if (!document.body.classList.contains("copilot-open")) return;
+        const v = document.getElementById("view-copilot");
+        if (v) {
+            v.classList.remove("active");
+            if (v.contains(document.activeElement)) document.activeElement.blur();   // fecha o teclado
+        }
+        document.body.classList.remove("copilot-open", "copilot-kbd");
+        document.documentElement.style.removeProperty("--vvh");
+        document.documentElement.style.removeProperty("--vv-top");
+        if (!fromPopState && copilotHistoryPushed && history.state && history.state.copilot) {
+            try { history.back(); } catch (_) { /* ignorar */ }
+        }
+        copilotHistoryPushed = false;
+    }
+    window.openCopilot = openCopilot;
+    window.closeCopilot = closeCopilot;
+
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", syncCopilotViewport);
+        window.visualViewport.addEventListener("scroll", syncCopilotViewport);
+    }
+    window.addEventListener("popstate", () => closeCopilot(true));      // botão "voltar" do telemóvel
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeCopilot(); });
+    wide.addEventListener("change", () => { if (wide.matches) closeCopilot(); });
+
     function showView(id) {
-        // No ecrã largo (desktop >= 1024px) o Copilot está sempre visível na parede direita
-        if (id === "view-copilot" && wide.matches) {
-            const input = document.getElementById("copilotUserInput");
-            if (input) input.focus();
-            const box = document.getElementById("copilotChatMessages");
-            if (box) box.scrollTop = box.scrollHeight;
+        if (id === "view-copilot") {
+            if (wide.matches) {
+                // No ecrã largo (desktop >= 1024px) o Copilot está sempre visível na parede direita
+                const input = document.getElementById("copilotUserInput");
+                if (input) input.focus();
+                const box = document.getElementById("copilotChatMessages");
+                if (box) box.scrollTop = box.scrollHeight;
+            } else {
+                openCopilot();   // por cima da página atual, sem a trocar
+            }
             return;
         }
+        // Ir para outra página fecha o Copilot sobreposto
+        closeCopilot();
         document.querySelectorAll(".view").forEach(v => {
-            if (v.id === "view-copilot" && wide.matches) return;
+            if (v.id === "view-copilot") return;
             v.classList.toggle("active", v.id === id);
         });
         const navId = PARENT_VIEW[id] || id;
@@ -37,13 +97,11 @@ function initShell() {
         if (id === "view-expenses") renderExpensesView();
         if (id === "view-savings") renderSavingsView();
         if (id === "view-card-chart") renderCardChart();
+        if (id === "view-investments") loadInvestmentsData();
+        if (id === "view-cards") loadCardsData();
         if (id === "view-statement") {
             initStatementDateRange();
             refreshStatement();
-        }
-        if (id === "view-copilot") {
-            const box = document.getElementById("copilotChatMessages");
-            box.scrollTop = box.scrollHeight;
         }
     }
 
@@ -148,6 +206,7 @@ function initShell() {
             state.prefCurrency = curr;
             localStorage.setItem("bankao_pref_currency", curr);
             updateDashboardHero();
+            if (typeof renderHomeTrend === "function") renderHomeTrend();
         });
     });
 

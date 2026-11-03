@@ -4,18 +4,9 @@
  */
 
 const API_BASE = "";
-// Tabelas de Taxas de Câmbio & Informação por País
-const FX_RATES = {
-    "USD_AOA": 1000.0,
-    "AOA_USD": 0.001,
-    "EUR_AOA": 1050.0,
-    "AOA_EUR": 0.000952,
-    "EUR_USD": 1.08,
-    "USD_EUR": 0.925,
-    "USD_USD": 1.0,
-    "AOA_AOA": 1.0,
-    "EUR_EUR": 1.0
-};
+// Taxas de câmbio: preenchidas a partir da base de dados (GET /api/fx/rates) por loadFxRates()
+const FX_RATES = {};
+// Informação por país (dados de referência da interface)
 const COUNTRY_INFO = {
     "AO": { name: "Angola", currency: "AOA", currLabel: "KZ", flag: "🇦🇴" },
     "PT": { name: "Portugal", currency: "EUR", currLabel: "EUR", flag: "🇵🇹" },

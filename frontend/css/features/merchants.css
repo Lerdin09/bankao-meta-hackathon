@@ -1,0 +1,79 @@
+/* ==========================================================================
+   Gráficos da conta — 4. Gastos por comerciante (barras horizontais)
+   Reaproveita .cc-card, .bc-stats, .cc-chip, .cs-facts e .cs-op.
+   Mobile primeiro; as linhas e o detalhe adaptam-se à largura do painel.
+   ========================================================================== */
+#bcPanelMerchants {
+    --mc-a: #818CF8;
+    --mc-b: #38BDF8;
+}
+
+.mc-bar { margin-bottom: 10px; }
+.mc-group { display: flex; gap: 8px; }
+#mcPeriods { margin-bottom: 14px; }
+
+/* ---------- Resumo ---------- */
+.mc-stat-name { font-size: clamp(.95rem, 4vw, 1.2rem); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#mcStats .bc-stat--start { --c: var(--mc-a); }
+#mcStats .bc-stat--now { --c: var(--cc-sky); }
+.mc-stat--top3 { --c: #FBBF24; }
+
+/* ---------- Filtro do tipo de destino ---------- */
+.mc-filters { display: inline-flex; gap: 4px; margin: 4px 0 16px; padding: 4px; border-radius: 999px; background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .07); max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.mc-filters::-webkit-scrollbar { display: none; }
+.mc-kind {
+    flex: none; min-height: 34px; padding: 0 14px;
+    font: inherit; font-size: .78rem; font-weight: 700; color: #A5B4CF;
+    background: transparent; border: 0; border-radius: 999px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: color .2s ease, background-color .2s ease;
+}
+.mc-kind:focus-visible { outline: 2px solid #38BDF8; outline-offset: 1px; }
+.mc-kind.active { color: #fff; background: linear-gradient(135deg, #4F46E5, #6366F1 60%, #38BDF8); }
+@media (hover: hover) { .mc-kind:not(.active):hover { color: #fff; } }
+
+/* ---------- Barras horizontais ---------- */
+.mc-chart { display: flex; flex-direction: column; gap: 4px; min-height: 120px; }
+.mc-row {
+    display: grid; grid-template-columns: 28px minmax(0, 1fr); align-items: start; gap: 12px;
+    width: 100%; padding: 10px 8px; margin: 0 -8px; box-sizing: content-box;
+    font: inherit; text-align: left; color: inherit;
+    background: transparent; border: 1px solid transparent; border-radius: 16px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color .2s ease, border-color .2s ease, transform .15s ease;
+}
+.mc-row:active { transform: scale(.985); }
+.mc-row:focus-visible { outline: 2px solid #38BDF8; outline-offset: 0; }
+.mc-row.on { background: rgba(99, 102, 241, .12); border-color: rgba(129, 140, 248, .4); }
+@media (hover: hover) { .mc-row:not(.on):hover { background: rgba(255, 255, 255, .04); } }
+.mc-rank {
+    width: 28px; height: 28px; display: grid; place-items: center; margin-top: 1px;
+    border-radius: 9px; font-size: .74rem; font-weight: 800; color: #C7D2FE; background: rgba(99, 102, 241, .16);
+}
+.mc-row.first .mc-rank { color: #1F1500; background: linear-gradient(135deg, #FDE68A, #F59E0B); }
+.mc-body { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.mc-line { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; min-width: 0; }
+.mc-name { min-width: 0; font-size: .9rem; font-weight: 700; color: #F1F5F9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mc-val { flex: none; font-size: .9rem; font-weight: 800; color: #F8FAFC; white-space: nowrap; }
+.mc-track { display: block; height: 12px; border-radius: 999px; background: rgba(255, 255, 255, .06); overflow: hidden; }
+.mc-fill {
+    display: block; height: 100%; width: var(--w, 0%); border-radius: 999px;
+    background: linear-gradient(90deg, #4F46E5, var(--mc-a) 60%, var(--mc-b));
+    transform-origin: left center;
+}
+.mc-row.first .mc-fill { background: linear-gradient(90deg, #D97706, #FBBF24 70%, #FDE68A); }
+.mc-chart:not(.no-anim) .mc-fill { transform: scaleX(0); animation: mcGrow .75s var(--d, 0ms) cubic-bezier(.3, .8, .25, 1) forwards; }
+@keyframes mcGrow { to { transform: scaleX(1); } }
+.mc-meta { font-size: .72rem; font-weight: 600; color: #7C8AA5; }
+#mcMore { margin-top: 12px; }
+
+/* ---------- Detalhe ---------- */
+.mc-detail { margin-bottom: 14px; }
+.mc-detail .fl-detail-head strong { word-break: break-word; }
+.mc-ops { margin-top: 14px; }
+.mc-more-note { padding: 12px; font-size: .78rem; }
+
+@media (prefers-reduced-motion: reduce) {
+    .mc-chart:not(.no-anim) .mc-fill { animation: none; transform: none; }
+    .mc-row, .mc-kind { transition: none; }
+}

@@ -1,0 +1,101 @@
+/* ==========================================================================
+   Gráficos da conta — 5. Fluxo entre contas (diagrama de Sankey)
+   Reaproveita .cc-card, .bc-stats, .cc-chip, .cs-facts, .cs-op e o seletor de moeda do gráfico 4 (.mc-group).
+   O SVG é desenhado por JS à largura do painel; mobile primeiro.
+   ========================================================================== */
+#bcPanelAccounts {
+    --af-fee: #F472B6;
+    --af-fx: #22D3EE;
+}
+
+#afPeriods { margin-bottom: 14px; }
+.af-stat--fee { --c: var(--af-fee); }
+
+/* ---------- Diagrama ---------- */
+.af-chart { min-height: 320px; }
+.af-svg { overflow: visible; touch-action: none; }
+
+.af-link {
+    fill-opacity: .36;
+    stroke: transparent; stroke-width: 6; paint-order: stroke;
+    cursor: pointer; outline: none;
+    transition: fill-opacity .2s ease;
+}
+.af-link.fx { stroke-dasharray: 5 4; }
+.af-svg.has-sel .af-link { fill-opacity: .07; }
+.af-svg .af-link.on, .af-svg.has-sel .af-link.on { fill-opacity: .72; }
+@media (hover: hover) { .af-svg:not(.has-sel) .af-link:hover { fill-opacity: .62; } }
+.af-link:focus-visible { stroke: #38BDF8; stroke-opacity: .9; stroke-width: 2; stroke-dasharray: none; }
+
+.af-node { cursor: pointer; outline: none; }
+.af-node-hit { fill: transparent; }
+.af-bar { transition: opacity .2s ease, filter .2s ease; }
+.af-svg.has-sel .af-node:not(.on) .af-bar { opacity: .35; }
+.af-lbl.dim { opacity: .4; }
+.af-node.sel .af-bar { filter: drop-shadow(0 0 7px currentColor) brightness(1.15); stroke: #fff; stroke-width: 1.5; }
+.af-node:focus-visible .af-bar { stroke: #38BDF8; stroke-width: 2; }
+@media (hover: hover) { .af-node:hover .af-bar { filter: brightness(1.2); } }
+
+.af-lbl { font-family: inherit; pointer-events: none; transition: opacity .2s ease; }
+.af-nm { font-size: 11.5px; font-weight: 700; fill: #E2E8F0; }
+.af-vl { font-size: 10.5px; font-weight: 600; fill: #7C8AA5; }
+.af-lbl--acc .af-nm { font-size: 12px; fill: #F8FAFC; }
+.af-lbl--acc { paint-order: stroke; stroke: #0B1224; stroke-width: 4px; stroke-linejoin: round; }
+@media (max-width: 519px) { .af-nm { font-size: 10.5px; } .af-vl { font-size: 9.5px; } .af-lbl--acc .af-nm { font-size: 11px; } }
+
+/* Entrada suave: faixas e blocos aparecem em sequência (só quando o gráfico anima) */
+.af-chart:not(.no-anim) .af-link { opacity: 0; animation: afFade .6s var(--d, 0ms) ease forwards; }
+.af-chart:not(.no-anim) .af-bar { transform-box: fill-box; transform-origin: center; animation: afPop .5s ease both; }
+@keyframes afFade { to { opacity: 1; } }
+@keyframes afPop { from { transform: scaleY(.2); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.af-tip { min-width: 150px; max-width: 240px; }
+.af-tip b { white-space: normal; }
+
+.af-note { margin: 8px 2px 0; font-size: .72rem; font-weight: 600; color: #FBBF24; text-align: center; }
+.af-note[hidden] { display: none; }
+
+/* ---------- Legenda ---------- */
+.af-leg--src i { background: linear-gradient(90deg, #34D399, #2DD4BF); }
+.af-leg--acc i { background: linear-gradient(90deg, #E6B85C, #818CF8); }
+.af-leg--dst i { background: linear-gradient(90deg, #F87171, #FBBF24); }
+.af-leg--fx i { height: 0; background: none; border-top: 2px dashed var(--af-fx); border-radius: 0; }
+
+/* ---------- Detalhe ---------- */
+.af-detail { margin-bottom: 14px; }
+.af-detail .fl-detail-head strong { word-break: break-word; }
+.af-h { margin: 16px 0 6px; font-size: .7rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #94A3B8; }
+.af-ops { margin-top: 4px; }
+.af-more-note { padding: 12px; font-size: .78rem; }
+
+.af-conn {
+    display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; align-items: center; gap: 12px;
+    width: 100%; padding: 9px 8px; margin: 0; box-sizing: border-box;
+    font: inherit; text-align: left; color: inherit;
+    background: transparent; border: 1px solid transparent; border-radius: 14px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color .2s ease, border-color .2s ease, transform .15s ease;
+}
+.af-conn:active { transform: scale(.985); }
+.af-conn:focus-visible { outline: 2px solid #38BDF8; outline-offset: 0; }
+@media (hover: hover) { .af-conn:hover { background: rgba(255, 255, 255, .04); border-color: rgba(255, 255, 255, .08); } }
+.af-conn-dot { width: 10px; height: 10px; border-radius: 3px; background: var(--c, #94A3B8); }
+.af-conn-main { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.af-conn-main b { font-size: .86rem; font-weight: 700; color: #F1F5F9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.af-conn-bar { display: block; height: 6px; border-radius: 999px; background: rgba(255, 255, 255, .06); overflow: hidden; }
+.af-conn-bar i { display: block; height: 100%; width: var(--w, 0%); border-radius: 999px; background: var(--c, #94A3B8); opacity: .85; }
+.af-conn-val { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.af-conn-val strong { font-size: .86rem; font-weight: 800; color: #F8FAFC; white-space: nowrap; }
+.af-conn-val small { font-size: .7rem; font-weight: 700; color: #7C8AA5; }
+.af-fxtag { margin-left: 6px; padding: 1px 7px; font-size: .62rem; font-style: normal; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #67E8F9; background: rgba(34, 211, 238, .12); border: 1px solid rgba(34, 211, 238, .3); border-radius: 999px; vertical-align: 1px; }
+.af-fx { font-size: .7rem; font-weight: 700; color: #67E8F9; white-space: nowrap; }
+
+@media (min-width: 900px) {
+    .af-conns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 28px; }
+    .af-conns .af-h { grid-column: 1 / -1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .af-chart:not(.no-anim) .af-link, .af-chart:not(.no-anim) .af-bar { animation: none; opacity: 1; transform: none; }
+    .af-link, .af-bar, .af-lbl, .af-conn { transition: none; }
+}

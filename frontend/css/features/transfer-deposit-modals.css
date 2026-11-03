@@ -1,0 +1,91 @@
+/* ==========================================================================
+   Modais de transferência e depósito — polimento mobile + desktop
+   (importado por último: só refina, não substitui os ficheiros base)
+   ========================================================================== */
+
+/* Desktop: modais centrados em vez de colados ao fundo */
+@media (min-width: 640px) {
+    .modal-overlay { align-items: center; padding: 24px 16px; }
+    .phone-simulator { border-radius: 44px; border-bottom: 2px solid #2A3348; margin: auto; }
+    .phone-screen { border-radius: 34px; }
+}
+
+/* Cartão: coluna flex, só o corpo faz scroll, rodapé sempre visível */
+.confirm-transfer-modal:not(.form-modal) {
+    display: flex; flex-direction: column;
+    max-height: calc(100dvh - 32px);
+}
+.confirm-transfer-modal:not(.form-modal) .confirm-modal-header,
+.confirm-transfer-modal:not(.form-modal) .confirm-modal-actions { flex-shrink: 0; }
+.confirm-transfer-modal:not(.form-modal) .confirm-modal-body {
+    flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+.confirm-modal-header { padding-right: 64px; }
+.confirm-header-text, .confirm-beneficiary-info, .confirm-val-stack { min-width: 0; }
+.confirm-row { gap: 16px; }
+.confirm-row .c-label { flex: 1 1 auto; }
+.confirm-val-stack { flex: 0 1 auto; overflow-wrap: anywhere; }
+.confirm-dest-id { overflow-wrap: anywhere; }
+.confirm-close-btn { width: 36px; height: 36px; }
+.confirm-close-btn:focus-visible, .chip-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.confirm-transfer-modal.is-busy .confirm-close-btn,
+.confirm-transfer-modal.is-busy #btnCancelTransferConfirm { opacity: .4; pointer-events: none; }
+.confirm-modal-actions .btn-primary { flex-grow: 1.4; }
+.confirm-modal-actions .btn { white-space: nowrap; }
+
+/* Depósito: erro inline, opções extra recolhidas, botão desactivado legível */
+.dep-error { margin: 8px 2px 0; font-size: .8rem; font-weight: 600; color: #F87171; }
+.dep-error[hidden] { display: none; }
+.form-modal .input[aria-invalid="true"] { border-color: #F87171; box-shadow: 0 0 0 4px rgba(248, 113, 113, .15); }
+.dep-more { border: 1px solid var(--line); border-radius: 14px; background: rgba(15, 23, 42, .45); }
+.dep-more > summary {
+    list-style: none; cursor: pointer; padding: 14px 16px; min-height: 48px;
+    font-size: .84rem; font-weight: 700; color: var(--text-2);
+    display: flex; align-items: center; justify-content: space-between;
+}
+.dep-more > summary::-webkit-details-marker { display: none; }
+.dep-more > summary::after { content: "+"; font-size: 1.2rem; color: var(--gold); line-height: 1; }
+.dep-more[open] > summary::after { content: "–"; }
+.dep-more > .form-grid-2 { padding: 0 16px 16px; }
+.btn-primary:disabled { filter: grayscale(.4); box-shadow: none; transform: none; cursor: not-allowed; }
+.form-modal .confirm-modal-actions .btn-primary:disabled { cursor: not-allowed; }
+.dep-acc-meta strong, .dep-acc-meta span { overflow-wrap: anywhere; }
+.dep-acc-balance-badge { min-width: 0; }
+
+/* Mobile: bottom sheet com pega, botões grandes, tela sem sobreposições */
+@media (max-width: 639px) {
+    .confirm-transfer-modal:not(.form-modal) {
+        width: 100%; max-height: 92dvh; margin: auto 0 0;
+        border-radius: 26px 26px 0 0; border-bottom: 0;
+    }
+    .confirm-transfer-modal:not(.form-modal)::before {
+        content: ""; position: absolute; top: 8px; left: 50%; z-index: 2;
+        width: 40px; height: 4px; margin-left: -20px; border-radius: 99px; background: rgba(255, 255, 255, .22);
+    }
+    .confirm-transfer-modal:not(.form-modal) .confirm-modal-header { padding: 26px 60px 14px 18px; gap: 12px; }
+    .confirm-transfer-modal:not(.form-modal) .confirm-close-btn { top: 18px; right: 12px; width: 40px; height: 40px; }
+    .confirm-transfer-modal:not(.form-modal) .confirm-modal-body { padding: 16px 18px; gap: 14px; }
+    .confirm-transfer-modal:not(.form-modal) .confirm-modal-actions {
+        padding: 12px 18px calc(14px + var(--safe-b, 0px)); gap: 10px;
+        box-shadow: 0 -12px 24px -12px rgba(0, 0, 0, .6);
+    }
+    .confirm-transfer-modal:not(.form-modal) .confirm-modal-actions .btn { min-height: 52px; border-radius: 14px; }
+    .confirm-val-stack .c-val.total-arrive.primary { font-size: 1.2rem; }
+    .phone-simulator { max-height: 100dvh; overflow-y: auto; }
+}
+
+/* Ecrãs baixos (teclado aberto / paisagem): cabeçalho mais compacto */
+@media (max-height: 560px) {
+    .confirm-subtitle { display: none; }
+    .confirm-modal-header { padding-top: 14px; padding-bottom: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .confirm-transfer-modal, .receipt-modal, .phone-simulator { animation: none; }
+}
+
+/* O atributo hidden tem de ganhar às regras de display dos formulários em modal */
+.form-modal [hidden], .dep-hint[hidden] { display: none !important; }
+.form-modal select.input { appearance: none; -webkit-appearance: none; padding-right: 36px;
+    background-image: linear-gradient(45deg, transparent 50%, var(--text-2) 50%), linear-gradient(135deg, var(--text-2) 50%, transparent 50%);
+    background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%; background-size: 5px 5px; background-repeat: no-repeat; }

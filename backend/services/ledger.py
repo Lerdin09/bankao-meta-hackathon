@@ -204,3 +204,96 @@ def credit_deposit(
             "amount_minor": amount_minor,
             "currency": currency
         }
+
+
+def post_savings_movement(
+    conn: sqlite3.Connection,
+    account_id: str,
+    amount_minor: int,
+    idempotency_key: str,
+    description: str,
+    tx_type: str = "savings_deposit",
+) -> Dict[str, Any]:
+    """
+    Movimento de poupança numa ligação já aberta (faz parte da transação do chamador).
+    amount_minor < 0 debita a conta (depósito na meta); > 0 credita (resgate ao apagar a meta).
+    Idempotente: a mesma chave nunca debita duas vezes.
+    """
+    if amount_minor == 0:
+        raise ValueError("O montante deve ser diferente de zero.")
+    existing = conn.execute(
+        "SELECT id FROM transactions WHERE idempotency_key = ?", (idempotency_key,)
+    ).fetchone()
+    if existing:
+        return {"transaction_id": existing["id"], "idempotent": True}
+
+    acc = conn.execute("SELECT id, currency, status FROM accounts WHERE id = ?", (account_id,)).fetchone()
+    if not acc:
+        raise AccountNotFoundError("Conta não encontrada.")
+    if acc["status"] != "active":
+        raise ValueError("A conta está inativa ou bloqueada.")
+
+    if amount_minor < 0:
+        balance = get_account_balance(account_id, conn)
+        if balance < -amount_minor:
+            raise InsufficientFundsError(
+                f"Saldo insuficiente ({balance / 100:,.2f} {acc['currency']} disponível)."
+            )
+
+    tx_id = str(uuid.uuid4())
+    conn.execute(
+        "INSERT INTO transactions (id, type, status, idempotency_key, description) VALUES (?, ?, 'completed', ?, ?)",
+        (tx_id, tx_type, idempotency_key, description),
+    )
+    conn.execute(
+        "INSERT INTO ledger_entries (transaction_id, account_id, amount_minor, currency) VALUES (?, ?, ?, ?)",
+        (tx_id, account_id, amount_minor, acc["currency"]),
+    )
+    return {"transaction_id": tx_id, "idempotent": False, "currency": acc["currency"]}
+
+
+def post_investment_movement(
+    conn: sqlite3.Connection,
+    account_id: str,
+    amount_minor: int,
+    idempotency_key: str,
+    description: str,
+    tx_type: str = "investment_apply",
+) -> Dict[str, Any]:
+    """
+    Movimento de investimento no livro-razão:
+    amount_minor < 0 debita a conta para subscrição/reforço.
+    amount_minor > 0 credita a conta ao resgatar ou receber dividendos/juros.
+    """
+    if amount_minor == 0:
+        raise ValueError("O montante deve ser diferente de zero.")
+    existing = conn.execute(
+        "SELECT id FROM transactions WHERE idempotency_key = ?", (idempotency_key,)
+    ).fetchone()
+    if existing:
+        return {"transaction_id": existing["id"], "idempotent": True}
+
+    acc = conn.execute("SELECT id, currency, status FROM accounts WHERE id = ?", (account_id,)).fetchone()
+    if not acc:
+        raise AccountNotFoundError("Conta não encontrada.")
+    if acc["status"] != "active":
+        raise ValueError("A conta está inativa ou bloqueada.")
+
+    if amount_minor < 0:
+        balance = get_account_balance(account_id, conn)
+        if balance < -amount_minor:
+            raise InsufficientFundsError(
+                f"Saldo insuficiente ({balance / 100:,.2f} {acc['currency']} disponível)."
+            )
+
+    tx_id = str(uuid.uuid4())
+    conn.execute(
+        "INSERT INTO transactions (id, type, status, idempotency_key, description) VALUES (?, ?, 'completed', ?, ?)",
+        (tx_id, tx_type, idempotency_key, description),
+    )
+    conn.execute(
+        "INSERT INTO ledger_entries (transaction_id, account_id, amount_minor, currency) VALUES (?, ?, ?, ?)",
+        (tx_id, account_id, amount_minor, acc["currency"]),
+    )
+    return {"transaction_id": tx_id, "idempotent": False, "currency": acc["currency"]}
+

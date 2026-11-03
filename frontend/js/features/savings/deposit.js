@@ -4,6 +4,33 @@
  */
 
 // ============ DEPÓSITO MANUAL NUMA META (fora da contribuição automática) ============
+let depSubmitting = false;
+let depIdemKey = "";
+// Validação em tempo real: botão só activo com valor válido e dentro do saldo
+function validateDeposit(silent) {
+    const input = document.getElementById("depAmount");
+    const btn = document.getElementById("btnDepSubmit");
+    const err = document.getElementById("depError");
+    if (!input || !btn) return false;
+    const amount = parseCleanNumber(input.value || "0");
+    const balance = Number(state.accountAoa && state.accountAoa.balance_decimal);
+    let msg = "";
+    if (amount > 0 && Number.isFinite(balance) && amount > balance) {
+        msg = `Saldo insuficiente. Disponível: ${formatTwoTierMoney(balance, "AOA")}.`;
+    }
+    const ok = amount > 0 && !msg;
+    btn.disabled = !ok || depSubmitting;
+    input.setAttribute("aria-invalid", msg ? "true" : "false");
+    if (err) { err.textContent = silent ? "" : msg; err.hidden = silent || !msg; }
+    return ok;
+}
+document.addEventListener("input", e => { if (e.target && e.target.id === "depAmount") validateDeposit(); });
+document.addEventListener("keydown", e => {
+    if (e.key !== "Escape") return;
+    const m = document.getElementById("modalDepositGoal");
+    if (m && m.style.display === "flex" && !depSubmitting) closeDepositGoalModal();
+});
+
 window.openDepositGoalModal = function(id) {
     const g = getSavingsGoals().find(x => x.id === id);
     if (!g) return toast("Meta não encontrada.", "error");
@@ -34,15 +61,12 @@ window.openDepositGoalModal = function(id) {
         remaining > 0 ? formatTwoTierMoney(remaining, "AOA") : "Meta atingida";
     document.getElementById("depAmount").value = "";
     document.getElementById("depNotes").value = "";
-    document.getElementById("depDate").value = new Date().toISOString().split("T")[0];
+    document.getElementById("depDate").value = localISODate(0);
 
     // Atualiza o saldo disponível da conta principal de débito
     const balEl = document.getElementById("depSourceAccountBalance");
     if (balEl) {
-        const aoaBal = (window.APP_STATE && window.APP_STATE.accounts && window.APP_STATE.accounts.aoa)
-            ? window.APP_STATE.accounts.aoa.balance
-            : 1250000;
-        balEl.textContent = formatTwoTierMoney(aoaBal, "AOA");
+        balEl.textContent = formatTwoTierMoney(state.accountAoa ? state.accountAoa.balance_decimal : 0, "AOA");
     }
 
     const restBtn = document.getElementById("depFillRemaining");
@@ -56,8 +80,12 @@ window.openDepositGoalModal = function(id) {
         restChip.style.display = remaining > 0 ? "" : "none";
     }
 
+    m.querySelector(".dep-more")?.removeAttribute("open");
+    depSubmitting = false;
+    depIdemKey = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    validateDeposit(true);
     m.style.display = "flex";
-    setTimeout(() => document.getElementById("depAmount")?.focus(), 50);
+    setTimeout(() => document.getElementById("depAmount")?.focus({ preventScroll: true }), 50);
 };
 window.closeDepositGoalModal = function() {
     const m = document.getElementById("modalDepositGoal");
@@ -66,61 +94,61 @@ window.closeDepositGoalModal = function() {
 window.fillDepositRemaining = function() {
     const btn = document.getElementById("depFillRemaining") || document.getElementById("depFillRemainingChip");
     const v = Number(btn && btn.dataset.value) || 0;
-    if (v > 0) document.getElementById("depAmount").value = formatNumberWithDots(v);
+    if (v > 0) { document.getElementById("depAmount").value = formatNumberWithDots(v); validateDeposit(); }
 };
 window.setDepositQuickAmount = function(val) {
     const input = document.getElementById("depAmount");
     if (input) {
         const current = parseCleanNumber(input.value || "0");
         input.value = formatNumberWithDots(current + val);
+        validateDeposit();
     }
 };
 window.setDepositDateToday = function() {
     const el = document.getElementById("depDate");
-    if (el) el.value = new Date().toISOString().split("T")[0];
+    if (el) el.value = localISODate(0);
 };
-window.handleDepositGoal = function(e) {
+window.handleDepositGoal = async function(e) {
     e.preventDefault();
+    if (depSubmitting || !validateDeposit()) { validateDeposit(); return; }
     const id = document.getElementById("depGoalId")?.value;
     const amount = parseCleanNumber(document.getElementById("depAmount")?.value || "0");
-    const date = document.getElementById("depDate")?.value || new Date().toISOString().split("T")[0];
+    const date = document.getElementById("depDate")?.value || localISODate(0);
     const notes = document.getElementById("depNotes")?.value.trim() || "";
 
     if (!(amount > 0)) {
         return toast("Indique um valor de depósito válido.", "error");
     }
-
-    const goals = getSavingsGoals();
-    const idx = goals.findIndex(x => x.id === id);
+    const idx = financeStore.goals.findIndex(x => x.id === id);
     if (idx === -1) return toast("Meta não encontrada.", "error");
-    const goal = goals[idx];
 
-    // 1) Atualiza o valor poupado da meta
-    goal.saved = (Number(goal.saved) || 0) + amount;
-    if (goal.saved >= (Number(goal.target) || 0)) goal.status = "on-track";
-    goals[idx] = goal;
-    saveSavingsGoals(goals);
-
-    // 2) Regista o depósito nas despesas (categoria Poupança)
-    const expenses = getExpenses();
-    expenses.unshift({
-        id: "exp_sav_" + Date.now(),
-        name: `Depósito na poupança: ${goal.name}`,
-        category: "Poupança",
-        amount,
-        currency: "AOA",
-        date,
-        origin: "savings",
-        goalId: goal.id,
-        notes: notes || "Depósito manual (fora da contribuição automática)"
-    });
-    saveExpenses(expenses);
+    // A base de dados soma o valor à meta e regista a despesa (categoria Poupança) numa só operação
+    let result;
+    depSubmitting = true;
+    const submitBtn = document.getElementById("btnDepSubmit");
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.querySelector("span").textContent = "A depositar..."; }
+    try {
+        result = await apiRequest("POST", `/api/savings/goals/${encodeURIComponent(id)}/deposit`, { amount, date, notes, idempotency_key: depIdemKey });
+    } catch (err) {
+        depSubmitting = false;
+        if (submitBtn) submitBtn.querySelector("span").textContent = "Depositar";
+        validateDeposit();
+        return toast(err.message, "error");
+    }
+    depSubmitting = false;
+    if (submitBtn) submitBtn.querySelector("span").textContent = "Depositar";
+    const goal = result.goal;
+    financeStore.goals[idx] = goal;
+    financeStore.expenses.unshift(result.expense);
+    if (state.accountAoa && typeof result.balance === "number") state.accountAoa.balance_decimal = result.balance;
 
     closeDepositGoalModal();
     document.getElementById("formDepositGoal")?.reset();
     renderSavingsView();
     renderExpensesView();
     if (typeof updateDashboardHero === "function") updateDashboardHero();
+    refreshHomeFinance();
+    loadUserData();   // saldo da conta e extrato (sem esperar)
 
     const done = goal.saved >= (Number(goal.target) || 0);
     toast(done
