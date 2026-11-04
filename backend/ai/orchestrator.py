@@ -32,6 +32,7 @@ from backend.ai.copilot_v2 import (
 )
 from backend.ai.intents import analyze_message, normalize_spoken_text
 from backend.ai.intents import _parse_slots
+from backend.ai.expense_flow import KIND as EXPENSE_DELETE_KIND, apply_direct_registration, handle_expense_delete
 from backend.ai.tools.registry import execute_tool
 from backend.core.config import settings
 
@@ -62,19 +63,16 @@ class CopilotOrchestrator:
             """Aplica regras transversais a todos os responses antes de os devolver."""
             if result is None:
                 return result
+            # Despesas registam-se logo (sem formulário nem confirmação): ver backend/ai/expense_flow.py
+            result = apply_direct_registration(user_id, result)
             action = result.get("action")
             if action and isinstance(action, dict):
                 tx_type = action.get("type", "")
-                if tx_type in ("TRANSFER_INTERNAL", "TRANSFER_IBAN", "DEPOSIT_EXPRESS"):
+                if tx_type in ("TRANSFER_INTERNAL", "TRANSFER_IBAN", "DEPOSIT_EXPRESS", "INVESTMENT_APPLY"):
                     # Transferências nunca são executadas sem confirmação explícita do cliente
                     action["requires_confirmation"] = True
                     action["executed"] = False
                     result["requires_confirmation"] = True
-            elif not action:
-                reply_txt = (result.get("reply") or "").lower()
-                # Sempre que o Copilot responder sobre investimentos no final, abre o painel de investimentos (igual às poupanças)
-                if any(w in reply_txt for w in ["investimento", "investimentos", "bodiva", "depósito a prazo", "aplicar capital"]):
-                    result["action"] = {"type": "OPEN_INVESTMENTS", "title": "Painel de Investimentos", "category": "investments"}
             return result
 
         # 1. Memorizar de imediato declarações do utilizador (salário, metas, aspirações)
@@ -100,6 +98,51 @@ class CopilotOrchestrator:
                     logger.error("Falha do agente (tentativa %s): %s", attempt, e, exc_info=True)
 
         return _finalize(cls._cannot_help(model_failed=bool(meta_client)))
+
+    @classmethod
+    def _investment_turn(cls, user_id: str, message: str, pending: Optional[Dict[str, Any]],
+                         session: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Uma volta do fluxo guiado de investimento (None = a mensagem não é deste fluxo)."""
+        from backend.ai.invest_flow import KIND, handle_investment_message
+        eff = pending or session.get("pending_operation")
+        try:
+            res = handle_investment_message(user_id, message, eff)
+        except Exception as e:
+            logger.error("Fluxo de investimento falhou: %s", e, exc_info=True)
+            res = None
+        if res is None:
+            if isinstance(eff, dict) and eff.get("type") == KIND:
+                update_user_session(user_id, {"pending_operation": None})
+            return None
+        update_user_session(user_id, {"pending_operation": res.get("pending"), "active_topic": "investments"})
+        action = res.get("action")
+        return {
+            "reply": res["reply"], "action": action, "pending": res.get("pending"), "chart": None,
+            "tools_used": ["investment_flow"],
+            "requires_confirmation": bool(action and action.get("type") == KIND),
+            "model": settings.MODEL_NAME, "provider": "BankAO Copilot v2",
+        }
+
+    @classmethod
+    def _expense_delete_turn(cls, user_id: str, message: str, pending: Optional[Dict[str, Any]],
+                             session: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Remover uma despesa («remove a despesa do telefone de ontem a 22 mil»). None = não é deste fluxo."""
+        eff = pending or session.get("pending_operation")
+        try:
+            res = handle_expense_delete(user_id, message, eff)
+        except Exception as e:
+            logger.error("Remoção de despesa falhou: %s", e, exc_info=True)
+            res = None
+        if res is None:
+            if isinstance(eff, dict) and eff.get("type") == EXPENSE_DELETE_KIND:
+                update_user_session(user_id, {"pending_operation": None})
+            return None
+        update_user_session(user_id, {"pending_operation": res.get("pending"), "active_topic": "expenses"})
+        return {
+            "reply": res["reply"], "action": res.get("action"), "pending": res.get("pending"), "chart": None,
+            "tools_used": ["expense_delete"], "requires_confirmation": False,
+            "model": settings.MODEL_NAME, "provider": "BankAO Copilot v2",
+        }
 
     @staticmethod
     def _cannot_help(model_failed: bool) -> Dict[str, Any]:
@@ -141,8 +184,20 @@ class CopilotOrchestrator:
                 "tools_used": [], "requires_confirmation": False,
                 "model": settings.MODEL_NAME, "provider": "BankAO Copilot",
             }
+        # Fluxo guiado de investimento: pergunta a pergunta, abre o formulário no fim ou quando o cliente pede
+        inv = cls._investment_turn(user_id, message_clean, pending, session)
+        if inv:
+            return inv
+
+        # Remover uma despesa: só com pedido detalhado (nome + valor e/ou dia); pede o que faltar
+        exp_del = cls._expense_delete_turn(user_id, message_clean, pending, session)
+        if exp_del:
+            return exp_del
+
         # Fluxo pendente (ex: criar poupança guiada passo a passo)
         effective_pending = pending or session.get("pending_operation")
+        if effective_pending and effective_pending.get("type") in ("INVESTMENT_APPLY", EXPENSE_DELETE_KIND):
+            effective_pending = None  # já tratado acima; o analisador antigo não conhece estes fluxos
         if effective_pending:
             parsed = analyze_message(message_clean, effective_pending)
             if parsed.get("reply"):
@@ -216,7 +271,7 @@ class CopilotOrchestrator:
             if any(k in m_lower for k in ["invest", "bodiva", "etf", "rendimento"]):
                 return {
                     "reply": build_personalized_investment_recommendation(user_id),
-                    "action": {"type": "OPEN_INVESTMENTS", "title": "Painel de Investimentos", "category": "investments"},
+                    "action": None,
                     "pending": None, "chart": None,
                     "tools_used": ["personalized_investment_advisor"],
                     "requires_confirmation": False,
@@ -1853,7 +1908,7 @@ class CopilotOrchestrator:
 
             return {
                 "reply": reply,
-                "action": {"type": "OPEN_INVESTMENTS", "title": "Painel de Investimentos", "category": "investments"},
+                "action": None,
                 "pending": None, "chart": None,
                 "tools_used": tools,
                 "requires_confirmation": False,

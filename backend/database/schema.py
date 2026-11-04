@@ -196,7 +196,13 @@ def init_db():
             ("doc_numero", "TEXT"),
             ("morada", "TEXT"),
             ("data_emissao", "TEXT"),
-            ("terms_accepted", "INTEGER DEFAULT 1")
+            ("terms_accepted", "INTEGER DEFAULT 1"),
+            ("data_nascimento", "TEXT"),
+            ("nacionalidade", "TEXT"),
+            ("profissao", "TEXT"),
+            ("rendimento_mensal", "TEXT"),
+            ("finalidade", "TEXT"),
+            ("pin_hash", "TEXT")
         ]
         for col_nome, col_tipo in novas_colunas:
             try:

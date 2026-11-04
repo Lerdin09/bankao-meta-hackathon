@@ -104,7 +104,7 @@ def test_copilot_gasto_poupanca_de_carro_fica_em_poupanca():
     assert r.status_code == 200
     data = r.json()
     assert data["action"] is not None
-    assert data["action"]["type"] == "REGISTER_EXPENSE"
+    assert data["action"]["type"] == "EXPENSE_REGISTERED"   # despesas registam-se logo, sem formulário
     assert data["action"]["category"] == "Poupança"
     assert data["action"]["amount"] == 10000.0
     assert "Poupança" in data["action"]["name"]

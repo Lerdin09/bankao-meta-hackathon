@@ -46,7 +46,11 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict[str, Any]:
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         user_id: str = payload.get("sub")
+        sid = payload.get("sid")
         if user_id is None:
+            raise credentials_exception
+        from backend.services.user_settings import session_is_revoked
+        if session_is_revoked(sid):
             raise credentials_exception
     except JWTError:
         raise credentials_exception
@@ -62,4 +66,6 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict[str, Any]:
         ).fetchone()
         if user is None:
             raise credentials_exception
-        return dict(user)
+        d = dict(user)
+        d["_sid"] = sid
+        return d

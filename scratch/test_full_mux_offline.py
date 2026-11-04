@@ -1,0 +1,102 @@
+import subprocess, os
+
+chrome = r'C:\Program Files\Google\Chrome\Application\chrome.exe'
+
+html = '''<!DOCTYPE html><html><body><script type="module">
+import { Muxer, ArrayBufferTarget } from 'https://cdn.jsdelivr.net/npm/mp4-muxer@5/+esm';
+
+(async () => {
+    try {
+        const DURATION = 2.0;
+        const SR = 48000;
+        const oc = new OfflineAudioContext(2, SR * DURATION, SR);
+        const osc = oc.createOscillator();
+        osc.frequency.value = 440;
+        osc.connect(oc.destination);
+        osc.start();
+        const ab = await oc.startRendering();
+
+        const target = new ArrayBufferTarget();
+        const muxer = new Muxer({
+            target,
+            video: { codec: 'avc', width: 320, height: 240, frameRate: 30 },
+            audio: { codec: 'aac', sampleRate: SR, numberOfChannels: 2 },
+            fastStart: 'in-memory',
+            firstTimestampBehavior: 'offset'
+        });
+
+        let audioError = null;
+        const aenc = new AudioEncoder({
+            output: (c, m) => {
+                muxer.addAudioChunk(c, m);
+            },
+            error: e => { audioError = e; console.error('AENC_ERR', e); }
+        });
+        aenc.configure({ codec: 'mp4a.40.2', sampleRate: SR, numberOfChannels: 2, bitrate: 192000 });
+
+        const L = ab.getChannelData(0);
+        const R = ab.getChannelData(1);
+        const N = ab.length;
+        const CHUNK_SIZE = 1024 * 16;
+        for (let o = 0; o < N; o += CHUNK_SIZE) {
+            const n = Math.min(CHUNK_SIZE, N - o);
+            const d = new Float32Array(n * 2);
+            d.set(L.subarray(o, o + n), 0);
+            d.set(R.subarray(o, o + n), n);
+            aenc.encode(new AudioData({
+                format: 'f32-planar', sampleRate: SR,
+                numberOfFrames: n, numberOfChannels: 2,
+                timestamp: Math.round(o / SR * 1e6), data: d
+            }));
+        }
+        await aenc.flush();
+        if (audioError) throw audioError;
+
+        const cv = document.createElement('canvas'); cv.width = 320; cv.height = 240;
+        const ctx = cv.getContext('2d');
+        ctx.fillStyle = '#ff0000'; ctx.fillRect(0,0,320,240);
+
+        let videoError = null;
+        const venc = new VideoEncoder({
+            output: (c, m) => {
+                muxer.addVideoChunk(c, m);
+            },
+            error: e => { videoError = e; console.error('VENC_ERR', e); }
+        });
+        venc.configure({ codec: 'avc1.64001F', width: 320, height: 240, bitrate: 1e6, framerate: 30 });
+
+        const totalFrames = 30 * DURATION;
+        for (let i = 0; i < totalFrames; i++) {
+            const vf = new VideoFrame(cv, { timestamp: Math.round(i * 1e6 / 30), duration: Math.round(1e6 / 30) });
+            venc.encode(vf, { keyFrame: i % 30 === 0 });
+            vf.close();
+        }
+        await venc.flush();
+        if (videoError) throw videoError;
+
+        muxer.finalize();
+        const bytes = new Uint8Array(target.buffer);
+        let hasMp4a = false;
+        let hasAvc1 = false;
+        for (let i = 0; i < bytes.length - 4; i++) {
+            if (bytes[i] === 109 && bytes[i+1] === 112 && bytes[i+2] === 52 && bytes[i+3] === 97) hasMp4a = true;
+            if (bytes[i] === 97 && bytes[i+1] === 118 && bytes[i+2] === 99 && bytes[i+3] === 49) hasAvc1 = true;
+        }
+
+        console.error('FULL_PIPELINE_RESULT: size=' + bytes.length + ' mp4a=' + hasMp4a + ' avc1=' + hasAvc1);
+    } catch(e) {
+        console.error('FULL_PIPELINE_ERROR: ' + e.name + ' - ' + e.message + '\\n' + e.stack);
+    } finally {
+        window.close();
+    }
+})();
+</script></body></html>'''
+
+with open('scratch/test_pipeline_final.html', 'w', encoding='utf-8') as f:
+    f.write(html)
+
+res = subprocess.run([chrome, '--headless=new', '--enable-logging=stderr', 'file:///' + os.path.abspath('scratch/test_pipeline_final.html')], capture_output=True, text=True, timeout=12)
+for l in res.stderr.splitlines():
+    if 'FULL_PIPELINE' in l or 'AENC' in l or 'VENC' in l:
+        print(l)
+

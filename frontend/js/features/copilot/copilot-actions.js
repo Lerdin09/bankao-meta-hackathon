@@ -1,3 +1,25 @@
+/* Origem Copilot: quando o formulário foi preparado pelo Copilot, ao concluir a operação
+   (meta, investimento, transferência, depósito, despesa…) o chat mostra que foi feita e,
+   se estava em modo voz, o Copilot diz em voz alta que a execução foi concluída. */
+const copilotOrigin = {};
+function markCopilotOrigin(kind) {
+    copilotOrigin[kind] = { t: Date.now(), voice: !!(window.copilotVoiceActive && window.copilotVoiceActive()) };
+}
+// opts: { chat: texto para o chat, speech: frase falada, direct: true se o próprio Copilot executou (sem formulário) }
+function copilotOpDone(kind, opts) {
+    opts = opts || {};
+    const o = copilotOrigin[kind];
+    delete copilotOrigin[kind];
+    const fromCopilot = !!opts.direct || (!!o && Date.now() - o.t < 30 * 60 * 1000);
+    if (!fromCopilot) return;                               // operação feita à mão, não pelo Copilot
+    if (opts.chat && typeof addCopilotMessage === "function" && document.getElementById("copilotChatMessages")) {
+        addCopilotMessage("ai", opts.chat);
+    }
+    const voiceOn = (window.copilotVoiceActive && window.copilotVoiceActive()) || (o && o.voice);
+    if (opts.speech && voiceOn && typeof window.copilotSpeakDone === "function") window.copilotSpeakDone(opts.speech);
+}
+function copilotAnnounceDone(kind, text, speech) { copilotOpDone(kind, { chat: text, speech }); }
+
 /**
  * Copilot — ações
  * Pré-preenche o formulário certo com o que a IA preparou (abre painéis, preenche campos, destaca a confirmação).
@@ -25,12 +47,51 @@ function setFieldValue(el, value, events = ["input"]) {
     events.forEach(ev => el.dispatchEvent(new Event(ev, { bubbles: true })));
 }
 
+// Abre o formulário de subscrição já preenchido; o cliente é quem confirma
+async function openInvestmentFromCopilot(action) {
+    try {
+        if (typeof INV !== "undefined" && !INV.catalog.length && typeof loadInvestmentsData === "function") {
+            await loadInvestmentsData();
+        }
+        // Sem produto escolhido: só abre o catálogo para ele escolher
+        if (!action.product_id) {
+            if (typeof switchInvestTab === "function") switchInvestTab("catalog");
+            toast("Escolha o produto no catálogo e toque em Subscrever.", "info");
+            return;
+        }
+        if (typeof switchInvestTab === "function") switchInvestTab("portfolio");
+        if (typeof INV === "undefined" || !INV.catalog.some(p => p.id === action.product_id)) {
+            toast("Este produto já não está disponível no catálogo.", "error");
+            return;
+        }
+        markCopilotOrigin("investment");
+        openApplyModal(action.product_id);
+        if (action.amount) setFieldValue(document.getElementById("mivAppAmountInput"), action.amount, ["input"]);
+        setFieldValue(document.getElementById("mivAppNotesInput"), action.notes || "", []);
+        highlightPreparedForm(document.querySelector("#modalInvestApply form"), document.getElementById("mivAppSubmitBtn"));
+        toast("✨ Subscrição preparada. Reveja e toque em Confirmar.", "success");
+    } catch (err) {
+        toast("Não consegui abrir o formulário de investimento.", "error");
+    }
+}
+
+// O Copilot registou ou removeu uma despesa na base de dados: recarrega os dados e redesenha a página de Despesas
+async function refreshExpensesFromCopilot() {
+    try {
+        if (typeof loadFinanceData === "function") await loadFinanceData();
+        if (typeof renderExpensesView === "function") renderExpensesView();
+    } catch (err) {
+        console.error("Não consegui atualizar as despesas:", err);
+    }
+}
+
 // Executar Ação Preparada pelo Copilot
 function applyCopilotAction(action, autoSwitch = true) {
     if (!action) return;
     const canNavigate = autoSwitch && window.showView && window.showTab;
 
     if (action.type === "TRANSFER_IBAN") {
+        markCopilotOrigin("transfer_iban");
         if (canNavigate) {
             window.showTab("tab-transfer-iban");
             window.showView("view-ops");
@@ -55,6 +116,7 @@ function applyCopilotAction(action, autoSwitch = true) {
             : "✨ Transferência preparada. Preencha o nome do beneficiário e confirme.", "success");
 
     } else if (action.type === "TRANSFER_INTERNAL") {
+        markCopilotOrigin("transfer_internal");
         if (canNavigate) {
             window.showTab("tab-transfer-internal");
             window.showView("view-ops");
@@ -69,6 +131,7 @@ function applyCopilotAction(action, autoSwitch = true) {
         toast("✨ Transferência entre contas preparada. Reveja e confirme.", "success");
 
     } else if (action.type === "DEPOSIT_EXPRESS") {
+        markCopilotOrigin("deposit");
         if (canNavigate) {
             window.showTab("tab-deposit");
             window.showView("view-ops");
@@ -80,6 +143,7 @@ function applyCopilotAction(action, autoSwitch = true) {
 
     } else if (action.type === "REGISTER_EXPENSE") {
         // Abre o formulário de despesa já preenchido — quem regista é o utilizador
+        markCopilotOrigin("expense");
         if (typeof openNewExpenseModal === "function") openNewExpenseModal();
         setFieldValue(document.getElementById("expName"), action.name || "", []);
         setFieldValue(document.getElementById("expAmount"), formatNumberWithDots(action.amount || 0), []);
@@ -90,6 +154,7 @@ function applyCopilotAction(action, autoSwitch = true) {
 
     } else if (action.type === "CREATE_SAVINGS_GOAL") {
         // Abre o formulário de meta já preenchido — quem cria é o utilizador
+        markCopilotOrigin("goal");
         if (typeof openNewGoalModal === "function") openNewGoalModal();
         setFieldValue(document.getElementById("goalName"), action.name || "", []);
         setFieldValue(document.getElementById("goalTarget"), formatNumberWithDots(action.target || 0), []);
@@ -109,7 +174,11 @@ function applyCopilotAction(action, autoSwitch = true) {
         if (typeof calculateSavingsSimulation === "function") calculateSavingsSimulation();
         toast("✨ Meta preparada. Reveja e toque em Criar meta.", "success");
 
-    } else if (action.type === "OPEN_INVESTMENTS" || action.type === "INVESTMENT_APPLY") {
+    } else if (action.type === "INVESTMENT_APPLY") {
+        if (canNavigate) window.showView("view-investments");
+        openInvestmentFromCopilot(action);
+
+    } else if (action.type === "OPEN_INVESTMENTS") {
         if (typeof switchInvestTab === "function") switchInvestTab("portfolio");
         if (canNavigate) {
             window.showView("view-investments");

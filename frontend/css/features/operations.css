@@ -21,15 +21,17 @@
 /* ---------- Separadores (segmentado com indicador deslizante) ---------- */
 .operations-section .tabs-nav {
     position: relative;
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+    --tabs-n: 5;
+    display: grid; grid-template-columns: repeat(var(--tabs-n), minmax(0, 1fr)); gap: 0;
     padding: 4px; margin-bottom: 22px;
     border-radius: 16px; background: var(--bg); border: 1px solid var(--line);
 }
 .operations-section .tab-btn {
     position: relative; z-index: 1;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-    min-height: 56px; padding: 8px 4px; min-width: 0;
-    border-radius: 12px; font-weight: 600; font-size: .72rem; line-height: 1.15; text-align: center;
+    min-height: 56px; padding: 8px 2px; min-width: 0;
+    border-radius: 12px; font-weight: 600; font-size: .7rem; line-height: 1.15; text-align: center;
+    overflow-wrap: anywhere; hyphens: auto;
     color: var(--text-3); transition: color .25s ease;
 }
 .operations-section .tab-btn svg { width: 19px; height: 19px; flex-shrink: 0; transition: color .25s ease; }
@@ -44,7 +46,7 @@
 @supports selector(:has(a)) {
     .operations-section .tabs-nav::before {
         content: ""; position: absolute; z-index: 0; top: 4px; bottom: 4px; left: 4px;
-        width: calc((100% - 8px) / 4);
+        width: calc((100% - 8px) / var(--tabs-n));
         border-radius: 12px; background: var(--surface-3);
         box-shadow: 0 2px 10px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .06);
         transition: transform .38s cubic-bezier(.34, 1.3, .64, 1);
@@ -52,14 +54,16 @@
     .operations-section .tabs-nav:has(.tab-btn:nth-child(2).active)::before { transform: translateX(100%); }
     .operations-section .tabs-nav:has(.tab-btn:nth-child(3).active)::before { transform: translateX(200%); }
     .operations-section .tabs-nav:has(.tab-btn:nth-child(4).active)::before { transform: translateX(300%); }
+    .operations-section .tabs-nav:has(.tab-btn:nth-child(5).active)::before { transform: translateX(400%); }
     .operations-section .tab-btn.active { background: none; box-shadow: none; }
 }
 
-@container ops (min-width: 520px) {
-    .operations-section .tab-btn { flex-direction: row; gap: 9px; font-size: .86rem; min-height: 48px; padding: 8px 10px; }
+/* Com 5 separadores só cabem ícone + texto lado a lado a partir de 640px */
+@container ops (min-width: 640px) {
+    .operations-section .tab-btn { flex-direction: row; gap: 8px; font-size: .84rem; min-height: 48px; padding: 8px 8px; }
 }
 /* Rótulos completos só quando cabem numa linha */
-@container ops (min-width: 720px) {
+@container ops (min-width: 960px) {
     .tab-btn .tab-full { display: inline; }
     .tab-btn .tab-short { display: none; }
 }

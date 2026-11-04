@@ -72,7 +72,7 @@
         <!-- 4. Barra de Envio (Design moderno com glow e tecla de atalho) -->
         <form class="copilot-input-form" id="copilotInputForm">
             <div class="copilot-input-container">
-                <input type="text" id="copilotUserInput" placeholder="Escreva ou fale «Hi Bank Copilot»…" autocomplete="off" autocapitalize="sentences" enterkeyhint="send" aria-label="Mensagem para o Copilot">
+                <textarea id="copilotUserInput" rows="1" placeholder="Escreva ou toque no microfone…" autocomplete="off" autocapitalize="sentences" enterkeyhint="send" aria-label="Mensagem para o Copilot"></textarea>
                 <button type="button" class="btn-mic-copilot" id="btnCopilotMic" aria-label="Ativar assistente de voz" title="Falar com o Copilot (Siri / GPT)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
@@ -86,7 +86,7 @@
                 </button>
             </div>
             <div class="copilot-input-hint">
-                <span>Pressione <kbd>Enter</kbd> ou diga «Hi bank copilot» / «E aí copiloto do banco» 🎙️</span>
+                <span><kbd>Enter</kbd> envia · <kbd>Shift</kbd>+<kbd>Enter</kbd> nova linha · ou diga «Hi bank copilot»</span>
             </div>
         </form>
     </aside>

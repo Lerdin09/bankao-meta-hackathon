@@ -7,7 +7,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
 
-CATEGORIAS = ("Alimentação", "Transporte", "Habitação", "Telecomunicações", "Lazer", "Saúde", "Poupança", "Transferências", "Investimentos", "Outros")
+CATEGORIAS = ("Alimentação", "Transporte", "Habitação", "Telecomunicações", "Eletrónicos", "Lazer", "Saúde", "Poupança", "Transferências", "Investimentos", "Outros")
 _DATA = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 

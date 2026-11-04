@@ -1,0 +1,28 @@
+/* Transferir por QR */
+.qrs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:18px}
+.qrs-opt{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:16px;border-radius:18px;border:1px solid var(--line-2);background:var(--surface-2);color:var(--text);cursor:pointer;text-align:left;font:inherit;transition:border-color .2s,transform .15s}
+.qrs-opt:hover{border-color:var(--gold);transform:translateY(-1px)}
+.qrs-opt svg{width:26px;height:26px;color:var(--gold);margin-bottom:6px}.qrs-opt b{font-size:.92rem}.qrs-opt small{color:var(--text-3);font-size:.75rem}
+.qrs-paste{margin-top:16px;display:grid;gap:10px}.qrs-paste label{font-size:.8rem;font-weight:600;color:var(--text-2)}
+.qrs-paste textarea{width:100%;background:var(--surface-2);border:1px solid var(--line-2);border-radius:14px;color:var(--text);padding:12px;font:inherit;font-size:.85rem}
+.qrs-overlay{position:fixed;inset:0;z-index:1400;background:rgba(3,6,12,.78);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;padding:16px}
+.qrs-sheet{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--line-2);border-radius:24px;padding:22px 20px;margin-bottom:var(--safe-b)}
+.qrs-sheet h3{margin:0 0 12px;font-size:1.1rem}
+.qrs-data{display:grid;gap:10px;margin-bottom:18px}.qrs-data div{display:flex;justify-content:space-between;gap:12px;font-size:.88rem}
+.qrs-data span{color:var(--text-3)}.qrs-data b{text-align:right;word-break:break-all}.qrs-data .mono{font-family:var(--mono);font-size:.78rem}
+.qrs-actions{display:flex;gap:10px}.qrs-actions .btn{flex:1;justify-content:center}
+.qrs-cam{align-items:center;background:#000}.qrs-camwrap{position:relative;width:100%;max-width:460px;display:grid;gap:14px;text-align:center;color:#fff}
+.qrs-camwrap video{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:22px;background:#111}
+.qrs-frame{position:absolute;left:50%;top:38%;width:62%;aspect-ratio:1;transform:translate(-50%,-50%);border:3px solid var(--gold);border-radius:22px;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
+.qrs-camwrap p{margin:0;font-size:.9rem}
+.qr-amount-box{margin:14px 0 4px;display:grid;gap:6px}.qr-amount-box label{font-size:.78rem;font-weight:600;color:var(--text-2)}.qr-amount-box small{font-weight:400;color:var(--text-3)}
+.qr-amount-box input{width:100%;background:var(--surface-2);border:1px solid var(--line-2);border-radius:14px;color:var(--text);padding:12px 14px;font:inherit}
+.qr-download-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:10px;padding:14px;border-radius:16px;border:1px solid var(--gold);background:var(--gold-soft);color:var(--gold);font:inherit;font-weight:700;cursor:pointer}
+.qr-download-btn svg{width:18px;height:18px}
+/* Ajustes de layout do separador QR */
+.qrs-grid{min-width:0}
+.qrs-opt{min-width:0;min-height:112px;overflow-wrap:anywhere;-webkit-tap-highlight-color:transparent}
+.qrs-opt small{line-height:1.35}
+.qrs-paste textarea{resize:vertical;min-height:84px;font-family:var(--mono)}
+.qrs-paste .btn{justify-self:start}
+@media (max-width:360px){.qrs-grid{grid-template-columns:1fr}.qrs-opt{min-height:0}}

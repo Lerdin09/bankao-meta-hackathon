@@ -33,7 +33,7 @@ MESES_NOME = ["", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "J
               "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
 _MESES_RE = "|".join(MESES)
 
-CATEGORIAS = ("Alimentação", "Transporte", "Habitação", "Telecomunicações", "Lazer", "Saúde", "Poupança", "Outros")
+CATEGORIAS = ("Alimentação", "Transporte", "Habitação", "Telecomunicações", "Eletrónicos", "Lazer", "Saúde", "Poupança", "Outros")
 
 # Palavras-chave (aplicadas ao texto normalizado: minúsculas e sem acentos)
 SAVINGS_KW = re.compile(r"poupanc|poupar|juntar dinheiro|guardar dinheiro|economizar|cofrinho|"
@@ -201,6 +201,25 @@ def find_deadline(text_n: str, today: date) -> Tuple[Optional[Tuple[int, int]], 
     return None, [], ""
 
 
+
+_START_PHRASE = re.compile(
+    rf"\b(?:comec\w*|inici\w*|deposit\w*|poupar|a\s+partir)\b[^.;]{{0,45}}?"
+    rf"(?P<date>(?:dia\s+)?(?:(?P<d>\d{{1,2}})\s+de\s+)?(?P<mes>{_MESES_RE})\b(?:\s+de\s+(?P<ano>20\d{{2}}))?)")
+
+
+def find_start(n: str, today: date) -> Tuple[Optional[Dict[str, Any]], List[Tuple[int, int]]]:
+    """«começar a depositar no dia 3 de janeiro» → ({y, m, day}, [span]). «até agosto» nunca é início."""
+    for m in _START_PHRASE.finditer(n):
+        if re.search(r"\bate\b", n[m.start():m.start("date")]):
+            continue
+        mes = MESES[m.group("mes")]
+        y = int(m.group("ano")) if m.group("ano") else (today.year if mes >= today.month else today.year + 1)
+        out: Dict[str, Any] = {"y": y, "m": mes}
+        if m.group("d") and 1 <= int(m.group("d")) <= 31:
+            out["day"] = int(m.group("d"))
+        return out, [m.span("date")]
+    return None, []
+
 _NUM = r"(?:\d{1,3}(?:[.\s]\d{3})+(?:,\d{1,2})?|\d+(?:[.,]\d+)?)"
 _AMOUNT = re.compile(
     rf"(?<![\w.,])(?P<num>{_NUM})(?:\s*(?P<mult>milhoes|milhao|mil|k)\b)?"
@@ -297,6 +316,26 @@ def find_beneficiary(text: str) -> str:
     return ""
 
 
+
+_CAT_SAID = {   # só o nome da própria categoria: «supermercado», «casa» ou «poupança de carro» são descrição, não categoria
+    "Alimentação": r"alimentacao", "Transporte": r"transportes?", "Habitação": r"habitacao",
+    "Telecomunicações": r"telecomunicacoes|telecom", "Eletrónicos": r"eletronicos?|electronicos?",
+    "Lazer": r"lazer", "Saúde": r"saude", "Outros": r"outros",
+}
+_CAT_PHRASE = re.compile(
+    r"\b(?:(?:em|na|no|de|como|para|categoria)\s+)+(?:categoria\s+)?(?:eletr[oó]nicos?|electr[oó]nicos?|"
+    r"alimenta[cç][aã]o|transportes?|habita[cç][aã]o|telecomunica[cç][oõ]es|telecom|lazer|sa[uú]de|outros)\b",
+    re.I)
+
+
+def explicit_category(n: str) -> Optional[str]:
+    """Categoria que o cliente nomeou («em eletrónicos», «categoria saúde»); None se não disse nenhuma."""
+    for cat, words in _CAT_SAID.items():
+        if re.search(r"\b(?:em|na|no|de|como|para|categoria)\s+(?:categoria\s+)?(?:" + words + r")\b", n):
+            return cat
+    return None
+
+
 def detect_category(text_n: str) -> str:
     rules = [
         ("Poupança", r"poupanc|poupar|cofrinho|aforro|deposito a prazo|fundo de emerg|reserva"),
@@ -304,7 +343,11 @@ def detect_category(text_n: str) -> str:
         ("Alimentação", r"supermercado|\bmercado\b|comida|almoco|jantar|lanche|restaurante|\bkero\b|\bmaxi\b|candando|alimenta|\bpao\b|refeicao|padaria"),
         ("Transporte", r"\btaxi\b|yango|\buber\b|combustivel|gasolina|gasoleo|sonangol|transporte|\bcarro\b|viagem|portagem|oficina"),
         ("Habitação", r"\brenda\b|\bcasa\b|energia|\bluz\b|\bende\b|\bagua\b|\bepal\b|condominio|habita"),
-        ("Telecomunicações", r"unitel|\bzap\b|dstv|internet|\bnet\b|\bsaldo\b|telefone|telecom|africell|movicel"),
+        ("Telecomunicações", r"unitel|\bzap\b|dstv|internet|\bnet\b|\bsaldo\b|recarga|telecom|africell|movicel|"
+                             r"(?:conta|fatura|mensalidade|plano)\s+d[oa]\s+(?:telefone|telemovel|celular)"),
+        ("Eletrónicos", r"eletronic|electronic|telefone|telemovel|celular|smartphone|iphone|samsung|xiaomi|tecno\b|tablet|ipad|"
+                        r"computador|portatil|laptop|\btv\b|televis|auscultador|\bfones?\b|headphone|airpod|consola|playstation|"
+                        r"\bps[45]\b|xbox|camara|carregador|powerbank|monitor|impressora|\bgadget"),
         ("Lazer", r"praia|festa|cinema|\bbar\b|lazer|balada|\bshow\b|passeio|jogo"),
         ("Saúde", r"farmacia|remedio|hospital|clinica|saude|medico|consulta"),
     ]
@@ -675,6 +718,13 @@ def _parse_slots(text: str, today: date) -> Dict[str, Any]:
         slots["phone_number"] = re.sub(r"\D", "", ph.group(1))
         mask.append(ph.span(1))
 
+    st, st_spans = find_start(_blank(n, mask), today)
+    if st:
+        slots["start"] = [st["y"], st["m"]]
+        if st.get("day"):
+            slots["day"] = st["day"]
+        mask.extend(st_spans)
+
     dl, dspans, note = find_deadline(_blank(n, mask), today)
     if dl:
         slots["deadline"] = list(dl)
@@ -745,7 +795,8 @@ def _detect_intent(n: str, slots: Dict[str, Any]) -> Optional[str]:
         if slots.get("to_email") or slots.get("to_account_number") or re.search(r"\bconta\b|entre contas|bankao|interna", n):
             return "TRANSFER_INTERNAL"
         return "TRANSFER"
-    if DEPOSIT_KW.search(n) and (slots.get("phone_number") or slots.get("amount")):
+    # «depósito a prazo» é um investimento, nunca um depósito por Multicaixa Express
+    if DEPOSIT_KW.search(n) and not re.search(r"\bdepositos?\s+a\s+prazo\b", n) and (slots.get("phone_number") or slots.get("amount")):
         return "DEPOSIT_EXPRESS"
 
     # Perguntas analíticas e comparativas de gastos não são criação de novas despesas
@@ -772,10 +823,13 @@ def _fill_slots(intent: str, slots: Dict[str, Any], text: str, today: date) -> D
     if intent not in TRANSFER_FAMILY:
         out.pop("beneficiary_name", None)
     if intent == "REGISTER_EXPENSE":
-        out["category"] = detect_category(n)
+        said = explicit_category(n)
+        out["category"] = said or detect_category(n)
         desc = text
         if slots.get("_amount_span"):
             desc = _blank(text, [tuple(slots["_amount_span"])])
+        if said:   # tira «em eletrónicos» / «na categoria saúde» do nome da despesa
+            desc = _CAT_PHRASE.sub(" ", desc)
         desc = re.sub(r"\b(?:kz|kzs|kwanzas?|aoa|akz)\b", " ", desc, flags=re.I)
         desc = re.sub(r"\b(?:hoje|ontem|anteontem)\b", " ", desc, flags=re.I)
         prev = None
@@ -783,6 +837,10 @@ def _fill_slots(intent: str, slots: Dict[str, Any], text: str, today: date) -> D
             prev = desc
             desc = re.sub(r"^\W*(?:por\s+favor|registr?[aeo](?:r)?|anot[aeo](?:r)?|adicion[aeo](?:r)?|coloc[aeo](?:r)?|insir[aeo]?|inserir?|gastei|paguei|comprei|"
                           r"despesa|gasto|uma|um|de|em|no|na|nos|nas|com|para|do|da|o|a|e)\b", " ", desc, flags=re.I)
+        prev = None
+        while prev != desc:   # sobras no fim: «telefone de», «café a»
+            prev = desc
+            desc = re.sub(r"\s+(?:de|do|da|dos|das|em|no|na|nos|nas|a|ao|para|com|por|que|e)\W*$", " ", desc, flags=re.I)
         desc = re.sub(r"\s+", " ", desc).strip(" .,;:-")
         if len(desc) < 3:
             desc = f"Despesa em {out['category']}"
@@ -794,7 +852,7 @@ def _fill_slots(intent: str, slots: Dict[str, Any], text: str, today: date) -> D
 
 
 SLOT_KEYS = {"amount", "target", "to_iban", "to_email", "to_account_number", "phone_number", "deadline",
-             "saved", "monthly", "beneficiary_name", "date", "currency"}
+             "saved", "monthly", "beneficiary_name", "date", "currency", "start", "day"}
 TRANSFER_FAMILY = {"TRANSFER", "TRANSFER_IBAN", "TRANSFER_INTERNAL"}
 
 

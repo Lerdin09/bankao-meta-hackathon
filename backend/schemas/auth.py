@@ -12,6 +12,13 @@ class UserRegister(BaseModel):
     confirm_password: Optional[str] = None
     terms_accepted: bool = Field(default=True)
     nome: Optional[str] = "Novo Utilizador"
+    data_nascimento: Optional[str] = None
+    nacionalidade: Optional[str] = None
+    morada: Optional[str] = None
+    profissao: Optional[str] = None
+    rendimento_mensal: Optional[str] = None
+    finalidade: Optional[str] = None
+    pin: Optional[str] = Field(default=None, pattern=r"^\d{4}$")
 
 
 class UserLogin(BaseModel):

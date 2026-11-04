@@ -15,7 +15,7 @@ const ctEl = id => document.getElementById(id);
 function ctDate(v) {
     if (!v) return "";
     const d = new Date(String(v).includes("T") ? v : String(v).replace(" ", "T") + "Z");
-    return isNaN(d) ? "" : d.toLocaleDateString("pt-AO", { day: "2-digit", month: "short", year: "numeric" });
+    return isNaN(d) ? "" : (typeof bkFormatDate === "function" ? bkFormatDate(d) : d.toLocaleDateString("pt-AO", { day: "2-digit", month: "short", year: "numeric" }));
 }
 
 function ctInitials(name) {

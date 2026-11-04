@@ -21,6 +21,10 @@
                 <svg><use href="#i-globe"/></svg>
                 <span class="tab-full">Transferência bancária</span><span class="tab-short">IBAN</span>
             </button>
+            <button class="tab-btn" data-tab="tab-qr" role="tab" aria-selected="false" aria-controls="tab-qr">
+                <svg><use href="#i-qrcode"/></svg>
+                <span class="tab-full">Transferir por QR</span><span class="tab-short">QR</span>
+            </button>
             <button class="tab-btn" data-tab="tab-contacts" role="tab" aria-selected="false" aria-controls="tab-contacts">
                 <svg><use href="#i-heart"/></svg>
                 <span class="tab-full">Contactos</span><span class="tab-short">Contactos</span>
@@ -363,6 +367,37 @@
         </div>
     
         <!-- ===== Contactos (pessoas e IBANs com quem já movimentei dinheiro) ===== -->
+        <!-- ===== Transferir por QR ===== -->
+        <div class="tab-pane" id="tab-qr" role="tabpanel">
+            <div class="operation-card">
+                <div class="op-header-info">
+                    <div class="op-badge-tag"><svg><use href="#i-qrcode"/></svg><span>Por QR</span></div>
+                    <h3>Transferir por QR</h3>
+                    <p>Leia o QR de quem vai receber: os dados da conta passam direto para a transferência e só falta indicar o valor.</p>
+                </div>
+                <div class="qrs-grid">
+                    <button type="button" class="qrs-opt" onclick="openQrScanner()">
+                        <svg><use href="#i-qrcode"/></svg><b>Abrir a câmara</b><small>Aponte ao QR da pessoa</small>
+                    </button>
+                    <label class="qrs-opt">
+                        <svg><use href="#i-down"/></svg><b>Carregar imagem</b><small>QR guardado ou captura de ecrã</small>
+                        <input type="file" accept="image/*" hidden onchange="scanQrFromFile(this)">
+                    </label>
+                    <button type="button" class="qrs-opt" onclick="openQrPasteBox()">
+                        <svg><use href="#i-copy"/></svg><b>Colar o código</b><small>Código BankAO que recebeu</small>
+                    </button>
+                    <button type="button" class="qrs-opt" onclick="openReceiveQrModal()">
+                        <svg><use href="#i-qrcode"/></svg><b>O meu QR</b><small>Mostrar ou descarregar</small>
+                    </button>
+                </div>
+                <div class="qrs-paste" id="qrPasteBox" style="display:none">
+                    <label for="qrPasteInput">Código do QR</label>
+                    <textarea id="qrPasteInput" rows="3" placeholder="BANKAO:PAY?email=…" spellcheck="false"></textarea>
+                    <button type="button" class="btn btn-primary" onclick="submitQrPaste()">Usar estes dados</button>
+                </div>
+            </div>
+        </div>
+
         <div class="tab-pane" id="tab-contacts" role="tabpanel">
             <div class="operation-card">
                 <div class="op-header-info">

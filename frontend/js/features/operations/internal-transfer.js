@@ -235,6 +235,7 @@ function initInternalTransfer() {
                         });
                         toast("Transferência enviada");
                         addCopilotMessage("ai", `⚡ **Transferência de Conta Concluída!**\n- Beneficiário: **${recipientName}** (${email})\n- Quantia enviada: **${formatTwoTierMoney(amount, sendCurr)}**\n- Taxa BankAO (1%): **${formatTwoTierMoney(fee, sendCurr)}**\n- Quantia creditada: **${formatTwoTierMoney(arrive, sendCurr)}**`);
+                        if (typeof copilotOpDone === "function") copilotOpDone("transfer_internal", { speech: `Concluído. A transferência de ${formatTwoTierMoney(amount, sendCurr)} para ${recipientName} foi executada com sucesso.` });
                         await loadUserData();
                     } else {
                         toast(data.detail || "Falha na transferência.");

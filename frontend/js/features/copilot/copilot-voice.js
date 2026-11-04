@@ -30,7 +30,7 @@
   const TTS_LANG = "pt-PT";
   const TTS_RATE = 0.93;       // Ritmo calmo, sereno e natural
   const TTS_PITCH = 1.0;
-  const SILENCE_TIMEOUT = 3500; // 3.5 segundos: tempo confortável para respirar e pensar
+  const SILENCE_TIMEOUT = 6000; // só usado se o envio automático estiver ligado (desligado por defeito)
 
   // ─── Estado interno ──────────────────────────────────────────────────────────
   let recognition = null;
@@ -51,6 +51,36 @@
   let micBtn = null;
   let silenceTimer = null;
   let lastFinalTranscript = "";
+  let finalBuffer = "";     // tudo o que já foi reconhecido (acumula a sessão inteira)
+  let interimText = "";     // parte ainda provisória da frase em curso
+  let ignoreInput = false;  // ignora o microfone enquanto o Copilot fala (evita ouvir-se a si próprio)
+  let autoSend = false;
+  try { autoSend = localStorage.getItem("copilotVoiceAutoSend") === "1"; } catch (_) {}
+
+  let editing = false;        // a editar o texto à mão
+  let awaitingReply = false;  // enviado, à espera da resposta do Copilot
+  let userEchoSeen = false;   // o chat aceitou mesmo a mensagem
+  let recActive = false;      // o reconhecimento está realmente a correr
+  let replyWatchdog = null;
+  let speakToken = 0;
+  let activeFinish = null;
+  let listenersBound = false;
+
+  function _fullText() {
+    return normalizeSpokenEmail((finalBuffer + " " + interimText).replace(/\s+/g, " ").trim());
+  }
+  function _resetBuffers() {
+    finalBuffer = ""; interimText = ""; lastFinalTranscript = "";
+    _showText("");
+  }
+  function _showText(text) {
+    if (transcriptEl) {
+      transcriptEl.textContent = text;
+      transcriptEl.scrollTop = transcriptEl.scrollHeight;
+    }
+    const sendBtn = document.getElementById("voiceSendNowBtn");
+    if (sendBtn) sendBtn.disabled = !text.trim();
+  }
 
   // ─── Inicialização Pública ────────────────────────────────────────────────────
   window.initCopilotVoice = function () {
@@ -68,6 +98,7 @@
 
     // Iniciar escuta passiva se o browser permitir ou após o primeiro toque do utilizador
     _startPassiveListening();
+    setInterval(() => { if (isListening && !recActive) _ensureRecognition(); }, 2500);
     document.addEventListener("click", _unlockAudioOnFirstGesture, { once: true });
     document.addEventListener("touchstart", _unlockAudioOnFirstGesture, { once: true });
   };
@@ -88,6 +119,7 @@
   function normalizeSpokenEmail(raw) {
     if (!raw) return "";
     let s = String(raw).trim();
+    if (!/arroba|@/i.test(s)) return s; // frase normal: não mexer
 
     // 1. "arroba" / "at" -> "@"
     s = s.replace(/\s*(?:arroba|\barrobas?\b|@)\s*/gi, "@");
@@ -97,7 +129,6 @@
 
     // 3. Remover espaços ao redor de @ e .
     s = s.replace(/\s*@\s*/g, "@");
-    s = s.replace(/\s*\.\s*/g, ".");
 
     // 4. Junção de nomes compostos antes do @: "ana ferreira@" -> "ana.ferreira@"
     s = s.replace(/([A-Za-z0-9_-]+)\s+([A-Za-z0-9_-]+)@/g, "$1.$2@");
@@ -138,45 +169,81 @@
            null;
   }
 
+  function _splitForSpeech(raw) {
+    const t = String(raw || "").replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu, "").replace(/\s+/g, " ").trim();
+    if (!t) return [];
+    const parts = (t.match(/[^.!?…;:]+[.!?…;:]*\s*/g) || [t]).map(x => x.trim()).filter(Boolean);
+    const out = [];
+    let cur = "";
+    for (const part of parts) {
+      if (cur && (cur + " " + part).length > 180) { out.push(cur); cur = part; }
+      else cur = cur ? cur + " " + part : part;
+    }
+    if (cur) out.push(cur);
+    return out.flatMap(c => c.length > 260 ? (c.match(/.{1,240}(\s|$)/g) || [c]).map(x => x.trim()) : [c]);
+  }
+
+  // Interrompe a fala atual (e devolve o controlo a quem estava à espera dela)
+  function _stopSpeaking() {
+    speakToken++;
+    try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (_) {}
+    const f = activeFinish;
+    activeFinish = null;
+    if (f) f();
+  }
+
   window.copilotSpeak = function (text, onEnd) {
-    if (!("speechSynthesis" in window)) {
-      if (typeof onEnd === "function") onEnd();
-      return;
-    }
-    window.speechSynthesis.cancel();
-    const clean = _stripMarkdown(text);
-    if (!clean.trim()) {
-      if (typeof onEnd === "function") onEnd();
-      return;
-    }
-
-    const utter = new SpeechSynthesisUtterance(clean);
-    utter.lang = TTS_LANG;
-    utter.rate = TTS_RATE;
-    utter.pitch = TTS_PITCH;
-    utter.volume = 1;
-
-    const calmVoice = _getBestCalmVoice();
-    if (calmVoice) utter.voice = calmVoice;
-
-    utter.onstart = () => {
-      _setOrbState("speaking");
-      _setStatus("BankAO Copilot a falar…");
-    };
-
-    utter.onend = () => {
-      _setOrbState(isListening && !isWakeMode ? "listening" : "idle");
-      _setStatus("A ouvir com atenção…");
+    _stopSpeaking();
+    const token = ++speakToken;
+    let finished = false;
+    let watchdog = null;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(watchdog);
+      if (activeFinish === finish) activeFinish = null;
+      ignoreInput = false;
       if (typeof onEnd === "function") onEnd();
     };
+    const chunks = ("speechSynthesis" in window) ? _splitForSpeech(_stripMarkdown(text)) : [];
+    if (!chunks.length) { finish(); return; }
 
-    utter.onerror = () => {
-      _setOrbState("idle");
-      if (typeof onEnd === "function") onEnd();
+    activeFinish = finish;
+    ignoreInput = true; // não ouvir a própria voz
+    _setOrbState("speaking");
+    _setStatus("A responder… toque no orbe para interromper");
+
+    // Rede de segurança: alguns telemóveis nunca avisam que a fala terminou
+    const total = chunks.reduce((n, c) => n + c.length, 0);
+    watchdog = setTimeout(() => {
+      if (token !== speakToken) return;
+      speakToken++;
+      try { window.speechSynthesis.cancel(); } catch (_) {}
+      finish();
+    }, Math.min(180000, 8000 + total * 90));
+
+    const voice = _getBestCalmVoice();
+    let i = 0;
+    const next = () => {
+      if (finished || token !== speakToken) return;
+      if (i >= chunks.length) { finish(); return; }
+      const u = new SpeechSynthesisUtterance(chunks[i++]);
+      u.lang = TTS_LANG; u.rate = TTS_RATE; u.pitch = TTS_PITCH; u.volume = 1;
+      if (voice) u.voice = voice;
+      u.onend = next;
+      u.onerror = (e) => { if (e && (e.error === "interrupted" || e.error === "canceled")) return; next(); };
+      currentUtterance = u; // mantém referência (evita que o navegador a apanhe antes do fim)
+      window.speechSynthesis.speak(u);
     };
+    setTimeout(next, 40);
+  };
 
-    currentUtterance = utter;
-    window.speechSynthesis.speak(utter);
+  // Modo voz aberto? (usado para anunciar por voz as operações concluídas)
+  window.copilotVoiceActive = function () {
+    return !!(voiceOverlay && voiceOverlay.classList.contains("visible"));
+  };
+  window.copilotSpeakDone = function (text) {
+    window.copilotSpeak(text, function () { try { _resumeListening(); } catch (_) {} });
   };
 
   // ─── Floating Action Button (Visível em QUALQUER Página) ───────────────────────
@@ -186,8 +253,8 @@
     floatingBtn = document.createElement("button");
     floatingBtn.type = "button";
     floatingBtn.id = "voiceFloatingTrigger";
-    floatingBtn.className = "voice-floating-trigger";
-    floatingBtn.setAttribute("aria-label", "Abrir Copilot por Voz (Siri / GPT)");
+    floatingBtn.className = "voice-floating-trigger hide-unauthenticated";
+    floatingBtn.setAttribute("aria-label", "Falar com o Copilot");
     floatingBtn.title = "Falar com o BankAO Copilot";
     floatingBtn.innerHTML = `
       <div class="v-float-pulse"></div>
@@ -218,52 +285,51 @@
     voiceOverlay.id = "voiceOverlay";
     voiceOverlay.className = "voice-overlay hidden";
     voiceOverlay.innerHTML = `
-      <div class="voice-backdrop-blur"></div>
-      
-      <div class="voice-header-bar">
-        <div class="voice-badge-pill">
-          <span class="v-pulse-indicator"></span>
-          <span>Copilot Inteligência por Voz</span>
+      <div class="voice-panel">
+        <div class="voice-panel-top">
+          <span class="voice-status" id="voiceStatus">A ouvir…</span>
         </div>
-        <button type="button" class="voice-close-btn" id="voiceCloseBtn" aria-label="Fechar Voz">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-      </div>
 
-      <div class="voice-orb-container" id="voiceOrbContainer" title="Toque no orbe para enviar agora">
-        <canvas id="voiceCanvas" width="280" height="280"></canvas>
-        <div class="voice-orb-inner">
-          <div class="voice-orb-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
-              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-              <line x1="12" y1="19" x2="12" y2="23"/>
-              <line x1="8" y1="23" x2="16" y2="23"/>
-            </svg>
+        <div class="voice-transcript-wrapper">
+          <div class="voice-transcript" id="voiceTranscript" aria-live="polite"></div>
+        </div>
+
+        <div class="voice-dock" role="group" aria-label="Controlos de voz">
+          <button type="button" class="voice-dock-btn voice-dock-close" id="voiceCloseBtn" aria-label="Fechar voz" title="Fechar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+
+          <button type="button" class="voice-dock-btn voice-dock-clear" id="voiceClearBtn" aria-label="Apagar e repetir" title="Apagar e repetir">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          </button>
+
+          <div class="voice-orb-container" id="voiceOrbContainer" role="button" aria-label="Microfone. Toque para interromper o Copilot">
+            <canvas id="voiceCanvas" width="280" height="280"></canvas>
+            <div class="voice-orb-inner">
+              <div class="voice-orb-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                  <line x1="12" y1="19" x2="12" y2="23"/>
+                  <line x1="8" y1="23" x2="16" y2="23"/>
+                </svg>
+              </div>
+            </div>
           </div>
+
+          <button type="button" class="voice-dock-btn voice-dock-send" id="voiceSendNowBtn" aria-label="Enviar" title="Enviar" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+
+          <button type="button" class="voice-dock-btn voice-dock-edit" id="voiceEditBtn" aria-label="Editar no chat" title="Editar no chat do Copilot">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </button>
         </div>
-      </div>
 
-      <div class="voice-status" id="voiceStatus">A ouvir com atenção…</div>
-
-      <div class="voice-transcript-wrapper">
-        <div class="voice-transcript" id="voiceTranscript"></div>
-      </div>
-
-      <div class="voice-action-controls">
-        <button type="button" class="voice-send-now-btn" id="voiceSendNowBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="22" y1="2" x2="11" y2="13"/>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-          </svg>
-          <span>Enviar Agora</span>
-        </button>
-      </div>
-
-      <div class="voice-footer-hint">
-        <span>Fale naturalmente com calma · Pausa de 3.5s envia automaticamente</span>
+        <label class="voice-auto">
+          <input type="checkbox" id="voiceAutoSend">
+          <span>Enviar sozinho após 6 s de silêncio</span>
+        </label>
       </div>
     `;
 
@@ -274,17 +340,51 @@
     transcriptEl = document.getElementById("voiceTranscript");
     statusEl = document.getElementById("voiceStatus");
 
-    document.getElementById("voiceCloseBtn").addEventListener("click", _closeVoiceSession);
-    document.getElementById("voiceOrbContainer").addEventListener("click", () => {
-      if (lastFinalTranscript.trim()) {
-        _sendVoiceMessage(lastFinalTranscript.trim());
+    const $ = (id) => document.getElementById(id);
+    $("voiceCloseBtn").addEventListener("click", _closeVoiceSession);
+    $("voiceOrbContainer").addEventListener("click", () => { if (activeFinish) _stopSpeaking(); });
+    $("voiceEditBtn").addEventListener("click", _editInChat);
+    $("voiceClearBtn").addEventListener("click", _clearAndRepeat);
+    $("voiceSendNowBtn").addEventListener("click", () => {
+      const text = _currentText();
+      if (text) _sendVoiceMessage(text);
+    });
+    const autoEl = $("voiceAutoSend");
+    autoEl.checked = autoSend;
+    autoEl.addEventListener("change", () => {
+      autoSend = autoEl.checked;
+      try { localStorage.setItem("copilotVoiceAutoSend", autoSend ? "1" : "0"); } catch (_) {}
+      _clearSilenceTimer();
+      if (autoSend && _fullText()) _resetSilenceTimer();
+    });
+
+    if (listenersBound) return;
+    listenersBound = true;
+
+    // Enter envia · Shift+Enter muda de linha (só com o ecrã de voz aberto) · Esc fecha ou cancela a edição
+    document.addEventListener("keydown", (e) => {
+      if (!voiceOverlay || !voiceOverlay.classList.contains("visible")) return;
+      if (e.key === "Escape") {
+        e.preventDefault();
+        if (editing) _exitEdit(false); else _closeVoiceSession();
+        return;
+      }
+      if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
+        if (e.target && e.target.closest && e.target.closest("button, input, textarea")) return;
+        e.preventDefault();
+        const text = _currentText();
+        if (text) _sendVoiceMessage(text);
       }
     });
-    document.getElementById("voiceSendNowBtn").addEventListener("click", () => {
-      const text = (transcriptEl ? transcriptEl.textContent : "") || lastFinalTranscript;
-      if (text.trim()) {
-        _sendVoiceMessage(text.trim());
-      }
+
+    // O chat avisa sempre que há uma mensagem nova: é assim que sabemos que a resposta chegou
+    document.addEventListener("copilot:message", (e) => {
+      const d = (e && e.detail) || {};
+      if (d.sender === "user") { userEchoSeen = true; return; }
+      if (d.sender !== "ai" || isWakeMode || !awaitingReply) return;
+      awaitingReply = false;
+      clearTimeout(replyWatchdog);
+      window.copilotSpeak(d.text, _resumeListening);
     });
   }
 
@@ -338,55 +438,57 @@
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
 
+    recognition.onstart = () => { recActive = true; };
+
     recognition.onresult = (event) => {
+      let chunk = "";
       let interim = "";
-      let final = "";
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        const t = event.results[i][0].transcript;
-        if (event.results[i].isFinal) final += t;
-        else interim += t;
-      }
-
-      // Normalizar e-mails e termos falados em tempo real
-      const currentRaw = (final || interim).trim();
-      const normalized = normalizeSpokenEmail(currentRaw);
-
-      if (transcriptEl && normalized) {
-        transcriptEl.textContent = normalized;
+        const r = event.results[i];
+        const t = r[0].transcript;
+        chunk += " " + t;
+        if (r.isFinal) {
+          if (!isWakeMode && !ignoreInput && !editing) {
+            finalBuffer = (finalBuffer + " " + t).replace(/\s+/g, " ").trim();
+          }
+        } else {
+          interim += t;
+        }
       }
 
       if (isWakeMode) {
-        // Detecção de Wake Word contínua em qualquer página
-        const lower = currentRaw.toLowerCase();
-        if (WAKE_WORDS.some(w => lower.includes(w))) {
-          _openVoiceSession();
-        }
-      } else {
-        // Sessão de conversa ativa: enquanto o utilizador fala, renova o timer
-        _clearSilenceTimer();
-        lastFinalTranscript = normalized;
-        _setStatus("A ouvir com atenção…");
-        _setOrbState("listening");
-
-        if (final.trim()) {
-          // Iniciar timer de 3.5s de silêncio para dar tempo confortável de falar
-          _resetSilenceTimer(normalized);
-        }
+        const lower = chunk.toLowerCase();
+        if (WAKE_WORDS.some(w => lower.includes(w))) _openVoiceSession();
+        return;
       }
+      if (ignoreInput || editing) return;
+
+      interimText = interim.trim();
+      const text = _fullText();
+      lastFinalTranscript = text;
+      _showText(text);
+      _setStatus("A ouvir…");
+      _setOrbState("listening");
+
+      _clearSilenceTimer();
+      if (autoSend && text) _resetSilenceTimer();
     };
 
     recognition.onerror = (e) => {
       if (e.error === "no-speech" || e.error === "aborted") return;
+      if (e.error === "not-allowed" || e.error === "service-not-allowed") {
+        isListening = false;
+        _setStatus("Permita o microfone para falar com o Copilot");
+        return;
+      }
       console.warn("[Voice] Reconhecimento evento de erro:", e.error);
     };
 
     recognition.onend = () => {
-      // Reiniciar continuamente a escuta passiva se estiver ativa
-      if (isListening) {
-        try {
-          recognition.start();
-        } catch (_) {}
-      }
+      recActive = false;
+      // O navegador termina a escuta de tempos a tempos: reinicia sem perder o que já foi dito
+      if (!isListening) return;
+      setTimeout(_ensureRecognition, 200);
     };
   }
 
@@ -405,32 +507,16 @@
     _showOverlay();
     _setOrbState("listening");
     _setStatus("A ouvir com atenção…");
-    if (transcriptEl) transcriptEl.textContent = "";
-    lastFinalTranscript = "";
+    _resetBuffers();
     _startAudioVisualizer();
 
     if (micBtn) micBtn.classList.add("mic-active");
     if (floatingBtn) floatingBtn.classList.add("v-float-active");
 
-    // Saudação serena inicial
-    window.speechSynthesis.cancel();
-    const greet = new SpeechSynthesisUtterance("Olá! Como posso ajudar hoje?");
-    greet.lang = TTS_LANG;
-    greet.rate = TTS_RATE;
-    greet.pitch = TTS_PITCH;
-    const calmVoice = _getBestCalmVoice();
-    if (calmVoice) greet.voice = calmVoice;
-
-    greet.onend = () => {
-      _setOrbState("listening");
-      _setStatus("A ouvir com atenção…");
-      try {
-        if (recognition) recognition.start();
-      } catch (_) {}
-    };
-
-    _setOrbState("speaking");
-    window.speechSynthesis.speak(greet);
+    awaitingReply = false;
+    editing = false;
+    _applyEditUi(false);
+    window.copilotSpeak("Olá! Como posso ajudar hoje?", _resumeListening);
   }
 
   function _closeVoiceSession() {
@@ -438,18 +524,21 @@
     _hideOverlay();
     _stopAudioVisualizer();
     _clearSilenceTimer();
-    lastFinalTranscript = "";
+    _resetBuffers();
+    ignoreInput = false;
     if (micBtn) micBtn.classList.remove("mic-active");
     if (floatingBtn) floatingBtn.classList.remove("v-float-active");
-    window.speechSynthesis.cancel();
+    awaitingReply = false;
+    clearTimeout(replyWatchdog);
+    if (editing) { editing = false; _applyEditUi(false); }
+    _stopSpeaking();
   }
 
-  function _resetSilenceTimer(transcript) {
+  function _resetSilenceTimer() {
     _clearSilenceTimer();
     silenceTimer = setTimeout(() => {
-      if (!isWakeMode && transcript.trim()) {
-        _sendVoiceMessage(transcript.trim());
-      }
+      const t = _fullText();
+      if (!isWakeMode && t) _sendVoiceMessage(t);
     }, SILENCE_TIMEOUT);
   }
 
@@ -460,50 +549,151 @@
     }
   }
 
-  // ─── Envio da Mensagem Falada ────────────────────────────────────────────────
-  async function _sendVoiceMessage(text) {
-    if (!text || !text.trim()) return;
+  // ─── Voltar a ouvir: um só caminho, usado no fim de cada turno ───────────────
+  function _ensureRecognition() {
+    if (!recognition || recActive) return;
+    try { recognition.start(); } catch (_) {}
+  }
+
+  function _restartRecognition() {
+    try { recognition.abort(); } catch (_) {}
+    setTimeout(_ensureRecognition, 350);
+  }
+
+  function _resumeListening() {
+    clearTimeout(replyWatchdog);
+    awaitingReply = false;
+    ignoreInput = false;
+    if (isWakeMode || editing) return;
+    _resetBuffers();
+    _setOrbState("listening");
+    _setStatus("A ouvir…");
+    _ensureRecognition();
+  }
+
+  // ─── Texto atual (ditado ou editado à mão) ───────────────────────────────────
+  function _currentText() {
+    if (editing) {
+      const area = document.getElementById("voiceEditArea");
+      return (area ? area.value : "").replace(/\s+/g, " ").trim();
+    }
+    return _fullText();
+  }
+
+  function _applyEditUi(on) {
+    const area = document.getElementById("voiceEditArea");
+    const label = document.getElementById("voiceEditLabel");
+    if (area) area.hidden = !on;
+    if (transcriptEl) transcriptEl.hidden = on;
+    if (label) label.textContent = on ? "Continuar a falar" : "Editar";
+    if (voiceOverlay) voiceOverlay.classList.toggle("is-editing", on);
+  }
+
+  function _enterEdit() {
+    if (editing || awaitingReply) return;
     _clearSilenceTimer();
+    _stopSpeaking();
+    editing = true;
+    const area = document.getElementById("voiceEditArea");
+    const text = _fullText();
+    interimText = "";
+    finalBuffer = text;
+    _applyEditUi(true);
+    _setOrbState("idle");
+    _setStatus("A editar o texto");
+    if (area) {
+      area.value = text;
+      document.getElementById("voiceSendNowBtn").disabled = !text;
+      area.focus();
+      area.setSelectionRange(area.value.length, area.value.length);
+    }
+  }
 
-    // Normalização final de e-mails
-    const processedText = normalizeSpokenEmail(text);
+  function _exitEdit(apply) {
+    if (!editing) return;
+    const area = document.getElementById("voiceEditArea");
+    if (apply && area) finalBuffer = area.value.replace(/\s+/g, " ").trim();
+    interimText = "";
+    editing = false;
+    _applyEditUi(false);
+    _showText(finalBuffer);
+    _setOrbState("listening");
+    _setStatus("A ouvir…");
+    _restartRecognition(); // descarta o que ficou a meio e continua a ouvir
+  }
 
-    _setStatus("A processar com rapidez…");
+  // Lápis: leva o texto para o chat do Copilot (mobile: abre o chat) para corrigir à mão
+  function _editInChat() {
+    if (awaitingReply) return;
+    const text = _currentText();
+    _closeVoiceSession();
+    const input = document.getElementById("copilotUserInput");
+    if (input) {
+      input.value = text;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+    const wide = window.matchMedia("(min-width: 1024px)").matches;
+    if (!wide && typeof window.openCopilot === "function") window.openCopilot();
+    setTimeout(() => {
+      if (!input) return;
+      input.focus();
+      try { input.setSelectionRange(input.value.length, input.value.length); } catch (_) {}
+    }, 80);
+  }
+
+  // Apaga tudo e fica pronto a ouvir de novo
+  function _clearAndRepeat() {
+    if (awaitingReply) return;
+    _stopSpeaking();
+    if (editing) { editing = false; _applyEditUi(false); }
+    const area = document.getElementById("voiceEditArea");
+    if (area) area.value = "";
+    _clearSilenceTimer();
+    ignoreInput = false;
+    _resetBuffers();
+    _setOrbState("listening");
+    _setStatus("A ouvir… pode repetir");
+    _restartRecognition();
+  }
+
+  // ─── Envio da mensagem ───────────────────────────────────────────────────────
+  async function _sendVoiceMessage(text) {
+    const processed = normalizeSpokenEmail(String(text || "")).trim();
+    if (!processed || awaitingReply) return;
+    _clearSilenceTimer();
+    _stopSpeaking();
+    if (editing) { editing = false; _applyEditUi(false); }
+
+    awaitingReply = true;
+    ignoreInput = true;
+    finalBuffer = ""; interimText = ""; lastFinalTranscript = "";
+    _setStatus("A pensar…");
     _setOrbState("thinking");
-    if (transcriptEl) transcriptEl.textContent = "«" + processedText + "»";
+    _showText(processed);
 
     // Enviar para o chat do Copilot (preenche o input e aciona o submit do copilot.js)
     const input = document.getElementById("copilotUserInput");
     const form  = document.getElementById("copilotInputForm");
+    userEchoSeen = false;
     if (input && form) {
-      input.value = processedText;
+      input.value = processed;
       form.dispatchEvent(new Event("submit", { cancelable: true }));
     }
 
-    _hookNextAIMessage();
-  }
+    if (!userEchoSeen) {
+      // o chat não aceitou (ainda a responder ao pedido anterior): guarda o texto e continua a ouvir
+      awaitingReply = false;
+      ignoreInput = false;
+      finalBuffer = processed;
+      _showText(processed);
+      _setOrbState("listening");
+      _setStatus("O Copilot ainda está a responder. Tente enviar de novo.");
+      return;
+    }
 
-  // ─── Hook na Resposta da IA para Leitura por Voz ─────────────────────────────
-  let _ttsHooked = false;
-  function _hookNextAIMessage() {
-    if (_ttsHooked) return;
-    _ttsHooked = true;
-
-    const originalAdd = window.addCopilotMessage;
-    window.addCopilotMessage = function (sender, text, action, chart, remember) {
-      const bubble = originalAdd.apply(this, arguments);
-      if (sender === "ai" && !isWakeMode) {
-        _setStatus("BankAO Copilot a responder…");
-        window.copilotSpeak(text, () => {
-          _setStatus("A ouvir com atenção…");
-          _setOrbState("listening");
-          if (transcriptEl) transcriptEl.textContent = "";
-        });
-        window.addCopilotMessage = originalAdd;
-        _ttsHooked = false;
-      }
-      return bubble;
-    };
+    // Se a resposta nunca chegar, não ficar preso: volta a ouvir passado um minuto
+    clearTimeout(replyWatchdog);
+    replyWatchdog = setTimeout(_resumeListening, 60000);
   }
 
   // ─── Mostrar e Esconder Overlay ──────────────────────────────────────────────

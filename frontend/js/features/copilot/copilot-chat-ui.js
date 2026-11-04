@@ -72,6 +72,7 @@ function addCopilotMessage(sender, text, action = null, chart = null, remember =
         // Limitar histórico a 20 mensagens
         if (state.chatHistory.length > 20) state.chatHistory = state.chatHistory.slice(-20);
     }
+    document.dispatchEvent(new CustomEvent("copilot:message", { detail: { sender, text } }));
     return bubble;
 }
 
@@ -150,6 +151,25 @@ function buildActionCard(action) {
             (action.debit_day ? row("Débito automático", `<span class="act-val">dia ${action.debit_day}</span>`) : "") +
             (action.saved ? row("Saldo inicial", `<span class="act-val">${money(action.saved, "AOA")}</span>`) : "");
         btnLabel = "Rever e criar meta";
+
+    } else if (action.type === "INVESTMENT_APPLY") {
+        badge = `<svg><use href="#i-trending"/></svg> Subscrição de investimento`;
+        if (!action.product_id) {
+            rows = row("Produto", `<span class="act-val">Escolha no catálogo</span>`);
+            btnLabel = "Abrir catálogo";
+        } else {
+            pill = escapeHtml(action.institution || "");
+            rows = row("Produto", `<strong class="act-val">${escapeHtml(action.product_name)}</strong>`) +
+                row("Montante", action.amount
+                    ? `<strong class="act-val">${money(action.amount, action.currency)}</strong>`
+                    : `<span class="act-val">A definir no formulário</span>`) +
+                row("Taxa anual", `<span class="act-val">${(Number(action.rate_annual) || 0).toFixed(1).replace(".", ",")}%</span>`) +
+                row("Prazo", `<span class="act-val">${escapeHtml(action.term_label || "")}</span>`) +
+                (action.notes ? row("Nome", `<span class="act-val">${escapeHtml(action.notes)}</span>`) : "") +
+                (action.est_return ? row(action.est_return_is_annual ? "Retorno estimado / ano" : "Retorno líquido estimado",
+                    `<strong class="act-val text-success">${money(action.est_return, action.currency)}</strong>`, "highlight-net") : "");
+            btnLabel = "Abrir formulário";
+        }
 
     } else if (action.type === "OPEN_INVESTMENTS") {
         badge = `<svg><use href="#i-trending"/></svg> Painel de Investimentos`;

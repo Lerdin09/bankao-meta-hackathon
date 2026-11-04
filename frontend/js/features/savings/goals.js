@@ -193,6 +193,15 @@ window.handleCreateGoal = async function(e) {
     updateDashboardHero();
     if (typeof refreshCardChart === "function") refreshCardChart();
     toast(`Meta "${name}" criada com sucesso!`, "success");
+    if (typeof copilotAnnounceDone === "function") {
+        const fmt = n => Number(n).toLocaleString("pt-PT") + " Kz";
+        const linhas = [`✅ **Meta criada!** A poupança **${name}** já está ativa.`, `• Objetivo: **${fmt(target)}**`];
+        if (monthly > 0) linhas.push(`• Depósito mensal: **${fmt(monthly)}**`);
+        if (sched && sched.start_date) linhas.push(`• 1.º débito: **${sched.start_date.split("-").reverse().join("/")}**, todo o dia ${sched.debit_day}`);
+        if (deadlineStr && deadlineStr !== "Indefinido") linhas.push(`• Conclusão: **${deadlineStr}**`);
+        linhas.push("\nPode vê-la em **Poupança**.");
+        copilotAnnounceDone("goal", linhas.join("\n"), `Concluído. A meta de poupança ${name} foi criada com sucesso.`);
+    }
 };
 // ============ EDIÇÃO DE METAS DE POUPANÇA ============
 window.openEditGoalModal = function(id) {

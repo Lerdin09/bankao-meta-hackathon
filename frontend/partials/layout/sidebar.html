@@ -47,6 +47,10 @@
             <span class="nav-item-icon"><svg><use href="#i-list"/></svg></span>
             <span class="nav-item-text">Extrato</span>
         </button>
+        <button class="nav-item" data-view="view-settings">
+            <span class="nav-item-icon"><svg><use href="#i-gear"/></svg></span>
+            <span class="nav-item-text">Definições</span>
+        </button>
         <button class="nav-item nav-copilot" data-view="view-copilot">
             <span class="nav-item-icon"><svg class="ic-spark"><use href="#i-spark"/></svg></span>
             <span class="nav-item-text">Copilot IA</span>
@@ -59,7 +63,7 @@
             <span class="sidebar-user-name" id="sidebarUserNameDisplay">Avelino Simão</span>
             <span class="sidebar-user-badge" id="sidebarUserKycBadge">Cliente Premium</span>
         </div>
-        <button class="sidebar-settings-btn" id="sidebarBtnSettings" title="Definições / Sair" onclick="openAuthModal()">
+        <button class="sidebar-settings-btn" id="sidebarBtnSettings" title="Definições" onclick="showView('view-settings')">
             <svg><use href="#i-gear"/></svg>
         </button>
     </div>

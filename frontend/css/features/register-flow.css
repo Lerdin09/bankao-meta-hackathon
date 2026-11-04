@@ -1,0 +1,41 @@
+/* Fluxo de registo — 7 páginas em 3 etapas (usa os tokens do tema) */
+.rf-overlay{position:fixed;inset:0;z-index:1300;overflow-y:auto;background:var(--bg);padding:calc(14px + var(--safe-t)) 16px calc(32px + var(--safe-b));display:flex;justify-content:center}
+.rf-wrap{width:100%;max-width:460px}
+.rf-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.rf-close{position:static}
+.rf-stepper{display:flex;gap:6px;margin-bottom:6px}
+.rf-stepper i{flex:1;height:5px;border-radius:9px;background:var(--surface-3);position:relative;overflow:hidden}
+.rf-stepper i:after{content:"";position:absolute;inset:0;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-2));transition:width .4s}
+.rf-stepper i.half:after{width:50%}.rf-stepper i.done:after{width:100%}
+.rf-stepinfo{display:flex;justify-content:space-between;font-size:.78rem;color:var(--text-2);margin-bottom:14px}.rf-stepinfo b{color:var(--gold)}
+.rf-card{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:24px 20px;box-shadow:0 24px 60px rgba(0,0,0,.35);animation:rfIn .3s ease}
+@keyframes rfIn{from{opacity:0;transform:translateY(10px)}}
+.rf-card h2{font-size:1.3rem;margin:0 0 6px}.rf-sub{color:var(--text-2);font-size:.9rem;line-height:1.5;margin:0 0 18px}
+.rf-card label.rf-l{display:block;font-size:.8rem;font-weight:600;color:var(--text-2);margin:14px 0 6px}
+.rf-card input[type=text],.rf-card input[type=email],.rf-card input[type=tel],.rf-card input[type=date],.rf-card input[type=password],.rf-card select{width:100%;background:var(--surface-2);border:1px solid var(--line-2);border-radius:14px;color:var(--text);padding:14px;font:inherit;font-size:.95rem;outline:none}
+.rf-card input:focus,.rf-card select:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft)}
+.rf-card .rf-bad{border-color:var(--red)!important}.rf-msg{color:var(--red);font-size:.76rem;margin-top:5px}
+.rf-phone{display:flex;gap:8px}.rf-phone span{background:var(--surface-3);border:1px solid var(--line-2);border-radius:14px;padding:14px;font-size:.95rem;color:var(--text-2);white-space:nowrap}
+.rf-btns{display:flex;gap:10px;margin-top:24px}.rf-btns .btn{flex:1;justify-content:center}.rf-btns .btn-ghost{flex:.6}
+.rf-chips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rf-chip{padding:12px 6px;border-radius:12px;border:1px solid var(--line-2);background:var(--surface-2);text-align:center;font-size:.82rem;font-weight:600;cursor:pointer;color:var(--text-2)}
+.rf-chip.on{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
+.rf-doc{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rf-dt{background:var(--surface-2);border:1.5px solid var(--line-2);border-radius:18px;padding:18px 10px;text-align:center;cursor:pointer}
+.rf-dt.on{border-color:var(--gold);background:var(--gold-soft)}.rf-dt div{font-size:2rem;margin-bottom:6px}.rf-dt b{display:block;font-size:.92rem}.rf-dt small{color:var(--text-3);font-size:.74rem}
+.rf-up{display:grid;place-items:center;text-align:center;height:150px;border:1.5px dashed var(--line-2);border-radius:16px;background:var(--surface-2);color:var(--text-2);font-size:.85rem;cursor:pointer;position:relative;overflow:hidden}
+.rf-up.ok{border:1.5px solid var(--green)}.rf-up img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.rf-up input{display:none}
+.rf-up em{position:absolute;right:8px;bottom:8px;background:var(--green);color:#052;font-style:normal;font-weight:700;font-size:.7rem;padding:3px 9px;border-radius:99px}
+.rf-pw{position:relative}.rf-pw button{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--text-2);cursor:pointer;font:inherit;font-size:.8rem}
+.rf-meter{height:5px;background:var(--surface-3);border-radius:9px;margin-top:8px;overflow:hidden}.rf-meter i{display:block;height:100%;width:0;transition:.3s}
+.rf-rules{list-style:none;padding:0;margin:12px 0 0;font-size:.78rem;color:var(--text-3);display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.rf-rules li:before{content:"○ "}.rf-rules li.ok{color:var(--green)}.rf-rules li.ok:before{content:"● "}
+.rf-pin{display:flex;gap:12px;justify-content:center;margin:6px 0 10px}
+.rf-pin input{width:58px!important;height:64px;text-align:center;font-size:1.6rem!important;font-weight:700;padding:0!important}
+.rf-tabs{display:flex;background:var(--surface-2);border-radius:14px;padding:4px;margin-bottom:12px}
+.rf-tabs button{flex:1;border:0;background:none;color:var(--text-2);padding:10px;border-radius:11px;font:inherit;font-weight:600;cursor:pointer}.rf-tabs button.on{background:var(--surface-3);color:var(--gold)}
+.rf-legal{height:260px;overflow:auto;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:14px;font-size:.8rem;line-height:1.6;color:var(--text-2)}
+.rf-legal h4{color:var(--text);margin:12px 0 4px;font-size:.84rem}.rf-legal h4:first-child{margin-top:0}
+.rf-ck{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:.82rem;color:var(--text-2);line-height:1.45;cursor:pointer}
+.rf-ck input{width:20px;height:20px;accent-color:var(--gold);flex:none;margin-top:1px}
+.rf-hint{font-size:.76rem;color:var(--text-3);margin-top:8px}

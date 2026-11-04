@@ -74,7 +74,7 @@ function groupDigits(value) {
     return compact.replace(/(.{4})/g, "$1 ").trim();
 }
 function formatMoney(amount, currency = "AOA") {
-    const formatted = new Intl.NumberFormat("pt-AO", {
+    const formatted = typeof bkFormatNumber === "function" ? bkFormatNumber(amount, 2) : new Intl.NumberFormat("pt-AO", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     }).format(Number(amount) || 0);
@@ -87,7 +87,7 @@ function formatMoney(amount, currency = "AOA") {
 }
 function formatTwoTierMoney(amount, currency = "USD") {
     const cur = (currency || "USD").toUpperCase();
-    const formatted = new Intl.NumberFormat("pt-AO", {
+    const formatted = typeof bkFormatNumber === "function" ? bkFormatNumber(amount, 2) : new Intl.NumberFormat("pt-AO", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     }).format(Number(amount) || 0);

@@ -15,6 +15,7 @@ const EXPENSE_CATEGORIES = {
     "Transporte": { icon: "#i-car", color: "#F59E0B", label: "Transporte & Combustível" },
     "Habitação": { icon: "#i-home", color: "#818CF8", label: "Habitação & Renda" },
     "Telecomunicações": { icon: "#i-phone", color: "#EC4899", label: "Telecom & Internet" },
+    "Eletrónicos": { icon: "#i-laptop", color: "#14B8A6", label: "Eletrónicos & Tecnologia" },
     "Lazer": { icon: "#i-spark", color: "#A855F7", label: "Lazer & Restaurantes" },
     "Saúde": { icon: "#i-heart", color: "#10B981", label: "Saúde & Farmácia" },
     "Poupança": { icon: "#i-piggy", color: "#4ADE80", label: "Depósitos em Poupança" },

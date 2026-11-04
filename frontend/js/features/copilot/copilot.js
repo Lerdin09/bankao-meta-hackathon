@@ -57,22 +57,17 @@ function initCopilot() {
 
             // Renderizar resposta (com ou sem gráfico)
             addCopilotMessage("ai", data.reply, data.action, data.chart);
+            if (typeof bkSetting === "function" && bkSetting("ai_read_aloud") && typeof window.copilotSpeak === "function") window.copilotSpeak(data.reply);
+
+            // Despesa registada/removida pelo Copilot: já está na base de dados, só falta atualizar o ecrã
+            if (data.action && ["EXPENSE_REGISTERED", "EXPENSE_DELETED"].includes(data.action.type)) {
+                refreshExpensesFromCopilot();
+            }
 
             // Abrir formulário ou painel correspondente (poupanças, investimentos, operações)
             if (data.action) {
-                if (wide.matches || data.action.type === "OPEN_INVESTMENTS" || data.action.type === "CREATE_SAVINGS_GOAL") {
+                if (wide.matches || ["OPEN_INVESTMENTS", "CREATE_SAVINGS_GOAL", "INVESTMENT_APPLY"].includes(data.action.type)) {
                     applyCopilotAction(data.action, true);
-                }
-            } else if (data.reply && (
-                data.reply.includes("Investimentos") ||
-                data.reply.includes("investimento") ||
-                data.reply.includes("BODIVA") ||
-                data.reply.includes("Depósito a Prazo")
-            )) {
-                // Abre o painel de investimentos no final da resposta, igual nas poupanças
-                if (typeof window.showView === "function") {
-                    window.showView("view-investments");
-                    if (typeof switchInvestTab === "function") switchInvestTab("portfolio");
                 }
             }
         } catch (err) {

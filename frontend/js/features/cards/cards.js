@@ -408,7 +408,7 @@ function renderInfoStrip() {
     if (st) st.innerHTML = `<span class="cd-badge ${card.status}">${ST[card.status] || escCards(card.status)}</span>`;
     setText("cInfoInst", card.institution || "BankAO");
     const d = parseApiDate(card.created_at);
-    setText("cInfoCreated", d ? d.toLocaleDateString("pt-AO", { day: "2-digit", month: "short", year: "numeric" }) : "—");
+    setText("cInfoCreated", d ? bkFormatDate(d) : "—");
 }
 
 /* ── 1 · Visão geral ─────────────────────────────────────────────────────── */

@@ -20,7 +20,7 @@ logger = logging.getLogger("bankao.copilot_v2")
 CATEGORY_EMOJIS = {
     "Alimentação": "🛒", "Restaurantes": "🍽️", "Supermercado": "🛒",
     "Transporte": "🚖", "Combustível": "⛽", "Saúde": "💊",
-    "Educação": "🎓", "Vestuário": "👗", "Eletrónica": "💻",
+    "Educação": "🎓", "Vestuário": "👗", "Eletrónica": "💻", "Eletrónicos": "💻",
     "Lazer": "🎬", "Viagens": "✈️", "Telecomunicações": "📱",
     "Serviços": "⚙️", "Poupança": "🏦", "Investimento": "📈",
     "Habitação": "🏠", "Outros": "💳",

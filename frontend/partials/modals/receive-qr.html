@@ -58,6 +58,12 @@
                 </div>
             </section>
 
+            <!-- 4b · Valor opcional (vai dentro do QR) -->
+            <section class="qr-amount-box">
+                <label for="qrAmountInput">Valor a receber <small>(opcional — vai dentro do QR)</small></label>
+                <input type="text" id="qrAmountInput" inputmode="decimal" placeholder="Ex.: 5000" autocomplete="off" oninput="refreshReceiveQr()">
+            </section>
+
             <!-- 5 · Copiar dados (chave e IBAN) -->
             <button type="button" class="qr-copy-all" id="btnCopyQrAll" onclick="shareQrDetails()">
                 <span class="qr-copy-all-in">
@@ -68,6 +74,9 @@
                     <svg><use href="#i-check"/></svg>
                     <span>Dados copiados</span>
                 </span>
+            </button>
+            <button type="button" class="qr-download-btn" onclick="downloadReceiveQr()">
+                <svg><use href="#i-down"/></svg><span>Descarregar QR (PNG)</span>
             </button>
         </div>
     </div>

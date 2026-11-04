@@ -99,6 +99,7 @@ function initShell() {
         if (id === "view-card-chart") renderCardChart();
         if (id === "view-investments") loadInvestmentsData();
         if (id === "view-cards") loadCardsData();
+        if (id === "view-settings") { renderSettings(); if (typeof loadUserSettings === "function") loadUserSettings(); }
         if (id === "view-statement") {
             initStatementDateRange();
             refreshStatement();

@@ -6,18 +6,19 @@ import datetime
 import random
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from backend.core.security import create_access_token, get_current_user, get_password_hash, verify_password
 from backend.database import get_connection
 from backend.schemas import TokenResponse, UserLogin, UserRegister
 from backend.services.iban import gerar_iban_ficticio
+from backend.services import user_settings as _us
 
 router = APIRouter(prefix="/api/auth", tags=["Autenticação"])
 
 
 @router.post("/register", response_model=TokenResponse)
-def register(data: UserRegister):
+def register(data: UserRegister, request: Request):
     if data.confirm_password and data.password != data.confirm_password:
         raise HTTPException(status_code=400, detail="As palavras-passe não coincidem.")
     if not data.terms_accepted:
@@ -32,12 +33,21 @@ def register(data: UserRegister):
         pwd_hash = get_password_hash(data.password)
         nome_display = data.nome if (data.nome and data.nome != "Novo Utilizador") else "Novo Utilizador"
 
+        partes = nome_display.split()
+        primeiro = partes[0] if partes else nome_display
+        ultimo = partes[-1] if len(partes) > 1 else ""
+        pin_hash = get_password_hash(data.pin) if data.pin else None
+
         conn.execute(
             """
-            INSERT INTO users (id, nome, email, password_hash, telefone, kyc_status, terms_accepted)
-            VALUES (?, ?, ?, ?, ?, 'pendente', 1)
+            INSERT INTO users (id, nome, primeiro_nome, ultimo_nome, email, password_hash, telefone,
+                               kyc_status, terms_accepted, data_nascimento, nacionalidade, morada,
+                               profissao, rendimento_mensal, finalidade, pin_hash)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'pendente', 1, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (user_id, nome_display, data.email, pwd_hash, data.telefone)
+            (user_id, nome_display, primeiro, ultimo, data.email, pwd_hash, data.telefone,
+             data.data_nascimento, data.nacionalidade, data.morada, data.profissao,
+             data.rendimento_mensal, data.finalidade, pin_hash)
         )
 
         # Criar automaticamente 3 cartões/contas: AO (Angola - AOA), PT (Portugal - EUR) e US (Estados Unidos - USD) com saldo 0
@@ -65,13 +75,16 @@ def register(data: UserRegister):
             (acc_usd_id, user_id, acc_usd_num, iban_usd)
         )
 
-    token = create_access_token(data={"sub": user_id, "email": data.email})
+    sid = _us.create_session(user_id, request.headers.get("user-agent", ""), request.client.host if request.client else "")
+    token = create_access_token(data={"sub": user_id, "email": data.email, "sid": sid})
     return {
         "access_token": token,
         "token_type": "bearer",
         "user": {
             "id": user_id,
             "nome": nome_display,
+            "primeiro_nome": primeiro,
+            "ultimo_nome": ultimo,
             "email": data.email,
             "telefone": data.telefone,
             "kyc_status": "pendente",
@@ -81,10 +94,12 @@ def register(data: UserRegister):
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(data: UserLogin):
+def login(data: UserLogin, request: Request):
     with get_connection() as conn:
         user = conn.execute("SELECT * FROM users WHERE email = ?", (data.email,)).fetchone()
         if not user or not verify_password(data.password, user["password_hash"]):
+            if user:
+                _us.log_failed_login(user["id"], request.headers.get("user-agent", ""), request.client.host if request.client else "")
             raise HTTPException(status_code=401, detail="E-mail ou palavra-passe incorretos.")
 
         user_dict = {
@@ -100,7 +115,8 @@ def login(data: UserLogin):
             "created_at": user["created_at"] if "created_at" in user.keys() else None
         }
 
-    token = create_access_token(data={"sub": user["id"], "email": user["email"]})
+    sid = _us.create_session(user["id"], request.headers.get("user-agent", ""), request.client.host if request.client else "")
+    token = create_access_token(data={"sub": user["id"], "email": user["email"], "sid": sid})
     return {
         "access_token": token,
         "token_type": "bearer",

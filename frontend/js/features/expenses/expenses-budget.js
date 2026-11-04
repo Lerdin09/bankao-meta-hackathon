@@ -18,7 +18,7 @@ window.openEditCategoryBudgetModal = function(cat) {
 
     const CAT_SVG_ICONS = {
         "Alimentação": "#i-cart", "Transporte": "#i-car", "Habitação": "#i-home",
-        "Telecomunicações": "#i-phone", "Lazer": "#i-spark", "Saúde": "#i-heart",
+        "Telecomunicações": "#i-phone", "Eletrónicos": "#i-laptop", "Lazer": "#i-spark", "Saúde": "#i-heart",
         "Poupança": "#i-piggy", "Outros": "#i-receipt"
     };
     const iconHref = (info.icon && info.icon.startsWith("#")) ? info.icon : (CAT_SVG_ICONS[targetCat] || "#i-receipt");

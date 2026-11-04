@@ -52,6 +52,10 @@
                 <div class="m-item-icon indigo"><svg><use href="#i-list"/></svg></div>
                 <span>Extrato Completo</span>
             </button>
+            <button class="mobile-menu-item" onclick="mobileNavTo('view-settings')">
+                <div class="m-item-icon amber"><svg><use href="#i-gear"/></svg></div>
+                <span>Definições</span>
+            </button>
             <button class="mobile-menu-item" onclick="mobileNavTo('view-copilot')">
                 <div class="m-item-icon spark"><svg class="ic-spark"><use href="#i-spark"/></svg></div>
                 <span>Copilot IA</span>
@@ -67,8 +71,8 @@
                 <button type="button" class="btn-text-link" onclick="closeMobileMenu(); document.getElementById('btnToggleBalance')?.click();">
                     <svg style="width:15px;height:15px;"><use href="#i-eye"/></svg> Ocultar saldos
                 </button>
-                <button type="button" class="btn-text-link danger" onclick="closeMobileMenu(); document.getElementById('btnAuthAction')?.click();">
-                    Definições / Sair
+                <button type="button" class="btn-text-link danger" onclick="mobileNavTo('view-settings')">
+                    Definições
                 </button>
             </div>
         </div>

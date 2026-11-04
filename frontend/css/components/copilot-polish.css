@@ -1,0 +1,212 @@
+/* ==========================================================================
+   BankAO Copilot — polimento visual (carrega depois do resto)
+   Painel, conversa, caixa de escrita e ecrã de voz, em mobile e desktop.
+   ========================================================================== */
+
+/* ---------- Painel e cabeçalho ---------- */
+.copilot-sidebar { background: linear-gradient(180deg, #0E1526 0%, #0A0F1C 100%); }
+.copilot-header { padding: 14px 16px; background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; border-bottom: 1px solid var(--line); }
+.copilot-orb { width: 36px; height: 36px; border-radius: 50%; }
+.copilot-version-badge, .sender-badge { display: none; }
+.copilot-name-row h3 { font-size: .98rem; }
+.copilot-tool-btn { border-radius: 50%; }
+.copilot-tool-btn:hover { transform: none; }
+.copilot-tool-btn svg { transition: transform .4s ease; }
+#btnCopilotReset:hover svg { transform: rotate(180deg); }
+
+/* ---------- Conversa ---------- */
+.copilot-chat-messages { padding: 18px 16px; gap: 16px; }
+.chat-bubble { max-width: 100%; gap: 0; }
+.chat-bubble .bubble-avatar { display: none; }
+.chat-bubble.ai { align-self: stretch; }
+.chat-bubble.ai .bubble-content {
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 4px 18px 18px 18px;
+    box-shadow: none;
+    font-size: .9rem;
+    line-height: 1.6;
+}
+.chat-bubble.user { align-self: flex-end; max-width: 86%; }
+.chat-bubble.user .bubble-content {
+    background: linear-gradient(135deg, #EDC56F 0%, #C8963A 100%);
+    border: 0;
+    border-radius: 18px 18px 4px 18px;
+    box-shadow: 0 8px 20px -10px rgba(200, 150, 58, .7);
+    color: #1A1203;
+    font-size: .9rem;
+    line-height: 1.5;
+}
+.chat-bubble.user .bubble-header-label { display: none; }
+.sender-name { font-weight: 600; color: var(--text-2); }
+.greeting-lead { font-size: .95rem; }
+.typing-bubble .bubble-content { width: auto; display: flex; align-items: center; gap: 10px; }
+.typing-label { font-size: .78rem; color: var(--text-3); }
+
+.quick-prompt-btn { padding: 8px 14px; font-size: .8rem; }
+
+/* ---------- Caixa de escrita ---------- */
+.copilot-input-form { padding: 10px 14px 14px; background: transparent; border-top: 1px solid var(--line); }
+.copilot-input-container {
+    align-items: flex-end;
+    gap: 4px;
+    padding: 5px 5px 5px 16px;
+    border-radius: 24px;
+    background: var(--surface-2);
+    border-color: var(--line-2);
+    box-shadow: none;
+}
+.copilot-input-container textarea {
+    flex: 1;
+    min-width: 0;
+    min-height: 40px;
+    max-height: 120px;
+    resize: none;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: .92rem;
+    line-height: 1.45;
+    padding: 10px 0;
+}
+.copilot-input-container textarea::placeholder { color: var(--text-3); }
+.btn-mic-copilot { width: 40px; height: 40px; margin: 0; border-radius: 50%; background: transparent; border: 0; color: var(--text-2); }
+.btn-mic-copilot:hover { transform: none; background: var(--gold-soft); color: var(--gold); }
+.btn-mic-copilot.mic-active { background: var(--gold); color: #1A1203; box-shadow: none; }
+.btn-send-copilot { width: 40px; height: 40px; }
+.copilot-input-hint { color: var(--text-3); }
+
+@media (max-width: 1023px) {
+    #view-copilot .copilot-close-btn { border-radius: 50%; }
+    #view-copilot .copilot-chat-messages { padding: 16px 14px; }
+    #view-copilot .chat-bubble.user { max-width: 88%; }
+    #view-copilot .chat-bubble.ai .bubble-content,
+    #view-copilot .chat-bubble.user .bubble-content { font-size: 15px; }
+    #view-copilot .copilot-input-container textarea { font-size: 16px; min-height: 44px; }
+    #view-copilot .btn-mic-copilot,
+    #view-copilot .btn-send-copilot { width: 44px; height: 44px; }
+}
+
+/* ---------- Botão flutuante de voz ---------- */
+.voice-floating-trigger {
+    z-index: 98;
+    right: 16px;
+    bottom: calc(var(--bottom-h) + 18px + var(--safe-b));
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    justify-content: center;
+}
+.v-float-label { display: none; }
+/* Com o Copilot aberto (mobile) ou no desktop, o microfone já está na caixa de escrita */
+body.copilot-open .voice-floating-trigger { display: none; }
+@media (min-width: 1024px) { .voice-floating-trigger { display: none; } }
+
+/* ---------- Ecrã de voz ---------- */
+.voice-overlay {
+    height: 100dvh;
+    justify-content: flex-start;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) 20px calc(16px + env(safe-area-inset-bottom, 0px));
+}
+.voice-top {
+    width: 100%;
+    max-width: 720px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.voice-top .voice-status { margin: 0; font-size: 13px; }
+.voice-orb-container { flex-shrink: 0; width: 190px; height: 190px; margin: 4px 0 0; }
+#voiceCanvas { width: 190px; height: 190px; }
+.voice-orb-inner { width: 68px; height: 68px; }
+.voice-orb-icon svg { width: 26px; height: 26px; }
+
+.voice-transcript-wrapper {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    max-width: 720px;
+    margin: 12px 0;
+    display: flex;
+}
+.voice-transcript {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    text-align: left;
+    font-size: 20px;
+    line-height: 1.55;
+    font-weight: 500;
+    padding: 18px 20px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, .04);
+    border: 1px solid var(--line-2);
+    user-select: text;
+    -webkit-user-select: text;
+}
+.voice-transcript:empty { display: flex; align-items: center; justify-content: center; }
+.voice-transcript:empty::before {
+    content: "Pode falar. Eu ouço até terminar.";
+    font-style: normal;
+    font-size: 16px;
+    color: var(--text-3);
+}
+
+.voice-bottom { width: 100%; max-width: 720px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; }
+.voice-auto { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-2); cursor: pointer; }
+.voice-auto input { width: 18px; height: 18px; accent-color: var(--gold); }
+.voice-actions { display: flex; gap: 10px; }
+.voice-btn-primary, .voice-btn-ghost {
+    height: 52px;
+    border-radius: 26px;
+    font: 700 16px var(--font);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.voice-btn-primary { flex: 1; border: 0; background: linear-gradient(135deg, #F4D48A, #C8963A); color: #1A1203; }
+.voice-btn-primary:disabled { opacity: .35; cursor: default; }
+.voice-btn-ghost { padding: 0 24px; font-weight: 600; font-size: 15px; background: rgba(255, 255, 255, .07); border: 1px solid var(--line-2); color: var(--text); }
+.voice-footer-hint { margin: 0; text-align: center; font-size: 13px; color: var(--text-3); }
+
+@media (max-width: 640px) {
+    .voice-orb-container, #voiceCanvas { width: 150px; height: 150px; }
+    .voice-orb-inner { width: 56px; height: 56px; }
+    .voice-transcript { font-size: 18px; padding: 16px; }
+}
+@media (max-height: 560px) {
+    .voice-orb-container { display: none; }
+}
+@media (hover: hover) {
+    .voice-btn-primary:not(:disabled):hover { filter: brightness(1.06); }
+    .voice-btn-ghost:hover { background: rgba(255, 255, 255, .12); }
+}
+
+/* ---------- Voz: editar, apagar e repetir ---------- */
+.voice-transcript[hidden], .voice-edit-area[hidden] { display: none !important; }
+.voice-edit-area {
+    width: 100%;
+    height: 100%;
+    resize: none;
+    padding: 18px 20px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, .06);
+    border: 1px solid var(--gold);
+    color: var(--text);
+    font: 500 20px/1.55 var(--font);
+    outline: 0;
+    box-shadow: 0 0 0 3px var(--gold-soft);
+}
+.voice-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.voice-actions .voice-btn-primary { grid-column: 1 / -1; }
+.voice-actions .voice-btn-ghost { height: 48px; padding: 0 12px; font-size: 14px; }
+@media (max-width: 640px) { .voice-edit-area { font-size: 18px; padding: 16px; } }

@@ -47,6 +47,9 @@ async function loadUserData() {
         const createdAt = state.user && state.user.created_at ? state.user.created_at : null;
         populateMonthSelect("payMonthSelect", createdAt, "all");
         populateMonthSelect("expMonthSelect", createdAt, "all");
+        // Definições do utilizador: aplicar (1.ª vez) e verificar alertas
+        if (typeof loadUserSettings === "function" && !ST.loaded) await loadUserSettings();
+        if (typeof checkAlerts === "function") checkAlerts();
     } catch (err) {
         console.error("Erro ao carregar dados:", err);
     }

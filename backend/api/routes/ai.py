@@ -252,6 +252,9 @@ def ai_chat_v2(data: ChatV2Request, current_user: dict = Depends(get_current_use
     análise de hábitos, gráficos inline, tool calling e auto-registo de operações.
     """
     user_id = current_user["id"]
+    from backend.services.user_settings import get_settings
+    if not get_settings(user_id).get("ai_enabled", True):
+        raise HTTPException(status_code=403, detail="O assistente IA está desativado nas Definições.")
     return CopilotOrchestrator.process_message(
         user_id=user_id,
         message=data.message,

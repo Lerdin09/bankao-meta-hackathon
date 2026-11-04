@@ -121,6 +121,7 @@ async function confirmDepositPayment(depositId) {
         const data = await res.json();
         if (res.ok) {
             addCopilotMessage("ai", `🎉 **Depósito Confirmado!** O montante de **${formatMoney(data.data.amount_minor / 100, data.data.currency)}** já está disponível e contabilizado no seu livro-razão.`);
+            if (typeof copilotOpDone === "function") copilotOpDone("deposit", { speech: `Concluído. O depósito de ${formatMoney(data.data.amount_minor / 100, data.data.currency)} foi confirmado e já está disponível.` });
             await loadUserData();
         } else {
             toast(data.detail || "Erro ao confirmar pagamento.");

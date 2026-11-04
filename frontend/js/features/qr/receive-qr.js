@@ -82,8 +82,10 @@ function openReceiveQrModal() {
     setText("qrModalUserIban", iban);
     setText("qrModalUserStatus", user.kyc_status === "verificado" ? "Conta Verificada BankAO" : "Conta Ativa BankAO");
 
-    const qrPayload = `BANKAO:PAY?email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&iban=${encodeURIComponent(aoaAcc ? aoaAcc.iban_virtual : '')}&account=${encodeURIComponent(aoaAcc ? aoaAcc.account_number : '')}`;
-    renderReceiveQr(qrPayload);
+    window.__qrAcc = { email, name, iban: aoaAcc ? aoaAcc.iban_virtual : "", account: aoaAcc ? aoaAcc.account_number : "" };
+    const amtEl = document.getElementById("qrAmountInput");
+    if (amtEl) amtEl.value = "";
+    refreshReceiveQr();
 
     // repõe o estado dos botões de copiar
     m.querySelectorAll(".copied").forEach(el => el.classList.remove("copied"));
@@ -172,3 +174,53 @@ IBAN (AOA): ${iban}`;
     }
 }
 window.shareQrDetails = shareQrDetails;
+
+// O QR leva os dados da conta (e, se indicado, o valor): quem o ler já recebe tudo preenchido
+function buildReceivePayload() {
+    const a = window.__qrAcc || {};
+    let p = `BANKAO:PAY?email=${encodeURIComponent(a.email || "")}&name=${encodeURIComponent(a.name || "")}` +
+            `&iban=${encodeURIComponent(a.iban || "")}&account=${encodeURIComponent(a.account || "")}`;
+    const raw = (document.getElementById("qrAmountInput")?.value || "").replace(/\s/g, "");
+    const amount = Number(raw.replace(/\.(?=\d{3}\b)/g, "").replace(",", "."));
+    if (amount > 0) p += `&amount=${amount}&currency=AOA`;
+    return p;
+}
+function refreshReceiveQr() { renderReceiveQr(buildReceivePayload()); }
+window.refreshReceiveQr = refreshReceiveQr;
+
+// Descarregar o QR como imagem PNG (com nome e IBAN por baixo)
+async function downloadReceiveQr() {
+    const svg = document.querySelector("#qrCanvasContainer svg");
+    if (!svg) return toast("O QR ainda não está pronto.", "error");
+    try {
+        const clone = svg.cloneNode(true);
+        clone.setAttribute("width", "1000"); clone.setAttribute("height", "1000");
+        const img = new Image();
+        await new Promise((ok, fail) => {
+            img.onload = ok; img.onerror = fail;
+            img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(new XMLSerializer().serializeToString(clone));
+        });
+        const a = window.__qrAcc || {}, pad = 60, S = 1000;
+        const cv = document.createElement("canvas");
+        cv.width = S + pad * 2; cv.height = S + pad * 2 + 170;
+        const c = cv.getContext("2d");
+        c.fillStyle = "#fff"; c.fillRect(0, 0, cv.width, cv.height);
+        c.drawImage(img, pad, pad, S, S);
+        c.textAlign = "center"; c.fillStyle = "#0B1530";
+        c.font = "700 46px system-ui, sans-serif"; c.fillText(a.name || "Cliente BankAO", cv.width / 2, S + pad * 2 + 20);
+        c.fillStyle = "#475569"; c.font = "500 32px ui-monospace, monospace"; c.fillText(groupDigits(a.iban || ""), cv.width / 2, S + pad * 2 + 72);
+        c.font = "600 26px system-ui, sans-serif"; c.fillText("Leia com a app BankAO para transferir", cv.width / 2, S + pad * 2 + 122);
+        cv.toBlob(blob => {
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "QR-BankAO-" + (a.name || "conta").toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".png";
+            document.body.appendChild(link); link.click(); link.remove();
+            setTimeout(() => URL.revokeObjectURL(link.href), 4000);
+            toast("QR descarregado.", "success");
+        }, "image/png");
+    } catch (err) {
+        console.error(err);
+        toast("Não foi possível descarregar o QR.", "error");
+    }
+}
+window.downloadReceiveQr = downloadReceiveQr;

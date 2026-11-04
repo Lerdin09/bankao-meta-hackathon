@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     initChartMobileScrollLock();
     initInvestments();
     initCards();
+    initSettings();
 
     // Taxas de câmbio vêm da base de dados
     await loadFxRates();

@@ -25,7 +25,7 @@ MAX_HISTORY = 16
 MAX_TOOL_RESULT_CHARS = 6000
 
 _WEEKDAYS = ["segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado", "domingo"]
-_ACTION_TOOLS = {"prepare_savings_goal", "prepare_expense", "prepare_transfer", "prepare_deposit"}
+_ACTION_TOOLS = {"prepare_savings_goal", "prepare_expense", "prepare_transfer", "prepare_deposit", "prepare_investment"}
 
 _VIEW_NAMES = {
     "view-home": "Início", "view-ops": "Operações", "view-cards": "Cartões", "view-expenses": "Despesas",
@@ -63,6 +63,27 @@ def _customer_brief(user_id: str) -> Dict[str, Any]:
 
 
 def build_system_prompt(user_id: str, session: Dict[str, Any], client_context: Optional[Dict[str, Any]]) -> str:
+    """Prompt base + preferências do cliente (Definições → Copilot IA)."""
+    base = _build_system_prompt_base(user_id, session, client_context)
+    try:
+        from backend.services.user_settings import get_settings
+        st = get_settings(user_id)
+    except Exception:
+        return base
+    extra = ["", "═══ PREFERÊNCIAS DO CLIENTE (Definições) ═══"]
+    if st.get("ai_language") == "en":
+        extra.append("Responde sempre em inglês (English).")
+    extra.append({"curto": "Respostas curtas e diretas.", "detalhado": "Respostas detalhadas, com explicação.",
+                  }.get(st.get("ai_style"), "Respostas equilibradas."))
+    nomes = {"balances": "saldos", "transactions": "movimentos", "cards": "cartões", "savings": "poupanças", "investments": "investimentos"}
+    negados = [n for k, n in nomes.items() if not st.get("ai_perm_" + k)]
+    if negados:
+        extra.append("O cliente NÃO autorizou o acesso do Copilot a: " + ", ".join(negados) +
+                     ". Não uses ferramentas nem reveles dados dessas áreas; diz que pode ativar a permissão em Definições → Copilot IA.")
+    return base + "\n".join(extra)
+
+
+def _build_system_prompt_base(user_id: str, session: Dict[str, Any], client_context: Optional[Dict[str, Any]]) -> str:
     today = datetime.date.today()
     lines = [SYSTEM_PROMPT.strip(), "", "═══ CONTEXTO DESTA CONVERSA ═══",
              f"• Hoje: {_WEEKDAYS[today.weekday()]}, {today.isoformat()} (use esta data para 'hoje', 'ontem', 'este mês', 'daqui a 6 meses')."]

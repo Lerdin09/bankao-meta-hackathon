@@ -58,7 +58,12 @@
 @import url("features/transfer-deposit-modals.css");
 @import url("features/balance-forecast.css");
 @import url("features/investments.css");
+@import url("features/settings.css");
 @import url("features/cards.css");
+@import url("components/copilot-polish.css");
+@import url("features/register-flow.css");
+@import url("features/qr-scan.css");
+@import url("components/copilot-voice-dock.css");
 
 /* Bloqueio de scroll de ecrã ao tocar num gráfico em dispositivos móveis */
 html.chart-touch-locked,

@@ -10,6 +10,7 @@ from backend.core.security import get_current_user
 from backend.database import get_connection
 from backend.providers.payout import PayoutProvider
 from backend.schemas import IbanTransferCreate, InternalTransferCreate
+from backend.services.user_settings import check_transfer_limit
 from backend.services.ledger import InsufficientFundsError, execute_internal_transfer
 
 router = APIRouter(prefix="/api/transfers", tags=["Transferências"])
@@ -23,6 +24,8 @@ def transfer_internal(
     amount_minor = int(round(data.amount * 100))
     if amount_minor <= 0:
         raise HTTPException(status_code=400, detail="O montante deve ser estritamente maior que zero.")
+
+    check_transfer_limit(current_user["id"], data.from_account_id, amount_minor)
 
     # Descobrir a conta de destino pelo e-mail ou número de conta
     with get_connection() as conn:
@@ -127,7 +130,8 @@ def transfer_iban(
     current_user: dict = Depends(get_current_user)
 ):
     amount_minor = int(round(data.amount * 100))
-    
+    check_transfer_limit(current_user["id"], data.from_account_id, amount_minor)
+
     # Identificar moeda da conta de origem
     with get_connection() as conn:
         acc = conn.execute("SELECT currency FROM accounts WHERE id = ?", (data.from_account_id,)).fetchone()

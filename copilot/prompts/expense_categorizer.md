@@ -12,6 +12,7 @@ Especificação de como o Copilot processa descrições livres de gastos em ling
 | **Transporte** | combustível, sonangol, pumangol, táxi, heetch, yango, corrida, mecânico, revisão, passagem, aeroporto |
 | **Habitação** | renda, aluguer, epal, ende, condomínio, luz, água, limpeza, manutenção de casa |
 | **Telecomunicações**| unitel, movicel, zap, dstv, saldo, internet, recarga, dados móveis |
+| **Eletrónicos** | telefone, telemóvel, iphone, samsung, computador, portátil, tablet, tv, auscultadores, consola |
 | **Lazer** | cinema, praia, passeio, bar, festa, viagem, hotel, streaming, netflix |
 | **Saúde** | farmácia, remédio, consulta, clínica, análises, médico, dentista, hospital |
 | **Outros** | Qualquer despesa que não se enquadre claramente nas categorias acima |

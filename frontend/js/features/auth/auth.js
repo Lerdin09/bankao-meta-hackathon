@@ -18,6 +18,12 @@ function closeAuthModal() {
     setTimeout(() => m.style.display = 'none', 300);
 }
 function switchAuthTab(tab) {
+    // O registo é feito no novo fluxo de 7 páginas (register-flow.js)
+    if (tab === 'register' && typeof openRegisterFlow === 'function') {
+        closeAuthModal();
+        openRegisterFlow();
+        return;
+    }
     const isLogin = tab === 'login';
     document.getElementById('tabLogin').classList.toggle('active', isLogin);
     document.getElementById('tabRegister').classList.toggle('active', !isLogin);
@@ -168,6 +174,7 @@ function updateTopbarUser(user) {
         if (mobKycEl)    mobKycEl.textContent    = 'Não autenticado';
 
         if (btnEl) {
+            btnEl.style.display = '';
             btnEl.textContent = 'Entrar';
             btnEl.className   = 'btn-auth-action';
             btnEl.onclick     = openAuthModal;
@@ -206,11 +213,11 @@ function updateTopbarUser(user) {
         mobKycEl.textContent = isVerif ? 'Cliente Premium (Verificado)' : 'KYC Pendente';
     }
 
-    // Botão Sair
+    // Com sessão iniciada o botão da barra superior desaparece:
+    // "Terminar sessão" fica nas Definições (Sobre e conta).
     if (btnEl) {
-        btnEl.textContent = 'Sair';
-        btnEl.className   = 'btn-auth-action logout-mode';
-        btnEl.onclick     = logout;
+        btnEl.style.display = 'none';
+        btnEl.onclick       = null;
     }
 
     updateDashboardHero();

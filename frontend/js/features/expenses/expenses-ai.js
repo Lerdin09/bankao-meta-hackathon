@@ -31,8 +31,10 @@ window.handleQuickAiExpense = async function(e) {
         category = "Transporte";
     } else if (/renda|casa|energia|luz|ende|água|epal|condom[ií]nio|habita/i.test(textLower)) {
         category = "Habitação";
-    } else if (/unitel|zap|dstv|internet|net|saldo|telefone|telecom/i.test(textLower)) {
+    } else if (/unitel|zap|dstv|internet|\bnet\b|saldo|recarga|telecom/i.test(textLower)) {
         category = "Telecomunicações";
+    } else if (/eletr[oó]nic|telefone|telem[oó]vel|celular|smartphone|iphone|samsung|tablet|computador|port[aá]til|laptop|\btv\b|televis|auscultador|consola/i.test(textLower)) {
+        category = "Eletrónicos";
     } else if (/praia|festa|cinema|bar|lazer|balada|show/i.test(textLower)) {
         category = "Lazer";
     } else if (/farm[aá]cia|rem[eé]dio|hospital|cl[ií]nica|sa[uú]de|m[eé]dico/i.test(textLower)) {
@@ -73,6 +75,7 @@ window.handleQuickAiExpense = async function(e) {
     renderExpensesView();
     refreshHomeFinance();
     toast(`✨ Copilot registou despesa: ${created.name} (${formatTwoTierMoney(amount, "AOA")})`, "success");
+    if (typeof copilotOpDone === "function") copilotOpDone("expense", { direct: true, speech: `Concluído. A despesa ${created.name} de ${formatTwoTierMoney(amount, "AOA")} foi registada com sucesso.` });
 };
 async function registerExpenseFromAction(action) {
     if (!action) return;
@@ -92,6 +95,7 @@ async function registerExpenseFromAction(action) {
         renderExpensesView();
         refreshHomeFinance();
         toast(`✨ Copilot registou a sua despesa de ${formatMoney(created.amount, created.currency)} em ${created.category}!`, "success");
+        if (typeof copilotOpDone === "function") copilotOpDone("expense", { direct: true, speech: `Concluído. A despesa de ${formatMoney(created.amount, created.currency)} em ${created.category} foi registada com sucesso.` });
     } catch (err) {
         toast(err.message, "error");
     }

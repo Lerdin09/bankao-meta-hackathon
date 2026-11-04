@@ -35,6 +35,7 @@ from backend.ai.tools.contacts import (
 )
 from backend.ai.tools.actions import (
     tool_prepare_deposit,
+    tool_prepare_investment,
     tool_prepare_expense,
     tool_prepare_savings_goal,
     tool_prepare_transfer,
@@ -456,13 +457,13 @@ BANKAO_TOOLS_DEFINITIONS = [
         "type": "function",
         "function": {
             "name": "prepare_expense",
-            "description": "PREPARA o REGISTO de uma despesa que o cliente JÁ fez (ex.: 'gastei 5000 em táxi', 'regista 12 mil de supermercado'). Não regista: o cliente confirma no formulário. NÃO usar para criar metas de poupança.",
+            "description": "REGISTA de imediato uma despesa que o cliente JÁ fez (ex.: 'gastei 5000 em táxi', 'comprei um telefone de 22 mil', 'regista 12 mil de supermercado'). Regista logo, sem formulário e sem pedir confirmação: chama esta ferramenta assim que tiveres o valor (não perguntes nome, categoria nem data se o cliente já os deu ou se se percebem). Telefone, telemóvel, computador, TV e afins → categoria Eletrónicos. NÃO usar para criar metas de poupança.",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "name": {"type": "string", "description": "Descrição curta (ex.: 'Táxi', 'Supermercado')."},
                     "amount": {"type": "number", "description": "Valor em Kz."},
-                    "category": {"type": "string", "enum": ["Alimentação", "Transporte", "Habitação", "Telecomunicações", "Lazer", "Saúde", "Poupança", "Outros"]},
+                    "category": {"type": "string", "enum": ["Alimentação", "Transporte", "Habitação", "Telecomunicações", "Eletrónicos", "Lazer", "Saúde", "Poupança", "Outros"]},
                     "expense_date": {"type": "string", "description": "Data AAAA-MM-DD (hoje/ontem convertidos). Omitir = hoje."}
                 },
                 "required": ["amount", "category"]
@@ -499,6 +500,22 @@ BANKAO_TOOLS_DEFINITIONS = [
                     "amount": {"type": "number", "description": "Valor em Kz."}
                 },
                 "required": ["phone_number", "amount"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "prepare_investment",
+            "description": "PREPARA a subscrição de um investimento do catálogo (não investe nada). Precisa do produto (nome ou id, ex.: 'Depósito a Prazo BankAO 18,5%') e do montante. Se o cliente não disse qual produto, consulta get_investment_catalog e pergunta qual quer. Se has_sufficient_funds vier false, avisa que o saldo não chega.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "product": {"type": "string", "description": "Nome ou id do produto do catálogo."},
+                    "amount": {"type": "number", "description": "Montante a investir na moeda do produto (500 mil = 500000)."},
+                    "notes": {"type": "string", "description": "Objetivo/nota opcional dita pelo cliente."}
+                },
+                "required": ["product", "amount"]
             }
         }
     }
@@ -682,6 +699,14 @@ def execute_tool(tool_name: str, arguments: Dict[str, Any], user_id: str) -> Dic
                 user_id,
                 phone_number=arguments.get("phone_number", ""),
                 amount=arguments.get("amount", 0),
+            )
+
+        elif tool_name == "prepare_investment":
+            return tool_prepare_investment(
+                user_id,
+                product=arguments.get("product"),
+                amount=arguments.get("amount", 0),
+                notes=arguments.get("notes"),
             )
 
         else:

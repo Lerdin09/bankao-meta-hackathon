@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
     <meta name="theme-color" content="#070B14">
     <meta name="color-scheme" content="dark">
+    <script>try{var _s=JSON.parse(localStorage.getItem("bankao_settings")||"{}"),_t=_s.theme||"dark";if(_t==="system")_t=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",_t)}catch(e){}</script>
     <title>BankAO — Carteira Digital para Angola e o Mundo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,6 +46,8 @@
                         <!-- @include partials/pages/operations.html -->
 
                         <!-- @include partials/pages/statement.html -->
+
+                        <!-- @include partials/pages/settings.html -->
                     </div>
                 </main>
 
@@ -66,6 +69,8 @@
     <!-- @include partials/modals/transfer-confirm.html -->
 
     <!-- @include partials/modals/auth.html -->
+
+    <!-- @include partials/modals/register-flow.html -->
 
     <!-- @include partials/modals/kyc.html -->
 

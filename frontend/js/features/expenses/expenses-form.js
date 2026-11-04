@@ -154,6 +154,12 @@ window.handleCreateExpense = async function(e) {
     renderExpensesView();
     refreshHomeFinance();
     toast(`Despesa "${name}" de ${formatMoney(amount, "AOA")} registada!`, "success");
+    if (typeof copilotOpDone === "function") {
+        copilotOpDone("expense", {
+            chat: `✅ **Despesa registada!** **${name}** · **${formatMoney(amount, "AOA")}**.\n\nPode vê-la em **Despesas**.`,
+            speech: `Concluído. A despesa ${name} de ${formatMoney(amount, "AOA")} foi registada com sucesso.`
+        });
+    }
 };
 window.deleteExpense = async function(id) {
     const removed = getExpenses().find(e => e.id === id);

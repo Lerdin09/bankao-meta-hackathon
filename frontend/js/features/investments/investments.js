@@ -489,6 +489,9 @@ async function handleInvestApplySubmit(e) {
         });
         invClose("modalInvestApply");
         toast((res && res.message) || "Investimento subscrito com sucesso!", "success");
+        if (typeof copilotAnnounceDone === "function") {
+            copilotAnnounceDone("investment", `✅ **Investimento realizado!** Subscreveu **${p.name || "o produto"}** com **${invFmt(amount, p.currency)}**.\n\nPode acompanhá-lo em **Investimentos → Carteira**.`, `Concluído. O investimento em ${p.name || "o produto"} foi realizado com sucesso.`);
+        }
         await loadInvestmentsData();
         if (typeof loadUserData === "function") loadUserData();
         switchInvestTab("portfolio");

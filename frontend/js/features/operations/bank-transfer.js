@@ -255,6 +255,7 @@ function initFxQuoteCalculator() {
                         });
                         toast("Transferência enviada");
                         addCopilotMessage("ai", `🌍 **Transferência Bancária Concluída!**\n- Titular: **${beneficiary}**\n- IBAN: \`${iban}\`\n- Quantia enviada: **${formatTwoTierMoney(amount, sendCurr)}**\n- Taxa bancária (2.5%): **${formatTwoTierMoney(fee, sendCurr)}**\n- Creditado ao destino: **${data.dest_amount_decimal} ${destCurr}**`);
+                        if (typeof copilotOpDone === "function") copilotOpDone("transfer_iban", { speech: `Concluído. A transferência bancária de ${formatTwoTierMoney(amount, sendCurr)} para ${beneficiary} foi executada com sucesso.` });
                         await loadUserData();
                     } else {
                         toast(data.detail || "Erro na transferência para IBAN.");
