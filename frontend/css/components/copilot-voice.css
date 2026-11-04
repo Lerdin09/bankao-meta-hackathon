@@ -185,6 +185,19 @@
     letter-spacing: 0.02em;
 }
 
+.voice-engine-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    background: rgba(99, 102, 241, 0.2);
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    color: #A5B4FC;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+}
+
 .v-pulse-indicator {
     width: 8px;
     height: 8px;

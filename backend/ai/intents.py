@@ -875,7 +875,132 @@ def _transfer_kind(merged: Dict[str, Any], fresh: Dict[str, Any], n: str, curren
     return "TRANSFER"
 
 
-def analyze_message(message: str, pending: Optional[Dict[str, Any]] = None, today: Optional[date] = None) -> Dict[str, Any]:
+_CONTACT_STOP = {"conta", "contas", "iban", "bankao", "para", "contacto", "contato", "transferir", "transferencia",
+                 "enviar", "mandar", "valor", "kz", "aoa", "euros", "dolares", "dos", "das", "meu", "minha",
+                 "fazer", "uma", "pelo", "pela", "com", "que"}
+_UNSUPPORTED_CUR = re.compile(r"\b(yuans?|renminbi|rmb|libras?|rands?|reais|rupias?|ienes?|yen|francos?|pesos?)\b")
+_BARE_CUR = re.compile(r"\b(euros?|eur|dolar(?:es)?|usd|kwanzas?|kz|aoa)\b")
+
+
+def _load_contacts(contacts: Any) -> List[Dict[str, Any]]:
+    if callable(contacts):
+        try:
+            contacts = contacts()
+        except Exception:
+            return []
+    return list(contacts or [])
+
+
+def _find_contacts(n: str, contacts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Contactos cujo nome/alcunha (inteiro ou uma palavra dele) aparece no texto; os melhores primeiro."""
+    scored = []
+    for c in contacts:
+        best = 0
+        for label in (c.get("nickname"), c.get("display_name"), c.get("name")):
+            key = _norm(str(label or "")).strip()
+            if len(key) < 3:
+                continue
+            if key not in _CONTACT_STOP and re.search(r"(?<!\w)" + re.escape(key) + r"(?!\w)", n):
+                best = max(best, 100 + len(key))
+            for tok in re.findall(r"\w{3,}", key):
+                if tok not in _CONTACT_STOP and re.search(r"(?<!\w)" + re.escape(tok) + r"(?!\w)", n):
+                    best = max(best, len(tok))
+        if best:
+            scored.append((best, c))
+    scored.sort(key=lambda x: -x[0])
+    if not scored:
+        return []
+    top = scored[0][0]
+    return [c for sc, c in scored if sc == top]
+
+
+def _contact_line(c: Dict[str, Any]) -> str:
+    name = c.get("display_name") or c.get("name") or "Contacto"
+    dest = c.get("account_number") or c.get("iban")
+    kind = "conta BankAO" if c.get("kind") != "iban" else "IBAN"
+    return f"• **{name}**" + (f" ({kind} `{dest}`)" if dest else " (sem conta nem IBAN guardado)")
+
+
+def _contact_step(slots: Dict[str, Any], n: str, contacts: Any, kind: str,
+                  prev_slots: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    """Resolve «para o irmão» com os contactos do cliente; pergunta em vez de repetir quando não consegue."""
+    merged = {**(prev_slots or {}), **{k: v for k, v in slots.items() if not k.startswith("_") and v not in (None, "")}}
+    merged.pop("target", None)
+    if prev_slots and (prev_slots.get("to_iban") or prev_slots.get("to_email") or prev_slots.get("to_account_number")) \
+            and prev_slots.get("beneficiary_name"):
+        merged["beneficiary_name"] = prev_slots["beneficiary_name"]   # não deixar «Contacto Irmão» (texto) apagar o nome real
+    ask_kind = kind if kind in TRANSFER_FAMILY else "TRANSFER"
+
+    um = _UNSUPPORTED_CUR.search(n)
+    if um:
+        merged.pop("currency", None)
+        slots.pop("currency", None)
+        merged["ask"] = "currency"
+    if prev_slots is not None and not slots.get("currency") and not um:
+        bc = _BARE_CUR.search(n)
+        if bc:
+            w = bc.group(1)
+            slots["currency"] = "EUR" if w.startswith("eur") else "USD" if w.startswith(("dol", "usd")) else "AOA"
+            merged["currency"] = slots["currency"]
+
+    def _cur_question(prefix: str = "") -> Dict[str, Any]:
+        amt = f" {merged['amount']:,.0f}".replace(",", ".") if merged.get("amount") else ""
+        who = f" (não em {um.group(1)})" if um else ""
+        return _ask(ask_kind, merged, f"{prefix}De momento só faço transferências em **Kz**, **euros** ou **dólares**{who}. "
+                                      f"Em qual destas quer enviar{amt}?")
+
+    waiting_cur = bool(prev_slots and prev_slots.get("ask") == "currency") or um is not None
+    if waiting_cur and not slots.get("currency") and not (prev_slots and prev_slots.get("currency")):
+        resolved_dest = bool(slots.get("to_iban") or slots.get("to_email") or slots.get("to_account_number")
+                             or merged.get("to_iban") or merged.get("to_email") or merged.get("to_account_number"))
+        if not resolved_dest:
+            cs0 = _load_contacts(contacts)
+            f0 = _find_contacts(n, cs0)
+            if len(f0) == 1 and (f0[0].get("account_number") or f0[0].get("iban")):
+                c0 = f0[0]
+                if c0.get("kind") == "iban" and c0.get("iban"):
+                    merged["to_iban"] = str(c0["iban"]).replace(" ", "").upper()
+                else:
+                    merged["to_account_number"] = str(c0.get("account_number") or "")
+                    if not merged["to_account_number"]:
+                        merged["to_iban"] = str(c0["iban"]).replace(" ", "").upper()
+                merged["beneficiary_name"] = c0.get("display_name") or c0.get("name") or ""
+                return _cur_question(f"Encontrei o contacto **{merged['beneficiary_name']}**. ")
+        return _cur_question()
+    if prev_slots is not None and prev_slots.get("ask") == "currency" and slots.get("currency"):
+        prev_slots.pop("ask", None)
+        merged.pop("ask", None)
+
+    if slots.get("to_iban") or slots.get("to_email") or slots.get("to_account_number"):
+        return None
+    cs = _load_contacts(contacts)
+    found = _find_contacts(n, cs)
+    if len(found) == 1:
+        c = found[0]
+        if c.get("kind") == "iban" and c.get("iban"):
+            slots["to_iban"] = str(c["iban"]).replace(" ", "").upper()
+        elif c.get("account_number"):
+            slots["to_account_number"] = str(c["account_number"])
+        elif c.get("iban"):
+            slots["to_iban"] = str(c["iban"]).replace(" ", "").upper()
+        else:
+            return _ask(ask_kind, merged, f"Encontrei o contacto **{c.get('display_name') or c.get('name')}**, mas não tem "
+                                          "conta nem IBAN guardado. Indique o **número de conta**, o **e-mail** ou o **IBAN**.")
+        slots["beneficiary_name"] = c.get("display_name") or c.get("name") or ""
+        return None
+    if len(found) > 1:
+        return _ask(ask_kind, merged, "Encontrei vários contactos:\n" + "\n".join(_contact_line(c) for c in found[:6]) +
+                    "\n\nDiga-me o nome de qual deles.")
+    if re.search(r"\b(?:contacto|contato)s?\b", n):
+        if not cs:
+            return _ask(ask_kind, merged, "Ainda não tem contactos guardados. Indique o **número de conta**, o **e-mail** ou o **IBAN**.")
+        return _ask(ask_kind, merged, "Não encontrei esse contacto. Os seus contactos:\n" +
+                    "\n".join(_contact_line(c) for c in cs[:6]) + "\n\nDiga-me o nome de um deles ou indique o **IBAN**/**conta**.")
+    return None
+
+
+def analyze_message(message: str, pending: Optional[Dict[str, Any]] = None, today: Optional[date] = None,
+                    contacts: Any = None) -> Dict[str, Any]:
     """
     Resultado: {"action": dict|None, "reply": str|None, "pending": dict|None}
       • action  → dados prontos para pré-preencher um formulário (o utilizador conclui).
@@ -892,6 +1017,12 @@ def analyze_message(message: str, pending: Optional[Dict[str, Any]] = None, toda
 
     prev_type = pending.get("type") if isinstance(pending, dict) else None
     prev_slots = pending.get("slots") if isinstance(pending, dict) else None
+
+    # Transferência para um contacto guardado («para o irmão»): resolve o destino pelo nome
+    if contacts is not None and (intent in TRANSFER_FAMILY or prev_type in TRANSFER_FAMILY):
+        early = _contact_step(slots, n, contacts, prev_type or intent, prev_slots if isinstance(prev_slots, dict) else None)
+        if early:
+            return early
 
     # --- Resposta a uma pergunta anterior: junta o que já se sabia com o que chegou agora ---
     if prev_type and isinstance(prev_slots, dict):
@@ -933,6 +1064,9 @@ def analyze_message(message: str, pending: Optional[Dict[str, Any]] = None, toda
 
     filled = _fill_slots(intent, slots, text, today)
     if intent == "TRANSFER":
+        kind0 = _transfer_kind(filled, filled, n, "TRANSFER")
+        if kind0 != "TRANSFER":
+            return BUILDERS[kind0](filled, today)
         return _ask("TRANSFER", filled, "Quer transferir para uma **conta BankAO** (e-mail ou nº de conta) ou para um **IBAN**? Diga-me também o valor.")
     if intent != "CREATE_SAVINGS_GOAL":
         filled.pop("target", None)

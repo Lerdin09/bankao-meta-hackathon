@@ -74,7 +74,7 @@ def test_transfer_limit_enforced():
     accs = client.get("/api/settings", headers=h).json()["accounts"]
     aoa = next(a for a in accs if a["currency"] == "AOA")
     client.put("/api/settings", headers=h, json={"values": {"limit_transfers": 1000}})
-    r = client.post("/api/transfers/internal", headers=h, json={"from_account_id": aoa["id"], "to_email": e2, "amount": 5000})
+    r = client.post("/api/transfers/internal", headers=h, json={"from_account_id": aoa["id"], "to_email": e2, "amount": 5000, "idempotency_key": "test_limit_idemp"})
     assert r.status_code == 400 and "Limite diário" in r.json()["detail"]
 
 

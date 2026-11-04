@@ -5,51 +5,24 @@
  */
 
 // =====================================================================
-//  QR estilizado (SVG): módulos arredondados, olhos de posição redondos e logótipo ao centro
+//  QR em SVG — preto sobre branco, módulos quadrados, olhos de posição normais e margem de 4 módulos.
+//  Sem logótipo, sem gradientes e sem cantos redondos: é o formato que qualquer câmara ou leitor lê.
 // =====================================================================
 function buildBankAoQrSvg(payload) {
-    const qr = QrEncoder.encode(payload, "M");          // nível M tolera o logótipo ao centro
+    const qr = QrEncoder.encode(payload, "M");
     const n = qr.size, quiet = 4, total = n + quiet * 2;
-
-    // Zona do logótipo (ímpar, ~17% do lado → ~3% da área, bem dentro da tolerância de M)
-    let logo = Math.round(n * 0.17); if (logo % 2 === 0) logo++;
-    const l0 = Math.floor((n - logo) / 2), l1 = l0 + logo;
-    const inLogo = (x, y) => x >= l0 - 1 && x <= l1 && y >= l0 - 1 && y <= l1;
-    const inFinder = (x, y) => (x < 7 && y < 7) || (x >= n - 7 && y < 7) || (x < 7 && y >= n - 7);
-
-    const r = 0.3, w = +(1 - 2 * r).toFixed(2);
     let d = "";
-    for (let y = 0; y < n; y++) {
-        for (let x = 0; x < n; x++) {
-            if (!qr.modules[y][x] || inFinder(x, y) || inLogo(x, y)) continue;
-            const px = x + quiet, py = y + quiet;
-            d += `M${px + r},${py}h${w}a${r},${r} 0 0 1 ${r},${r}v${w}a${r},${r} 0 0 1 -${r},${r}h-${w}a${r},${r} 0 0 1 -${r},-${r}v-${w}a${r},${r} 0 0 1 ${r},-${r}z`;
+    for (let y = 0; y < n; y++) {                       // junta módulos seguidos na mesma linha (SVG mais leve)
+        let x = 0;
+        while (x < n) {
+            if (!qr.modules[y][x]) { x++; continue; }
+            let x2 = x; while (x2 < n && qr.modules[y][x2]) x2++;
+            d += `M${x + quiet},${y + quiet}h${x2 - x}v1h-${x2 - x}z`;
+            x = x2;
         }
     }
-
-    const finder = (ox, oy) => {
-        const x = ox + quiet, y = oy + quiet;
-        return `<rect x="${x}" y="${y}" width="7" height="7" rx="0.5" fill="url(#qrInk)"/>` +
-               `<rect x="${x + 1}" y="${y + 1}" width="5" height="5" rx="0.25" fill="#fff"/>` +
-               `<rect x="${x + 2}" y="${y + 2}" width="3" height="3" rx="0.35" fill="#1D4ED8"/>`;
-    };
-
-    const bx = l0 + quiet - 0.5, bs = logo + 1;           // caixa branca do logótipo
-    const ix = bx + 0.55, is = bs - 1.1;                  // miolo escuro
-    const badge =
-        `<rect x="${bx}" y="${bx}" width="${bs}" height="${bs}" rx="${bs * 0.28}" fill="#fff"/>` +
-        `<rect x="${ix}" y="${ix}" width="${is}" height="${is}" rx="${is * 0.26}" fill="url(#qrBadge)"/>` +
-        `<text x="${total / 2}" y="${total / 2}" text-anchor="middle" dominant-baseline="central" font-family="'Plus Jakarta Sans',system-ui,sans-serif" font-weight="900" font-size="${is * 0.62}" fill="#fff">B</text>`;
-
-    return `<svg viewBox="0 0 ${total} ${total}" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision">` +
-        `<defs>` +
-        `<linearGradient id="qrInk" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="${total}" y2="${total}"><stop offset="0" stop-color="#0B1530"/><stop offset="1" stop-color="#1B2670"/></linearGradient>` +
-        `<linearGradient id="qrBadge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#38BDF8"/><stop offset="1" stop-color="#4F46E5"/></linearGradient>` +
-        `</defs>` +
-        `<rect width="${total}" height="${total}" fill="#fff"/>` +
-        `<path d="${d}" fill="url(#qrInk)"/>` +
-        finder(0, 0) + finder(n - 7, 0) + finder(0, n - 7) +
-        badge + `</svg>`;
+    return `<svg viewBox="0 0 ${total} ${total}" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">` +
+        `<rect width="${total}" height="${total}" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
 }
 
 function renderReceiveQr(dataString) {
@@ -175,15 +148,21 @@ IBAN (AOA): ${iban}`;
 }
 window.shareQrDetails = shareQrDetails;
 
-// O QR leva os dados da conta (e, se indicado, o valor): quem o ler já recebe tudo preenchido
+// O QR leva os dados da conta (e, se indicado, o valor). Conteúdo curto = menos módulos = leitura mais fácil.
+// Chaves: e=e-mail, n=nome, i=IBAN, a=nº de conta, v=valor, c=moeda.
 function buildReceivePayload() {
     const a = window.__qrAcc || {};
-    let p = `BANKAO:PAY?email=${encodeURIComponent(a.email || "")}&name=${encodeURIComponent(a.name || "")}` +
-            `&iban=${encodeURIComponent(a.iban || "")}&account=${encodeURIComponent(a.account || "")}`;
+    const enc = encodeURIComponent;
+    const parts = [];
+    if (a.email)   parts.push("e=" + enc(a.email));
+    if (a.account) parts.push("a=" + enc(String(a.account).replace(/\s/g, "")));
+    if (a.iban)    parts.push("i=" + enc(String(a.iban).replace(/\s/g, "")));
+    if (a.name)    parts.push("n=" + enc(String(a.name).trim().slice(0, 28)));
     const raw = (document.getElementById("qrAmountInput")?.value || "").replace(/\s/g, "");
-    const amount = Number(raw.replace(/\.(?=\d{3}\b)/g, "").replace(",", "."));
-    if (amount > 0) p += `&amount=${amount}&currency=AOA`;
-    return p;
+    const normalized = raw.includes(",") ? raw.replace(/\./g, "").replace(",", ".") : raw.replace(/\.(?=\d{3}\b)/g, "");
+    const amount = Number(normalized);
+    if (isFinite(amount) && amount > 0) parts.push("v=" + (Math.round(amount * 100) / 100) + "&c=AOA");
+    return "BANKAO:PAY?" + parts.join("&");
 }
 function refreshReceiveQr() { renderReceiveQr(buildReceivePayload()); }
 window.refreshReceiveQr = refreshReceiveQr;
@@ -202,14 +181,19 @@ async function downloadReceiveQr() {
         });
         const a = window.__qrAcc || {}, pad = 60, S = 1000;
         const cv = document.createElement("canvas");
-        cv.width = S + pad * 2; cv.height = S + pad * 2 + 170;
+        const vm = /[?&]v=([\d.]+)/.exec(buildReceivePayload());
+        const amountTxt = vm ? Number(vm[1]).toLocaleString("pt-PT", { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " Kz" : "";
+        const extra = amountTxt ? 80 : 0;
+        cv.width = S + pad * 2; cv.height = S + pad * 2 + 170 + extra;
         const c = cv.getContext("2d");
         c.fillStyle = "#fff"; c.fillRect(0, 0, cv.width, cv.height);
         c.drawImage(img, pad, pad, S, S);
         c.textAlign = "center"; c.fillStyle = "#0B1530";
         c.font = "700 46px system-ui, sans-serif"; c.fillText(a.name || "Cliente BankAO", cv.width / 2, S + pad * 2 + 20);
-        c.fillStyle = "#475569"; c.font = "500 32px ui-monospace, monospace"; c.fillText(groupDigits(a.iban || ""), cv.width / 2, S + pad * 2 + 72);
-        c.font = "600 26px system-ui, sans-serif"; c.fillText("Leia com a app BankAO para transferir", cv.width / 2, S + pad * 2 + 122);
+        let yy = S + pad * 2 + 20;
+        if (amountTxt) { yy += 76; c.fillStyle = "#0B1530"; c.font = "800 62px system-ui, sans-serif"; c.fillText(amountTxt, cv.width / 2, yy); }
+        c.fillStyle = "#475569"; c.font = "500 32px ui-monospace, monospace"; c.fillText(groupDigits(a.iban || ""), cv.width / 2, yy + 52);
+        c.font = "600 26px system-ui, sans-serif"; c.fillText("Leia com a app BankAO para transferir", cv.width / 2, yy + 102);
         cv.toBlob(blob => {
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);

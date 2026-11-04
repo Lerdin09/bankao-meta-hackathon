@@ -28,7 +28,7 @@
   ];
 
   const TTS_LANG = "pt-PT";
-  const TTS_RATE = 0.93;       // Ritmo calmo, sereno e natural
+  const TTS_RATE = 0.98;       // Ritmo calmo, sereno e natural
   const TTS_PITCH = 1.0;
   const SILENCE_TIMEOUT = 6000; // só usado se o envio automático estiver ligado (desligado por defeito)
 
@@ -157,15 +157,28 @@
     if (!_cachedVoices.length && window.speechSynthesis) {
       _cachedVoices = window.speechSynthesis.getVoices();
     }
-    // Preferência por vozes neurais / calmas em português
-    const preferredNames = ["Google português", "Luciana", "Joana", "Francisca", "Raquel", "Maria", "Yelda", "Helena"];
-    for (const name of preferredNames) {
-      const match = _cachedVoices.find(v => v.lang.startsWith("pt") && v.name.includes(name));
+    // Prioridade para vozes neurais de alta definicao (Microsoft Natural, Google Neural, Apple Siri)
+    const priorityNames = [
+      "Microsoft Duarte Online (Natural) - Portuguese (Portugal)",
+      "Microsoft Raquel Online (Natural) - Portuguese (Portugal)",
+      "Microsoft Antonio Online (Natural) - Portuguese (Brazil)",
+      "Microsoft Francisca Online (Natural) - Portuguese (Brazil)",
+      "Google português do Brasil",
+      "Google português",
+      "Luciana",
+      "Joana",
+      "Francisca",
+      "Duarte",
+      "Helena"
+    ];
+    for (const name of priorityNames) {
+      const match = _cachedVoices.find(v => v.name.toLowerCase().includes(name.toLowerCase()));
       if (match) return match;
     }
-    // Fallback: qualquer voz pt-PT ou pt-BR
+    // Fallback suave com prioridade a pt-PT e pt-BR
     return _cachedVoices.find(v => v.lang === "pt-PT") ||
-           _cachedVoices.find(v => v.lang.startsWith("pt")) ||
+           _cachedVoices.find(v => v.lang === "pt-BR") ||
+           _cachedVoices.find(v => v.lang && v.lang.startsWith("pt")) ||
            null;
   }
 
@@ -504,9 +517,22 @@
   function _openVoiceSession() {
     isWakeMode = false;
     _unlockAudioOnFirstGesture();
+
+    // Abrir o chat do Copilot ao activar por voz (wake word)
+    var isWide = window.matchMedia("(min-width: 1024px)").matches;
+    if (!isWide && typeof window.openCopilot === "function") {
+      // Mobile/tablet: abre o painel do chat sobre a página actual
+      window.openCopilot();
+    }
+    // Scroll para o fim das mensagens (desktop e mobile)
+    setTimeout(function () {
+      var box = document.getElementById("copilotChatMessages");
+      if (box) box.scrollTop = box.scrollHeight;
+    }, 150);
+
     _showOverlay();
     _setOrbState("listening");
-    _setStatus("A ouvir com atenção…");
+    _setStatus("À ouvir com atenção…");
     _resetBuffers();
     _startAudioVisualizer();
 
@@ -516,7 +542,7 @@
     awaitingReply = false;
     editing = false;
     _applyEditUi(false);
-    window.copilotSpeak("Olá! Como posso ajudar hoje?", _resumeListening);
+    window.copilotSpeak("Ólá! Como posso ajudar hoje?", _resumeListening);
   }
 
   function _closeVoiceSession() {
@@ -671,15 +697,28 @@
     _setOrbState("thinking");
     _showText(processed);
 
-    // Enviar para o chat do Copilot (preenche o input e aciona o submit do copilot.js)
-    const input = document.getElementById("copilotUserInput");
-    const form  = document.getElementById("copilotInputForm");
+    // Enviar diretamente para o assistente sem poluir o textarea de escrita manual
     userEchoSeen = false;
-    if (input && form) {
-      input.value = processed;
-      form.dispatchEvent(new Event("submit", { cancelable: true }));
+    if (typeof window.sendCopilotQuery === 'function') {
+      window.sendCopilotQuery(processed).then(success => {
+        if (!success) {
+          awaitingReply = false;
+          ignoreInput = false;
+          finalBuffer = processed;
+          _showText(processed);
+          _setOrbState('listening');
+          _setStatus('O Copilot ainda está a responder. Tente enviar de novo.');
+        }
+      });
+      userEchoSeen = true;
+    } else {
+      const input = document.getElementById('copilotUserInput');
+      const form  = document.getElementById('copilotInputForm');
+      if (input && form) {
+        input.value = processed;
+        form.dispatchEvent(new Event('submit', { cancelable: true }));
+      }
     }
-
     if (!userEchoSeen) {
       // o chat não aceitou (ainda a responder ao pedido anterior): guarda o texto e continua a ouvir
       awaitingReply = false;

@@ -1,7 +1,28 @@
 # BankAO — Carteira Digital para Angola e o Mundo
 
 Meta Global AI Developer Hackathon. Backend **FastAPI + SQLite** (livro-razão) e frontend em
-**HTML/CSS/JS puro**, com um assistente de IA (Copilot) sobre a Meta Model API.
+**HTML/CSS/JS puro**, com um assistente de IA (Copilot) integrado à **Meta Model API** e acelerado pela **Baseten** com o modelo oficial **Muse Spark Open (`meta-models/muse-spark-open-1026`)**.
+
+---
+
+## 🚀 Integração Meta & Baseten (Hackathon Oficial)
+
+O BankAO integra o modelo **Meta Muse Spark Open** através da infraestrutura da **Baseten**, garantindo:
+- **Modelo Oficial:** `meta-models/muse-spark-open-1026` com até **2M tokens/minuto**.
+- **Reasoning (Raciocínio Integrado):** O Muse Spark Open raciocina nativamente antes de responder; o BankAO extrai o *chain-of-thought* e apresenta o raciocínio formatado e isolado da resposta ao utilizador.
+- **Tool Calling (Agente Bancário):** O modelo orquestra saldos, transferências, metas de poupança, despesas e investimentos de forma determinística e segura.
+- **Visão Multimodal (Baseten Vision):** Análise inteligente de comprovativos Multicaixa, faturas e talões de pagamento (`POST /api/ai/vision/analyze`).
+
+### Configuração da Chave da Baseten no `.env`:
+```env
+AI_PROVIDER=baseten
+BASETEN_API_KEY=sua_chave_aqui
+BASETEN_BASE_URL=https://inference.baseten.co/v1
+BASETEN_MODEL=meta-models/muse-spark-open-1026
+```
+*(Se nenhuma chave estiver preenchida ou em caso de perda de conexão, o BankAO entra em fallback com regras financeiras locais imediatas).*
+
+---
 
 ## Como correr
 

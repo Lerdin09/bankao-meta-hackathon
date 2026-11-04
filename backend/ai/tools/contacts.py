@@ -5,6 +5,16 @@ Permite consultar contactos guardados, destinatários frequentes e detalhes de p
 from typing import Any, Dict, List, Optional
 
 
+import unicodedata
+
+def _normalize(text: Optional[str]) -> str:
+    if not text:
+        return ""
+    # Remove acentos e caracteres especiais para busca robusta (ex: irmão -> irmao)
+    normalized = unicodedata.normalize("NFKD", text)
+    return "".join(c for c in normalized if not unicodedata.combining(c)).lower()
+
+
 def tool_get_contacts(
     user_id: str,
     query: Optional[str] = None,
@@ -23,14 +33,14 @@ def tool_get_contacts(
         contacts = [c for c in contacts if c.get("favorite")]
 
     if query and query.strip():
-        q = query.strip().lower()
+        q = _normalize(query.strip())
         filtered = []
         for c in contacts:
-            name_match = q in (c.get("name") or "").lower()
-            nick_match = q in (c.get("nickname") or "").lower()
-            disp_match = q in (c.get("display_name") or "").lower()
-            acc_match = q in (c.get("account_number") or "").lower()
-            iban_match = q in (c.get("iban") or "").lower()
+            name_match = q in _normalize(c.get("name"))
+            nick_match = q in _normalize(c.get("nickname"))
+            disp_match = q in _normalize(c.get("display_name"))
+            acc_match = q in _normalize(c.get("account_number"))
+            iban_match = q in _normalize(c.get("iban"))
             if name_match or nick_match or disp_match or acc_match or iban_match:
                 filtered.append(c)
         contacts = filtered

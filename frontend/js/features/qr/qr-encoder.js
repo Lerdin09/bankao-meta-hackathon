@@ -196,6 +196,6 @@ const QrEncoder = (() => {
         applyMask(best); drawFormat(best);
         return { size, version: ver, modules, isFunction: isFn };
     }
-    return { encode };
+    return { encode, tables: { ECC_PER_BLOCK, NUM_BLOCKS, rawDataModules } };
 })();
 window.QrEncoder = QrEncoder;

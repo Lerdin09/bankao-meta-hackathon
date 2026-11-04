@@ -273,8 +273,12 @@ def ai_chat(data: AIChatRequest):
         "reply": res["reply"],
         "action": res.get("action"),
         "pending": res.get("pending"),
-        "model": settings.MODEL_NAME,
-        "provider": "Meta Model API / Muse Spark"
+        "model": settings.active_model_name,
+        "provider": (
+            "Baseten (Meta Muse Spark Open)"
+            if settings.active_ai_provider == "baseten"
+            else "Meta Model API / Muse Spark"
+        )
     }
 
 
@@ -290,7 +294,7 @@ def ai_explain_transfer(data: AIExplainTransferRequest):
         dest_iban=data.dest_iban,
         beneficiary_name=data.beneficiary_name
     )
-    return {"explanation": explanation, "model": settings.MODEL_NAME}
+    return {"explanation": explanation, "model": settings.active_model_name}
 
 
 @router.get("/analyze-risk")
@@ -329,3 +333,41 @@ def get_memory(current_user: dict = Depends(get_current_user)):
     ).fetchall()
     conn.close()
     return {"memory": [{"key": r["memory_key"], "value": r["memory_value"], "at": r["updated_at"]} for r in rows]}
+
+
+# ─── Baseten & Meta Integration: Endpoints Avançados ─────────────────────────
+
+class VisionAnalyzeRequest(BaseModel):
+    image_base64: str
+    mime_type: Optional[str] = "image/jpeg"
+    hint: Optional[str] = None
+
+
+@router.get("/provider-status")
+def ai_provider_status():
+    """Retorna detalhes sobre o provedor e modelo de IA ativo (Baseten & Meta)."""
+    from backend.ai.client import get_active_provider_info
+    return get_active_provider_info()
+
+
+@router.post("/test-connection")
+def ai_test_connection():
+    """Valida a conexão com o endpoint do modelo (Baseten / Meta) e retorna latência."""
+    from backend.ai.client import test_ai_connection
+    return test_ai_connection()
+
+
+@router.post("/vision/analyze")
+def ai_vision_analyze(data: VisionAnalyzeRequest, current_user: dict = Depends(get_current_user)):
+    """
+    Analisa um comprovativo, talão de compra ou fatura usando a API de Visão do Meta Muse Spark Open via Baseten.
+    """
+    from backend.ai.vision import analyze_financial_document
+    res = analyze_financial_document(
+        image_bytes_or_b64=data.image_base64,
+        mime_type=data.mime_type or "image/jpeg",
+        user_hint=data.hint
+    )
+    if not res.get("ok"):
+        raise HTTPException(status_code=400, detail=res.get("error", "Falha na análise visual do documento."))
+    return res

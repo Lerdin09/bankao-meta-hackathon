@@ -5,7 +5,7 @@
 
 // ── Adicionar Mensagem ─────────────────────────────────────────────────────
 
-function addCopilotMessage(sender, text, action = null, chart = null, remember = true) {
+function addCopilotMessage(sender, text, action = null, chart = null, remember = true, reasoning = null, provider = null) {
     const chatContainer = document.getElementById("copilotChatMessages");
     const bubble = document.createElement("div");
     bubble.className = `chat-bubble ${sender}`;
@@ -19,10 +19,13 @@ function addCopilotMessage(sender, text, action = null, chart = null, remember =
 
     const timeStr = new Date().toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" });
     const isAi = sender === "ai";
+    const badgeText = isAi
+        ? (provider && provider.includes("Baseten") ? "Baseten · Muse Spark" : "Meta Muse")
+        : "";
     const headerLabel = isAi
         ? `<div class="bubble-header-label">
                <span class="sender-name">BankAO Copilot</span>
-               <span class="sender-badge">IA v2</span>
+               <span class="sender-badge" title="${escapeHtml(provider || 'Meta Muse Spark Open via Baseten')}">${badgeText}</span>
                <span class="bubble-time">${timeStr}</span>
            </div>`
         : `<div class="bubble-header-label">
@@ -30,10 +33,18 @@ function addCopilotMessage(sender, text, action = null, chart = null, remember =
                <span class="bubble-time">${timeStr}</span>
            </div>`;
 
+    const reasoningHtml = (isAi && reasoning)
+        ? `<details class="copilot-reasoning-accordion">
+               <summary>💡 Raciocínio (Muse Spark Open)</summary>
+               <div class="reasoning-body">${renderCopilotMarkdown(reasoning)}</div>
+           </details>`
+        : "";
+
     bubble.innerHTML = `
         <div class="bubble-avatar">${avatar}</div>
         <div class="bubble-content">
             ${headerLabel}
+            ${reasoningHtml}
             <div class="bubble-text">${formatted}</div>
         </div>
     `;

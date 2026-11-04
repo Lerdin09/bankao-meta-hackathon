@@ -12,6 +12,7 @@ import logging
 import re
 from typing import Any, Dict, List, Optional
 
+from backend.ai.client import extract_reasoning_and_content
 from backend.ai.context import get_user_session, update_user_session
 from backend.ai.prompts import SYSTEM_PROMPT
 from backend.ai.tools.registry import BANKAO_TOOLS_DEFINITIONS, execute_tool
@@ -170,20 +171,37 @@ def run_agent(
     action: Optional[Dict[str, Any]] = None
     chart: Optional[Dict[str, Any]] = None
     fallback_summary: Optional[str] = None
+    reasoning_trace: Optional[str] = None
     final_text = ""
 
+    model_name = settings.active_model_name
     for round_no in range(MAX_TOOL_ROUNDS + 1):
         allow_tools = round_no < MAX_TOOL_ROUNDS
-        kwargs: Dict[str, Any] = dict(model=settings.MODEL_NAME, messages=messages, max_tokens=2500, temperature=0.2, timeout=40)
+        kwargs: Dict[str, Any] = dict(
+            model=model_name,
+            messages=messages,
+            max_tokens=settings.AI_MAX_TOKENS,
+            temperature=settings.AI_TEMPERATURE,
+            timeout=settings.AI_REQUEST_TIMEOUT
+        )
         if allow_tools:
             kwargs.update(tools=BANKAO_TOOLS_DEFINITIONS, tool_choice="auto")
         response = client.chat.completions.create(**kwargs)
-        msg = response.choices[0].message
+        choice = response.choices[0]
+        msg = choice.message
         calls = getattr(msg, "tool_calls", None) if allow_tools else None
 
         if not calls:
-            final_text = (getattr(msg, "content", None) or "").strip()
+            extracted = extract_reasoning_and_content(choice)
+            final_text = extracted["clean_content"].strip()
+            if extracted.get("reasoning"):
+                reasoning_trace = extracted["reasoning"]
             break
+
+        # Se o modelo produziu raciocínio na volta de ferramentas, guarda
+        choice_extracted = extract_reasoning_and_content(choice)
+        if choice_extracted.get("reasoning"):
+            reasoning_trace = choice_extracted["reasoning"]
 
         messages.append(_assistant_message_dict(msg))
         for tc in calls:
@@ -223,6 +241,12 @@ def run_agent(
         "pending_operation": None,
     })
 
+    provider_name = (
+        "Baseten (Meta Muse Spark Open)"
+        if settings.active_ai_provider == "baseten"
+        else "BankAO Copilot (Meta Muse)"
+    )
+
     return {
         "reply": _clean_reply(final_text, action is not None),
         "action": action,
@@ -230,6 +254,7 @@ def run_agent(
         "chart": chart,
         "tools_used": tools_used,
         "requires_confirmation": action is not None,
-        "model": settings.MODEL_NAME,
-        "provider": "BankAO Copilot",
+        "model": model_name,
+        "provider": provider_name,
+        "reasoning": reasoning_trace,
     }

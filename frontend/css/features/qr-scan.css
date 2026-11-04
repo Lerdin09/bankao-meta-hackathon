@@ -26,3 +26,27 @@
 .qrs-paste textarea{resize:vertical;min-height:84px;font-family:var(--mono)}
 .qrs-paste .btn{justify-self:start}
 @media (max-width:360px){.qrs-grid{grid-template-columns:1fr}.qrs-opt{min-height:0}}
+/* Ecrã "dados do QR → Pagar" */
+.qrs-overlay{align-items:flex-end}
+@media (min-width:640px){.qrs-overlay:not(.qrs-cam){align-items:center}}
+.qrs-sheet{max-height:92dvh;overflow-y:auto}
+.qrs-who{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.qrs-avatar{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-weight:800;font-size:1.3rem;color:#04202E;background:linear-gradient(135deg,#7DD3FC,#818CF8)}
+.qrs-who-t{min-width:0;display:flex;flex-direction:column;gap:2px}
+.qrs-who-t small{color:var(--text-3);font-size:.74rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.qrs-who-t strong{font-size:1.15rem;line-height:1.2;overflow-wrap:anywhere}
+.qrs-verify{font-size:.78rem;font-weight:600;color:var(--text-3)}
+.qrs-verify.ok{color:#4ADE80}.qrs-verify.bad{color:#F87171}
+.qrs-amount{display:grid;gap:8px;margin:0 0 16px;padding:14px;border-radius:16px;background:var(--surface-2);border:1px solid var(--line-2)}
+.qrs-amount>span{font-size:.78rem;font-weight:600;color:var(--text-2)}
+.qrs-amount.fixed{grid-template-columns:1fr auto;align-items:center}
+.qrs-amount.fixed strong{font-size:1.5rem;color:var(--gold);font-variant-numeric:tabular-nums}
+.qrs-amount-in{display:flex;align-items:center;gap:8px}
+.qrs-amount-in input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--text);font:inherit;font-size:1.6rem;font-weight:800;font-variant-numeric:tabular-nums}
+.qrs-amount-in em{font-style:normal;font-weight:700;color:var(--gold)}
+.qrs-amount:focus-within{border-color:var(--gold)}
+.qrs-warn{margin:0 0 12px;color:#F87171;font-size:.82rem;font-weight:600}
+.qrs-actions .btn[disabled]{opacity:.5;pointer-events:none}
+.qrs-overlay.qrs-cam{align-items:center}
+.qrs-amount{grid-template-columns:minmax(0,1fr)}.qrs-amount.fixed{grid-template-columns:minmax(0,1fr) auto}
+.qrs-amount>*{min-width:0}.qrs-amount-in input{width:100%;min-width:0}

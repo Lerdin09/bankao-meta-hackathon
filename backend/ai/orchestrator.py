@@ -31,6 +31,15 @@ from backend.ai.copilot_v2 import (
     handle_direct_simple_question,
 )
 from backend.ai.intents import analyze_message, normalize_spoken_text
+
+
+def _user_contacts(user_id):
+    """Contactos guardados e do histórico do cliente (para resolver «para o irmão»)."""
+    try:
+        from backend.api.routes.contacts import _build_list
+        return _build_list(user_id)
+    except Exception:
+        return []
 from backend.ai.intents import _parse_slots
 from backend.ai.expense_flow import KIND as EXPENSE_DELETE_KIND, apply_direct_registration, handle_expense_delete
 from backend.ai.tools.registry import execute_tool
@@ -73,6 +82,15 @@ class CopilotOrchestrator:
                     action["requires_confirmation"] = True
                     action["executed"] = False
                     result["requires_confirmation"] = True
+
+            # Metadados do modelo e provedor ativo (Baseten & Meta)
+            result.setdefault("model", settings.active_model_name)
+            if not result.get("provider"):
+                result["provider"] = (
+                    "Baseten (Meta Muse Spark Open)"
+                    if settings.active_ai_provider == "baseten"
+                    else "BankAO Copilot (Meta Muse)"
+                )
             return result
 
         # 1. Memorizar de imediato declarações do utilizador (salário, metas, aspirações)
@@ -199,7 +217,7 @@ class CopilotOrchestrator:
         if effective_pending and effective_pending.get("type") in ("INVESTMENT_APPLY", EXPENSE_DELETE_KIND):
             effective_pending = None  # já tratado acima; o analisador antigo não conhece estes fluxos
         if effective_pending:
-            parsed = analyze_message(message_clean, effective_pending)
+            parsed = analyze_message(message_clean, effective_pending, contacts=lambda: _user_contacts(user_id))
             if parsed.get("reply"):
                 session_updates = {"pending_operation": parsed.get("pending")}
                 if parsed.get("action"):
@@ -413,7 +431,7 @@ class CopilotOrchestrator:
 
         # 1. Perguntas operacionais (Poupanças, Despesas, Transferências com slots preenchidos)
         # Ex: "registre um gasto de 10mil na poupança de carro"
-        op_parsed = analyze_message(message, None)
+        op_parsed = analyze_message(message, None, contacts=lambda: _user_contacts(user_id))
         if op_parsed.get("reply"):
             if op_parsed.get("pending"):
                 update_user_session(user_id, {"pending_operation": op_parsed["pending"]})
@@ -448,6 +466,32 @@ class CopilotOrchestrator:
             }
 
         # 3. Comparações e Análise de Despesas (Perguntas 36 a 55)
+
+        # Compara despesas deste mês com as do mês passado / anterior
+        if re.search(r"compar(?:a|ar).*despesas?.*(?:m[eê]s\s+passado|m[eê]s\s+anterior)|compar(?:a|ar).*(?:este\s+m[eê]s|deste\s+m[eê]s).*com.*(?:passado|anterior)", m):
+            res = execute_tool("compare_expenses_periods", {"period1": "last_month", "period2": "this_month"}, user_id)
+            update_user_session(user_id, {"active_topic": "expenses", "active_period": "this_month"})
+            tot1 = res.get("total_period1", 0.0)
+            tot2 = res.get("total_period2", 0.0)
+            diff = res.get("absolute_difference", 0.0)
+            pct = res.get("percent_change", 0.0)
+            con1 = res.get("consumer_period1", 0.0)
+            con2 = res.get("consumer_period2", 0.0)
+            con_diff = res.get("consumer_difference", 0.0)
+            con_pct = res.get("consumer_percent_change", 0.0)
+
+            reply = (
+                f"📊 **Comparativo de Despesas: Mês Passado vs Este Mês:**\n\n"
+                f"• **Mês Passado:** {tot1:,.2f} Kz (Consumo: {con1:,.2f} Kz · Poupança: {tot1-con1:,.2f} Kz)\n"
+                f"• **Este Mês:** {tot2:,.2f} Kz (Consumo: {con2:,.2f} Kz · Poupança: {tot2-con2:,.2f} Kz)\n\n"
+                f"📈 **Variação Global:** Os gastos totais registados variaram **{pct:+.1f}%** ({diff:+,.2f} Kz).\n"
+                f"🛒 **Consumo Operacional:** Variou **{con_pct:+.1f}%** ({con_diff:+,.2f} Kz)."
+            )
+            return {
+                "reply": reply, "action": None, "pending": None, "chart": None,
+                "tools_used": ["compare_expenses_periods"], "requires_confirmation": False,
+                "model": settings.active_model_name, "provider": "BankAO Copilot v2"
+            }
 
         # 43. Compara as minhas despesas de setembro com as de outubro
         if re.search(r"compar(?:a|ar).*setembro.*com.*outubro|despesas\s+de\s+setembro\s+com\s+as\s+de\s+outubro|setembro\s+vs\s+outubro", m):
@@ -884,7 +928,7 @@ class CopilotOrchestrator:
             }
 
         # 6. Despesas gerais deste mês / hoje / sobre as despesas / resumo
-        if re.search(r"quanto\s+gastei|sobre\s+(?:as\s+)?despesas?|minhas?\s+despesas?|ver\s+despesas?|resumo\s+d(?:e|as)\s+despesas?|como\s+est[aã]o\s+(?:as\s+)?(?:minhas\s+)?despesas?|gastos?\s+deste\s+m[eê]s|^despesas?\??$", m):
+        if not re.search(r"compar(?:a|ar)", m) and re.search(r"quanto\s+gastei|sobre\s+(?:as\s+)?despesas?|minhas?\s+despesas?|ver\s+despesas?|resumo\s+d(?:e|as)\s+despesas?|como\s+est[aã]o\s+(?:as\s+)?(?:minhas\s+)?despesas?|gastos?\s+deste\s+m[eê]s|^despesas?\??$", m):
             period = "today" if "hoje" in m else "this_month"
             res = execute_tool("get_expenses_analysis", {"period": "this_month"}, user_id)
             update_user_session(user_id, {"active_topic": "expenses", "active_period": "this_month"})

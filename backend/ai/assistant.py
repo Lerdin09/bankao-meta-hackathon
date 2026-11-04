@@ -12,7 +12,7 @@ import re
 
 from typing import Any, Dict, List
 
-from backend.ai.client import get_meta_client
+from backend.ai.client import extract_reasoning_and_content, get_meta_client
 from backend.ai.intents import analyze_action_reply, analyze_message, extract_action_intent
 from backend.ai.prompts import COUNTRY_MAP, SYSTEM_PROMPT  # noqa: F401 (reexportados para compatibilidade)
 from backend.core.config import settings
@@ -46,19 +46,20 @@ class BankaoAssistant:
         if client:
             try:
                 response = client.chat.completions.create(
-                    model=settings.MODEL_NAME,
+                    model=settings.active_model_name,
                     messages=[
                         {"role": "system", "content": SYSTEM_PROMPT},
                         {"role": "user", "content": prompt}
                     ],
-                    max_tokens=400,
+                    max_tokens=min(settings.AI_MAX_TOKENS, 800),
                     temperature=0.3
                 )
-                content = response.choices[0].message.content
+                parsed = extract_reasoning_and_content(response.choices[0])
+                content = parsed["clean_content"]
                 if content:
                     return content
             except Exception as e:
-                logger.error(f"Erro ao chamar Meta Model API (explain_transfer): {e}")
+                logger.error(f"Erro ao chamar Meta Model API / Baseten (explain_transfer): {e}")
 
         # Fallback local curto
         return (
@@ -96,19 +97,20 @@ class BankaoAssistant:
             if client:
                 try:
                     resp = client.chat.completions.create(
-                        model=settings.MODEL_NAME,
+                        model=settings.active_model_name,
                         messages=[
                             {"role": "system", "content": SYSTEM_PROMPT},
                             {"role": "user", "content": prompt}
                         ],
-                        max_tokens=200,
+                        max_tokens=min(settings.AI_MAX_TOKENS, 500),
                         temperature=0.2
                     )
-                    content = resp.choices[0].message.content
+                    parsed = extract_reasoning_and_content(resp.choices[0])
+                    content = parsed["clean_content"]
                     if content:
                         warning_text = content
                 except Exception as e:
-                    logger.error(f"Erro ao chamar Meta Model API (analyze_risk): {e}")
+                    logger.error(f"Erro ao chamar Meta Model API / Baseten (analyze_risk): {e}")
 
             if not warning_text:
                 warning_text = (
@@ -142,17 +144,20 @@ class BankaoAssistant:
         messages.append({"role": "user", "content": message})
 
         ai_content = ""
+        reasoning_trace = None
         if client:
             try:
                 response = client.chat.completions.create(
-                    model=settings.MODEL_NAME,
+                    model=settings.active_model_name,
                     messages=messages,
-                    max_tokens=300,
+                    max_tokens=min(settings.AI_MAX_TOKENS, 1200),
                     temperature=0.3
                 )
-                ai_content = response.choices[0].message.content or ""
+                parsed = extract_reasoning_and_content(response.choices[0])
+                ai_content = parsed["clean_content"]
+                reasoning_trace = parsed.get("reasoning")
             except Exception as e:
-                logger.error(f"Erro ao chamar Meta Model API (chat): {e}")
+                logger.error(f"Erro ao chamar Meta Model API / Baseten (chat): {e}")
 
         # Ação sugerida pelo modelo: só é aceite depois de validada (e recalculada) no backend
         action = extract_action_intent(message, ai_content)

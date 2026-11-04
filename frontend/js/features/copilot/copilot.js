@@ -17,19 +17,16 @@ function initCopilot() {
         userInput.style.height = Math.min(userInput.scrollHeight, 120) + "px";
     });
 
-    inputForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const message = userInput.value.trim();
-        if (!message || busy) return;
+    // Envio programático sem interferir com o texto digitado pelo utilizador no input
+    window.sendCopilotQuery = async function (msgText) {
+        const message = String(msgText || "").trim();
+        if (!message || busy) return false;
         busy = true;
-        userInput.style.height = "auto";
 
         addCopilotMessage("user", message);
-        userInput.value = "";
 
         const typing = showTyping();
         try {
-            // Usar chat-v2 se o utilizador estiver autenticado
             const endpoint = state.token ? "/api/ai/chat-v2" : "/api/ai/chat";
             const headers = {
                 "Content-Type": "application/json",
@@ -41,9 +38,8 @@ function initCopilot() {
                 headers,
                 body: JSON.stringify({
                     message,
-                    history: (state.chatHistory || []).slice(-17, -1), // sem a mensagem atual (vai à parte)
+                    history: (state.chatHistory || []).slice(-17, -1),
                     pending: state.copilotPending || null,
-                    // Passar contexto do frontend (saldos visíveis, etc.)
                     context: {
                         current_view: document.querySelector(".view.active")?.id || null
                     }
@@ -55,46 +51,39 @@ function initCopilot() {
 
             state.copilotPending = data.pending || null;
 
-            // Renderizar resposta (com ou sem gráfico)
-            addCopilotMessage("ai", data.reply, data.action, data.chart);
-            if (typeof bkSetting === "function" && bkSetting("ai_read_aloud") && typeof window.copilotSpeak === "function") window.copilotSpeak(data.reply);
+            addCopilotMessage("ai", data.reply, data.action, data.chart, true, data.reasoning, data.provider);
+            const voiceOn = typeof window.copilotVoiceActive === "function" && window.copilotVoiceActive();
+            if (!voiceOn && typeof bkSetting === "function" && bkSetting("ai_read_aloud") && typeof window.copilotSpeak === "function") window.copilotSpeak(data.reply);
+            document.dispatchEvent(new CustomEvent("copilot:reply", { detail: { ok: true, reply: data.reply } }));
 
-            // Despesa registada/removida pelo Copilot: já está na base de dados, só falta atualizar o ecrã
             if (data.action && ["EXPENSE_REGISTERED", "EXPENSE_DELETED"].includes(data.action.type)) {
                 refreshExpensesFromCopilot();
             }
 
-            // Abrir formulário ou painel correspondente (poupanças, investimentos, operações)
             if (data.action) {
                 if (wide.matches || ["OPEN_INVESTMENTS", "CREATE_SAVINGS_GOAL", "INVESTMENT_APPLY"].includes(data.action.type)) {
                     applyCopilotAction(data.action, true);
                 }
             }
+            return true;
         } catch (err) {
             typing.remove();
             console.error("Copilot error:", err);
-            // Erro honesto + botão para repetir o mesmo pedido (sem entrar no histórico da conversa)
-            const errBubble = addCopilotMessage("ai",
-                "Não consegui contactar o assistente agora. O seu pedido não foi processado.",
-                null, null, false
-            );
-            const retry = document.createElement("button");
-            retry.type = "button";
-            retry.className = "btn btn-sm quick-prompt-btn";
-            retry.textContent = "Tentar de novo";
-            retry.addEventListener("click", () => {
-                retry.remove();
-                // retira a última mensagem do utilizador do histórico: vai ser reenviada
-                if (state.chatHistory?.length && state.chatHistory[state.chatHistory.length - 1].role === "user") {
-                    state.chatHistory.pop();
-                }
-                userInput.value = message;
-                inputForm.dispatchEvent(new Event("submit", { cancelable: true }));
-            });
-            errBubble?.querySelector(".bubble-content")?.appendChild(retry);
+            document.dispatchEvent(new CustomEvent("copilot:reply", { detail: { ok: false, reply: "" } }));
+            addCopilotMessage("ai", "Não consegui contactar o assistente agora. O seu pedido não foi processado.", null, null, false);
+            return false;
         } finally {
             busy = false;
         }
+    };
+
+    inputForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const message = userInput.value.trim();
+        if (!message || busy) return;
+        userInput.value = "";
+        userInput.style.height = "auto";
+        await window.sendCopilotQuery(message);
     });
 
     // Enter envia, Shift+Enter nova linha

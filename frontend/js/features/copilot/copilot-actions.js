@@ -15,7 +15,9 @@ function copilotOpDone(kind, opts) {
     if (opts.chat && typeof addCopilotMessage === "function" && document.getElementById("copilotChatMessages")) {
         addCopilotMessage("ai", opts.chat);
     }
-    const voiceOn = (window.copilotVoiceActive && window.copilotVoiceActive()) || (o && o.voice);
+    const usedVoiceRecently = Date.now() - (window.copilotVoiceLastUsed || 0) < 30 * 60 * 1000;
+    const readAloud = typeof bkSetting === "function" && bkSetting("ai_read_aloud");
+    const voiceOn = (window.copilotVoiceActive && window.copilotVoiceActive()) || (o && o.voice) || usedVoiceRecently || readAloud;
     if (opts.speech && voiceOn && typeof window.copilotSpeakDone === "function") window.copilotSpeakDone(opts.speech);
 }
 function copilotAnnounceDone(kind, text, speech) { copilotOpDone(kind, { chat: text, speech }); }

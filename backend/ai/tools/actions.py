@@ -102,7 +102,7 @@ def tool_prepare_savings_goal(
     """Prepara uma META DE POUPANÇA (não uma despesa) para o cliente rever e criar."""
     name = (name or "").strip()
     if not name:
-        return _fail("Falta o nome/objetivo da meta (ex.: Carro, Casa, Viagem).", missing=["name"])
+        name = "Poupança"
 
     target = _amount(target_amount)
     if not target:
@@ -118,6 +118,7 @@ def tool_prepare_savings_goal(
         return _fail("O prazo final tem de vir no formato AAAA-MM (ex.: 2027-08).")
     months_n = int(months) if months and int(months) > 0 else None
     monthly = _amount(monthly_amount) or 0.0
+
     if not (months_n or deadline_ym or monthly):
         return _fail("Falta o prazo: em quantos meses, até que mês/ano, ou quanto guarda por mês.",
                      missing=["months|deadline|monthly_amount"])

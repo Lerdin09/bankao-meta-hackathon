@@ -23,6 +23,7 @@ from backend.api.routes import (
     cards,
     contacts,
     settings,
+    eleven,
 )
 
 api_router = APIRouter()
@@ -44,5 +45,6 @@ for _module in (
     cards,
     contacts,
     settings,
+    eleven,
 ):
     api_router.include_router(_module.router)
