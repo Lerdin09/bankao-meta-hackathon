@@ -8,26 +8,56 @@
 // =====================================================================
 
 function populateAuthCountries() {
-    const countries = window.BANKAO_COUNTRIES || [];
+    let countries = window.BANKAO_COUNTRIES;
     const selCode = document.getElementById('regPhoneCode');
     const selNat = document.getElementById('regNationality');
-    if (!selCode || !selNat || selCode.options.length > 0) return;
+    if (!selCode || !selNat) return;
+
+    if (selCode.dataset.populated === 'full') return;
+
+    const isFull = Array.isArray(countries) && countries.length > 20;
+    if (!isFull) {
+        countries = [
+            { code: 'AO', name: 'Angola', dial: '+244' },
+            { code: 'PT', name: 'Portugal', dial: '+351' },
+            { code: 'BR', name: 'Brasil', dial: '+55' },
+            { code: 'MZ', name: 'Moçambique', dial: '+258' },
+            { code: 'CV', name: 'Cabo Verde', dial: '+238' },
+            { code: 'ST', name: 'São Tomé e Príncipe', dial: '+239' },
+            { code: 'GW', name: 'Guiné-Bissau', dial: '+245' },
+            { code: 'ES', name: 'Espanha', dial: '+34' },
+            { code: 'FR', name: 'França', dial: '+33' },
+            { code: 'GB', name: 'Reino Unido', dial: '+44' },
+            { code: 'US', name: 'Estados Unidos', dial: '+1' },
+            { code: 'CN', name: 'China', dial: '+86' },
+            { code: 'ZA', name: 'África do Sul', dial: '+27' },
+            { code: 'CD', name: 'RD Congo', dial: '+243' },
+            { code: 'CG', name: 'Congo', dial: '+242' },
+            { code: 'NA', name: 'Namíbia', dial: '+264' }
+        ];
+    }
+
+    const prevCode = selCode.value || '+244';
+    const prevNat = selNat.value || 'Angola';
+
+    selCode.innerHTML = '';
+    selNat.innerHTML = '';
 
     countries.forEach(c => {
-        // Indicativo telefónico: "AO (+244)"
         const optCode = document.createElement('option');
         optCode.value = c.dial;
         optCode.textContent = `${c.code} (${c.dial})`;
-        if (c.code === 'AO') optCode.selected = true;
+        if (c.dial === prevCode || (!prevCode && c.code === 'AO')) optCode.selected = true;
         selCode.appendChild(optCode);
 
-        // Nacionalidade: "Angola"
         const optNat = document.createElement('option');
         optNat.value = c.name;
         optNat.textContent = `${c.name} (${c.code})`;
-        if (c.code === 'AO') optNat.selected = true;
+        if (c.name === prevNat || (!prevNat && c.code === 'AO')) optNat.selected = true;
         selNat.appendChild(optNat);
     });
+
+    selCode.dataset.populated = isFull ? 'full' : 'fallback';
 }
 
 function openAuthModal(forced = false) {

@@ -20,6 +20,7 @@ venv/
 Thumbs.db
 
 # Ficheiros pesados e caches de scraping
-data/
+/data/
+!frontend/js/data/
 *.zip
 *.xlsx

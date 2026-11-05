@@ -597,6 +597,13 @@ def init_db():
 
     conn.close()
 
+    # Garantir que os utilizadores de demonstração com histórico existem em qualquer ambiente (Render / Local)
+    try:
+        from backend.database.seed import seed_demo_users
+        seed_demo_users()
+    except Exception as e:
+        pass
+
 
 if __name__ == "__main__":
     init_db()

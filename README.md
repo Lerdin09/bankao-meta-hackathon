@@ -6,6 +6,9 @@
 
 *Meta Global AI Developer Hackathon 2024*
 
+🌐 **[BankAO — Carteira Digital para Angola e o Mundo](https://bankao.onrender.com/)**
+
+[![Deploy](https://img.shields.io/badge/Live%20Demo-bankao.onrender.com-00c7b7?logo=render&logoColor=white)](https://bankao.onrender.com/)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Meta AI](https://img.shields.io/badge/Meta-Muse%20Spark%20Open-0866FF?logo=meta&logoColor=white)](https://ai.meta.com)
@@ -303,6 +306,8 @@ ELEVENLABS_CUSTOM_LLM_SECRET=   # UUID aleatório — autentica o Custom LLM
 ---
 
 ## 9. Demo
+
+🚀 **Aplicação Online:** [BankAO — Carteira Digital para Angola e o Mundo](https://bankao.onrender.com/)
 
 🎥 **[Ver vídeo de demonstração](#)** *(link a adicionar)*
 
