@@ -207,7 +207,10 @@ pip install fastapi uvicorn python-dotenv "python-jose[cryptography]" bcrypt ope
 cp .env.example .env
 # Edite o .env e adicione as suas chaves (ver secção 8)
 
-# 4. Arrancar o servidor
+# 4. (Opcional) Gerar 4 contas de teste com 1 ano de histórico completo
+python scripts/seed_demo_users.py
+
+# 5. Arrancar o servidor
 uvicorn backend.main:app --reload
 ```
 
@@ -234,6 +237,22 @@ pytest tests/ -q
 ```bash
 python scripts/build_index.py
 ```
+
+### 👥 Contas de Teste (1 Ano de Histórico Bancário)
+
+O projeto inclui um gerador de dados realistas com 4 perfis completos que utilizam o BankAO há **1 ano** (com salários contínuos, dezenas de despesas categorizadas, orçamentos mensais, metas de poupança, cartões de débito com histórico e investimentos ativos).
+
+Para popular ou atualizar os utilizadores de demonstração na base de dados:
+```bash
+python scripts/seed_demo_users.py
+```
+
+| Email | Senha | Nome & Perfil | Dados & Cenário de Teste |
+|---|---|---|---|
+| `ana@bankao.ao` | `Demo1234!` | **Ana Luísa Ferreira**<br>*Gestora de Marketing* | • 13 salários mensais (350.000 Kz)<br>• 72 despesas categorizadas e movimentos de cartão<br>• 3 metas de poupança (Viagem a Lisboa, Emergência, Mac)<br>• 2 investimentos ativos (DP BankAO Super Rendimento + ETF Vanguard)<br>• Contas ativas em AOA, EUR e USD |
+| `carlos@bankao.ao` | `Demo1234!` | **Carlos Manuel Domingos**<br>*Engenheiro Civil* | • 13 salários de alta renda (500.000 Kz)<br>• 72 despesas e levantamentos periódicos<br>• 12 remessas mensais da família em EUR<br>• Metas para Casa Própria e Carro Novo<br>• Investimentos em Obrigações BODIVA OT-2027 + ETF S&P 500 |
+| `fatima@bankao.ao` | `Demo1234!` | **Fátima Beatriz Neto**<br>*Professora* | • 13 salários (180.000 Kz) com planeamento rigoroso<br>• 90 despesas com orçamentos por categoria cumpridos<br>• 3 metas (Pós-graduação, Emergência, Telemóvel)<br>• Investimento conservador no Fundo de Liquidez BAI<br>• Excelente perfil para testar limites orçamentais e Copilot de poupança |
+| `miguel@bankao.ao` | `Demo1234!` | **Miguel António Silva**<br>*Comerciante* | • Fluxo de caixa de negócio com múltiplos recebimentos de clientes<br>• 108 despesas operacionais e pessoais<br>• Movimentos em USD para importações (Dubai/China)<br>• Levantamentos frequentes em caixas Multicaixa<br>• Investimentos no DP BFA Crescente e FII Imobiliário Atlântico |
 
 ---
 

@@ -237,9 +237,9 @@ function initShell() {
         setTimeout(() => el.classList.remove("copied"), 1200);
     }));
 
-    // Fechar modais ao tocar fora
+    // Fechar modais ao tocar fora (bloqueia o modal de autenticação quando não autenticado)
     document.querySelectorAll(".modal-overlay").forEach(m => m.addEventListener("click", e => {
-        if (e.target === m && !m.classList.contains('kyc-overlay')) {
+        if (e.target === m && !m.classList.contains('kyc-overlay') && !m.classList.contains('auth-overlay')) {
             m.classList.remove("active");
             if (m.id === "modalReceiveQr") closeReceiveQrModal();
             else setTimeout(() => { m.style.display = "none"; }, 250);

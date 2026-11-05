@@ -33,6 +33,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     } else {
         updateTopbarUser(null);
+        openAuthModal(true);
     }
 
     // A frase "Bom dia / Boa tarde / Boa noite" acompanha a hora sem recarregar a página

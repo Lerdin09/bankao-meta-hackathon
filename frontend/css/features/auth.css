@@ -252,3 +252,113 @@
 .auth-kyc-notice strong {
     color: var(--gold);
 }
+
+/* ==========================================================================
+   Bloqueio obrigatório: utilizador não autenticado
+   ========================================================================== */
+body.auth-required {
+    overflow: hidden !important;
+}
+
+body.auth-required .shell {
+    pointer-events: none !important;
+    user-select: none !important;
+    filter: blur(8px) saturate(0.5);
+    opacity: 0.35;
+    transition: filter 0.35s ease, opacity 0.35s ease;
+}
+
+body.auth-required .bottom-nav,
+body.auth-required .copilot-fab,
+body.auth-required .copilot-voice-dock,
+body.auth-required .copilot-voice-overlay {
+    display: none !important;
+}
+
+.auth-overlay.auth-locked {
+    background: rgba(3, 7, 18, 0.94) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    z-index: 1000 !important;
+}
+
+body.auth-required .auth-close,
+.auth-overlay.auth-locked .auth-close {
+    display: none !important;
+}
+
+/* Contas de Demonstração (1 Clique) */
+.auth-demo-box {
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px dashed var(--line-2);
+}
+
+.auth-demo-title {
+    display: block;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.auth-demo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.auth-demo-btn {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    background: var(--bg-2);
+    border: 1px solid var(--line-2);
+    border-radius: 12px;
+    padding: 8px 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.18s ease;
+}
+
+.auth-demo-btn:hover {
+    background: var(--surface-2);
+    border-color: rgba(230, 184, 92, 0.45);
+    transform: translateY(-1px);
+}
+
+.auth-demo-btn .demo-avatar {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.auth-demo-btn .demo-meta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.auth-demo-btn strong {
+    font-size: 0.8rem;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.auth-demo-btn small {
+    font-size: 0.69rem;
+    color: var(--gold);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 480px) {
+    .auth-demo-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -30,16 +30,48 @@ function populateAuthCountries() {
     });
 }
 
-function openAuthModal() {
+function openAuthModal(forced = false) {
     populateAuthCountries();
     const m = document.getElementById('modalAuth');
+    if (!m) return;
+    const isLocked = forced || !state.token;
+    if (isLocked) {
+        document.body.classList.add('auth-required');
+        m.classList.add('auth-locked');
+    } else {
+        m.classList.remove('auth-locked');
+    }
     m.style.display = 'flex';
     setTimeout(() => m.classList.add('active'), 10);
 }
-function closeAuthModal() {
+
+function closeAuthModal(force = false) {
+    if (!state.token && !force) {
+        // Bloqueio rigoroso: utilizador não autenticado tem de permanecer na tela de autenticação
+        return;
+    }
     const m = document.getElementById('modalAuth');
-    m.classList.remove('active');
-    setTimeout(() => m.style.display = 'none', 300);
+    if (!m) return;
+    m.classList.remove('active', 'auth-locked');
+    document.body.classList.remove('auth-required');
+    setTimeout(() => {
+        if (state.token || force) {
+            m.style.display = 'none';
+        }
+    }, 280);
+}
+
+function fillDemoUser(email) {
+    switchAuthTab('login');
+    const emailEl = document.getElementById('loginEmail');
+    const passEl  = document.getElementById('loginPassword');
+    if (emailEl) emailEl.value = email;
+    if (passEl)  passEl.value  = 'Demo1234!';
+    const btn = document.getElementById('btnLoginSubmit');
+    if (btn) {
+        btn.focus();
+        btn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 }
 function switchAuthTab(tab) {
     populateAuthCountries();
@@ -79,7 +111,7 @@ async function handleLogin(e) {
         if (!res.ok) throw new Error(data.detail || 'Erro ao iniciar sessão.');
 
         await onAuthSuccess(data);
-        closeAuthModal();
+        closeAuthModal(true);
     } catch (err) {
         errEl.textContent = err.message;
         errEl.classList.add('show');
@@ -145,7 +177,7 @@ async function handleRegister(e) {
         if (!res.ok) throw new Error(data.detail || 'Erro ao criar conta.');
 
         await onAuthSuccess(data);
-        closeAuthModal();
+        closeAuthModal(true);
         // Abre KYC logo após registo para capturar e validar o verdadeiro nome legal da conta
         setTimeout(() => {
             if (typeof openKYCModal === 'function') openKYCModal();
