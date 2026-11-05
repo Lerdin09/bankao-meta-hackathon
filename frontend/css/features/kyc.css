@@ -241,3 +241,23 @@
     box-shadow: 0 0 0 3px rgba(230,184,92,.1);
 }
 .kyc-input.mono { font-family: var(--mono); letter-spacing: .04em; }
+
+.kyc-tools-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--text-2);
+    margin: 14px 0;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(230, 184, 92, 0.08);
+    border: 1px dashed rgba(230, 184, 92, 0.25);
+    text-align: center;
+}
+.kyc-tools-hint a {
+    color: var(--gold);
+    text-decoration: underline;
+    font-weight: 600;
+}

@@ -42,12 +42,12 @@ def register(data: UserRegister, request: Request):
             """
             INSERT INTO users (id, nome, primeiro_nome, ultimo_nome, email, password_hash, telefone,
                                kyc_status, terms_accepted, data_nascimento, nacionalidade, morada,
-                               profissao, rendimento_mensal, finalidade, pin_hash)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'pendente', 1, ?, ?, ?, ?, ?, ?, ?)
+                               profissao, rendimento_mensal, finalidade, pin_hash, nome_apresentacao)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'pendente', 1, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (user_id, nome_display, primeiro, ultimo, data.email, pwd_hash, data.telefone,
              data.data_nascimento, data.nacionalidade, data.morada, data.profissao,
-             data.rendimento_mensal, data.finalidade, pin_hash)
+             data.rendimento_mensal, data.finalidade, pin_hash, nome_display)
         )
 
         # Criar automaticamente 3 cartões/contas: AO (Angola - AOA), PT (Portugal - EUR) e US (Estados Unidos - USD) com saldo 0
@@ -83,10 +83,12 @@ def register(data: UserRegister, request: Request):
         "user": {
             "id": user_id,
             "nome": nome_display,
+            "nome_apresentacao": nome_display,
             "primeiro_nome": primeiro,
             "ultimo_nome": ultimo,
             "email": data.email,
             "telefone": data.telefone,
+            "nacionalidade": data.nacionalidade,
             "kyc_status": "pendente",
             "created_at": datetime.datetime.utcnow().isoformat()
         }
@@ -105,10 +107,12 @@ def login(data: UserLogin, request: Request):
         user_dict = {
             "id": user["id"],
             "nome": user["nome"],
+            "nome_apresentacao": user["nome_apresentacao"] if "nome_apresentacao" in user.keys() and user["nome_apresentacao"] else user["nome"],
             "primeiro_nome": user["primeiro_nome"],
             "ultimo_nome": user["ultimo_nome"],
             "email": user["email"],
             "telefone": user["telefone"],
+            "nacionalidade": user["nacionalidade"] if "nacionalidade" in user.keys() else None,
             "kyc_status": user["kyc_status"],
             "doc_tipo": user["doc_tipo"],
             "doc_numero": user["doc_numero"],

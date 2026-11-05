@@ -1,24 +1,44 @@
 /* ==========================================================================
-   Modais de transferência e depósito — polimento mobile + desktop
-   (importado por último: só refina, não substitui os ficheiros base)
+   Modais de transferência, depósito e recibos — polimento mobile + desktop
+   - Previne colisões, sobreposições de botões e cortes em ecrãs pequenos
    ========================================================================== */
+
+/* Nível de camada superior para modais de operações (acima da navegação e copilot dock) */
+.modal-overlay {
+    z-index: 850 !important;
+}
 
 /* Desktop: modais centrados em vez de colados ao fundo */
 @media (min-width: 640px) {
     .modal-overlay { align-items: center; padding: 24px 16px; }
     .phone-simulator { border-radius: 44px; border-bottom: 2px solid #2A3348; margin: auto; }
     .phone-screen { border-radius: 34px; }
+    .receipt-modal { margin: auto; }
 }
 
-/* Cartão: coluna flex, só o corpo faz scroll, rodapé sempre visível */
-.confirm-transfer-modal:not(.form-modal) {
-    display: flex; flex-direction: column;
+/* Cartão de confirmação e formulários modais: coluna flex, cabeçalho e rodapé fixos, corpo scrollável */
+.confirm-transfer-modal {
+    display: flex;
+    flex-direction: column;
     max-height: calc(100dvh - 32px);
+    overflow: hidden;
 }
-.confirm-transfer-modal:not(.form-modal) .confirm-modal-header,
-.confirm-transfer-modal:not(.form-modal) .confirm-modal-actions { flex-shrink: 0; }
-.confirm-transfer-modal:not(.form-modal) .confirm-modal-body {
-    flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+.confirm-transfer-modal.form-modal > form {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+.confirm-transfer-modal .confirm-modal-header,
+.confirm-transfer-modal .confirm-modal-actions {
+    flex-shrink: 0;
+}
+.confirm-transfer-modal .confirm-modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
 }
 .confirm-modal-header { padding-right: 64px; }
@@ -55,22 +75,22 @@
 
 /* Mobile: bottom sheet com pega, botões grandes, tela sem sobreposições */
 @media (max-width: 639px) {
-    .confirm-transfer-modal:not(.form-modal) {
+    .confirm-transfer-modal {
         width: 100%; max-height: 92dvh; margin: auto 0 0;
         border-radius: 26px 26px 0 0; border-bottom: 0;
     }
-    .confirm-transfer-modal:not(.form-modal)::before {
+    .confirm-transfer-modal::before {
         content: ""; position: absolute; top: 8px; left: 50%; z-index: 2;
         width: 40px; height: 4px; margin-left: -20px; border-radius: 99px; background: rgba(255, 255, 255, .22);
     }
-    .confirm-transfer-modal:not(.form-modal) .confirm-modal-header { padding: 26px 60px 14px 18px; gap: 12px; }
-    .confirm-transfer-modal:not(.form-modal) .confirm-close-btn { top: 18px; right: 12px; width: 40px; height: 40px; }
-    .confirm-transfer-modal:not(.form-modal) .confirm-modal-body { padding: 16px 18px; gap: 14px; }
-    .confirm-transfer-modal:not(.form-modal) .confirm-modal-actions {
+    .confirm-transfer-modal .confirm-modal-header { padding: 26px 60px 14px 18px; gap: 12px; }
+    .confirm-transfer-modal .confirm-close-btn { top: 18px; right: 12px; width: 40px; height: 40px; }
+    .confirm-transfer-modal .confirm-modal-body { padding: 16px 18px; gap: 14px; }
+    .confirm-transfer-modal .confirm-modal-actions {
         padding: 12px 18px calc(14px + var(--safe-b, 0px)); gap: 10px;
         box-shadow: 0 -12px 24px -12px rgba(0, 0, 0, .6);
     }
-    .confirm-transfer-modal:not(.form-modal) .confirm-modal-actions .btn { min-height: 52px; border-radius: 14px; }
+    .confirm-transfer-modal .confirm-modal-actions .btn { min-height: 52px; border-radius: 14px; }
     .confirm-val-stack .c-val.total-arrive.primary { font-size: 1.2rem; }
     .phone-simulator { max-height: 100dvh; overflow-y: auto; }
 }
@@ -89,3 +109,104 @@
 .form-modal select.input { appearance: none; -webkit-appearance: none; padding-right: 36px;
     background-image: linear-gradient(45deg, transparent 50%, var(--text-2) 50%), linear-gradient(135deg, var(--text-2) 50%, transparent 50%);
     background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%; background-size: 5px 5px; background-repeat: no-repeat; }
+
+/* ==========================================================================
+   Polimento Geral de Modais (Recibos, Pagamentos e Simuladores)
+   - Evita colisões, cortes de texto e sobreposições de botões
+   ========================================================================== */
+
+.receipt-modal {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 440px;
+    max-height: calc(100dvh - 32px);
+    overflow: hidden;
+    box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(230, 184, 92, 0.2);
+    border-radius: 24px;
+    padding: 26px 22px calc(22px + var(--safe-b, 0px));
+}
+.receipt-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 5;
+}
+.receipt-header {
+    flex-shrink: 0;
+    margin-bottom: 14px;
+    padding-top: 4px;
+}
+.receipt-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 16px;
+}
+.receipt-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+    gap: 14px;
+}
+.receipt-row .label {
+    flex-shrink: 0;
+    color: var(--text-3);
+    font-size: .84rem;
+    white-space: nowrap;
+}
+.receipt-row .val {
+    flex: 1 1 auto;
+    text-align: right;
+    font-size: .95rem;
+    overflow-wrap: anywhere;
+}
+.receipt-row .val.highlight {
+    color: var(--gold);
+    font-size: 1.15rem;
+    letter-spacing: .04em;
+    font-weight: 800;
+}
+.receipt-actions {
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 12px;
+}
+.receipt-actions .btn {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 700;
+    border-radius: 14px;
+}
+
+.mcx-sim-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border: none;
+}
+
+@media (max-width: 639px) {
+    .receipt-modal {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 26px 26px 0 0;
+        padding: 24px 18px calc(18px + var(--safe-b, 0px));
+        margin: auto 0 0;
+    }
+    .receipt-actions {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}

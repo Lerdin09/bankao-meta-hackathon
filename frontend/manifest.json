@@ -1,0 +1,18 @@
+{
+  "name": "BankAO — Carteira Digital",
+  "short_name": "BankAO",
+  "description": "Banco digital e assistente financeiro com IA para Angola e o Mundo.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070B14",
+  "theme_color": "#070B14",
+  "icons": [
+    {
+      "src": "/static/icons/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

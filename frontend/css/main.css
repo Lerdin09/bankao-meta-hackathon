@@ -23,6 +23,7 @@
 @import url("layout/bottom-nav.css");
 @import url("components/toasts.css");
 @import url("components/modals.css");
+@import url("components/mobile-app-guard.css");
 @import url("layout/responsive-breakpoints.css");
 @import url("components/copilot-actions.css");
 @import url("features/auth.css");

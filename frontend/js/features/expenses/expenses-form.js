@@ -154,6 +154,12 @@ window.handleCreateExpense = async function(e) {
     renderExpensesView();
     refreshHomeFinance();
     toast(`Despesa "${name}" de ${formatMoney(amount, "AOA")} registada!`, "success");
+
+    // Notificação do sistema (respeita definições n_expenses e ch_push)
+    if (typeof window.bkNotify === "function") {
+        window.bkNotify(`Nova despesa registada: ${name} · ${formatMoney(amount, "AOA")}`, "success", "n_expenses");
+    }
+
     if (typeof copilotOpDone === "function") {
         copilotOpDone("expense", {
             chat: `✅ **Despesa registada!** **${name}** · **${formatMoney(amount, "AOA")}**.\n\nPode vê-la em **Despesas**.`,

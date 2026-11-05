@@ -85,20 +85,20 @@
   // ─── Inicialização Pública ────────────────────────────────────────────────────
   window.initCopilotVoice = function () {
     const hasSR = "webkitSpeechRecognition" in window || "SpeechRecognition" in window;
-    if (!hasSR) {
-      console.warn("[Voice] Web Speech Recognition não disponível neste navegador.");
-      return;
-    }
 
     _buildOverlay();
     _buildFloatingTrigger();
     _buildMicButton();
-    _initRecognition();
     _initVoiceVoices();
 
-    // Iniciar escuta passiva se o browser permitir ou após o primeiro toque do utilizador
-    _startPassiveListening();
-    setInterval(() => { if (isListening && !recActive) _ensureRecognition(); }, 2500);
+    if (hasSR) {
+      _initRecognition();
+      _startPassiveListening();
+      setInterval(() => { if (isListening && !recActive) _ensureRecognition(); }, 2500);
+    } else {
+      console.log("[Voice] Modo de voz inicializado com suporte a ações rápidas e síntese de áudio.");
+    }
+
     document.addEventListener("click", _unlockAudioOnFirstGesture, { once: true });
     document.addEventListener("touchstart", _unlockAudioOnFirstGesture, { once: true });
   };
@@ -266,7 +266,7 @@
     floatingBtn = document.createElement("button");
     floatingBtn.type = "button";
     floatingBtn.id = "voiceFloatingTrigger";
-    floatingBtn.className = "voice-floating-trigger hide-unauthenticated";
+    floatingBtn.className = "voice-floating-trigger";
     floatingBtn.setAttribute("aria-label", "Falar com o Copilot");
     floatingBtn.title = "Falar com o BankAO Copilot";
     floatingBtn.innerHTML = `
@@ -543,6 +543,22 @@
     editing = false;
     _applyEditUi(false);
     window.copilotSpeak("Ólá! Como posso ajudar hoje?", _resumeListening);
+
+    // Se o reconhecimento nativo não estiver ativo (ex: mobile HTTP), mostra atalhos de voz imediatos
+    if (!recognition) {
+      _setStatus("Assistente de voz ativo (Toque para falar ou perguntar):");
+      if (transcriptEl) {
+        transcriptEl.innerHTML = `
+          <div style="font-size:13px;color:var(--text-2);margin-bottom:8px;">Escolha uma pergunta por voz ou escreva no chat:</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">
+            <button type="button" class="chip-btn green" style="cursor:pointer;" onclick="window._copilotSendQuickVoice('Qual é o meu saldo atual?')">💰 Ver saldo</button>
+            <button type="button" class="chip-btn" style="cursor:pointer;" onclick="window._copilotSendQuickVoice('Quero fazer uma transferência')">💸 Transferir</button>
+            <button type="button" class="chip-btn" style="cursor:pointer;" onclick="window._copilotSendQuickVoice('Quais são as taxas de câmbio actuais?')">💱 Câmbio</button>
+            <button type="button" class="chip-btn" style="cursor:pointer;" onclick="window._copilotSendQuickVoice('Como depositar com Multicaixa Express?')">⚡ Depósito MCX</button>
+          </div>
+        `;
+      }
+    }
   }
 
   function _closeVoiceSession() {
@@ -760,15 +776,16 @@
   // ─── Visualizador Dinâmico Siri / GPT no Canvas ──────────────────────────────
   async function _startAudioVisualizer() {
     try {
-      micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 256;
-      micSource = audioCtx.createMediaStreamSource(micStream);
-      micSource.connect(analyser);
+      if (navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === "function") {
+        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        micSource = audioCtx.createMediaStreamSource(micStream);
+        micSource.connect(analyser);
+      }
       _drawWave();
     } catch (_) {
-      // Se o microfone direto no AudioContext falhar (ex: restrição mobile), roda simulação fluida
       _drawWave();
     }
   }
@@ -920,5 +937,8 @@
   // ─── Exportação ───────────────────────────────────────────────────────────────
   window._copilotVoiceOpenSession = _openVoiceSession;
   window._copilotVoiceCloseSession = _closeVoiceSession;
+  window._copilotSendQuickVoice = function (text) {
+    if (text) _sendVoiceMessage(text);
+  };
 
 })();

@@ -15,7 +15,7 @@ body.unauthenticated .hide-unauthenticated { display: none !important; }
     .topbar-right { gap: 6px; flex-shrink: 0; }
     .user-profile { max-width: 120px; }
     .user-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px; font-size: .82rem; }
-    .btn-copilot-toggle { display: none !important; }
+    .btn-copilot-toggle { display: inline-flex; height: 38px; padding: 0 10px; font-size: .78rem; gap: 5px; }
     /* O QR já está no cabeçalho do início e no menu "Mais": libertar espaço para o botão Sair não ser cortado */
     .topbar-qr-btn { display: none !important; }
     .icon-btn { width: 38px; height: 38px; border-radius: 10px; }

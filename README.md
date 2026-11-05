@@ -1,121 +1,376 @@
-# BankAO — Carteira Digital para Angola e o Mundo
+<div align="center">
 
-Meta Global AI Developer Hackathon. Backend **FastAPI + SQLite** (livro-razão) e frontend em
-**HTML/CSS/JS puro**, com um assistente de IA (Copilot) integrado à **Meta Model API** e acelerado pela **Baseten** com o modelo oficial **Muse Spark Open (`meta-models/muse-spark-open-1026`)**.
+# 🏦 BankAO
+
+**A Primeira Carteira Digital com IA Bancária para Angola e o Mundo**
+
+*Meta Global AI Developer Hackathon 2024*
+
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![Meta AI](https://img.shields.io/badge/Meta-Muse%20Spark%20Open-0866FF?logo=meta&logoColor=white)](https://ai.meta.com)
+[![Baseten](https://img.shields.io/badge/Baseten-2M%20tokens%2Fmin-5C6BC0)](https://baseten.co)
+
+</div>
 
 ---
 
-## 🚀 Integração Meta & Baseten (Hackathon Oficial)
+## 1. O que é o BankAO?
 
-O BankAO integra o modelo **Meta Muse Spark Open** através da infraestrutura da **Baseten**, garantindo:
-- **Modelo Oficial:** `meta-models/muse-spark-open-1026` com até **2M tokens/minuto**.
-- **Reasoning (Raciocínio Integrado):** O Muse Spark Open raciocina nativamente antes de responder; o BankAO extrai o *chain-of-thought* e apresenta o raciocínio formatado e isolado da resposta ao utilizador.
-- **Tool Calling (Agente Bancário):** O modelo orquestra saldos, transferências, metas de poupança, despesas e investimentos de forma determinística e segura.
-- **Visão Multimodal (Baseten Vision):** Análise inteligente de comprovativos Multicaixa, faturas e talões de pagamento (`POST /api/ai/vision/analyze`).
+O BankAO é uma **carteira digital inteligente** desenhada para o mercado angolano — e construída para escalar globalmente. Combina as funcionalidades essenciais de um banco digital (contas, transferências, poupanças, investimentos) com um **Copilot de IA conversacional** que permite ao utilizador fazer qualquer operação bancária em linguagem natural, incluindo por **voz**.
 
-### Configuração da Chave da Baseten no `.env`:
-```env
-AI_PROVIDER=baseten
-BASETEN_API_KEY=sua_chave_aqui
-BASETEN_BASE_URL=https://inference.baseten.co/v1
-BASETEN_MODEL=meta-models/muse-spark-open-1026
+> *"Envia 5000 Kz ao João"* → o Copilot interpreta, preenche o formulário e aguarda a confirmação do utilizador. A IA prepara. O humano decide.
+
+---
+
+## 2. O Problema
+
+Angola e grande parte de África têm:
+
+- **Baixa bancarização** — milhões de pessoas sem acesso a serviços financeiros básicos.
+- **Interfaces bancárias complexas** — apps que exigem literacia financeira elevada.
+- **Falta de ferramentas de gestão de dinheiro** — sem orçamentos, categorias de despesa ou análise de hábitos.
+- **Barreiras de idioma e literacia digital** — interfaces em inglês, sem assistência contextual.
+- **Dependência de dinheiro físico** — Multicaixa e transferências manuais como único meio.
+
+---
+
+## 3. A Solução
+
+O BankAO resolve estes problemas através de três pilares:
+
+| Pilar | O que faz |
+|---|---|
+| **Copilot de IA** | Compreende pedidos em português, extrai intenção, preenche formulários e executa ações com confirmação humana obrigatória |
+| **Gestão Financeira Completa** | Contas multi-moeda, poupanças com metas, orçamentos, despesas por categoria, investimentos simulados |
+| **Acessibilidade Mobile-First** | PWA instalável, interação por voz, suporte a todos os países e indicativos telefónicos |
+
+---
+
+## 4. Integração Meta AI
+
+O BankAO usa **Meta Muse Spark Open** via **Baseten** como motor central de raciocínio bancário.
+
+### Onde a Meta AI é usada
+
+| Componente | Ficheiro | Função |
+|---|---|---|
+| **Cliente IA unificado** | `backend/ai/client.py` | Ligação a `meta-models/muse-spark-open-1026` via Baseten (OpenAI-compatible). Extrai *chain-of-thought* (`<think>`) e suporta tool calling, visão multimodal e retentativas com backoff exponencial |
+| **Interpretação de intenções** | `backend/ai/intents.py` | Converte linguagem natural em ações bancárias (transferência, poupança, despesa, depósito). O modelo JSON do Muse Spark é validado contra um interpretador determinístico antes de ser aceite |
+| **Orquestrador de ferramentas** | `backend/ai/orchestrator.py` | Decide qual ferramenta bancária invocar e compõe a resposta final com raciocínio isolado |
+| **Assistente bancário** | `backend/ai/assistant.py` | Gestão de sessão e histórico de conversa, contexto financeiro do utilizador injetado no prompt |
+| **Ritmo de gasto ideal** | `backend/ai/ideal_pace.py` | O modelo propõe o gasto mensal ideal para cumprir metas de poupança (`POST /api/ai/ideal-pace`), limitado a ±25% do cálculo local |
+| **Análise de despesas** | `backend/ai/expense_flow.py` | Categorização automática e análise de padrões de consumo |
+| **Análise de investimentos** | `backend/ai/invest_flow.py` | Sugestões de alocação e análise de risco |
+| **Visão multimodal** | `backend/ai/vision.py` | Análise de comprovativos Multicaixa, faturas e talões (`POST /api/ai/vision/analyze`) |
+| **KYC inteligente** | `backend/ai/kyc.py` | Validação de documentos e passaportes com OCR assistido por IA |
+| **Voz conversacional** | `backend/ai/elevenlabs.py` | Integração ElevenLabs com Meta AI como *Custom LLM* para o Copilot de voz em tempo real |
+
+### Modelo e Performance
+
 ```
-*(Se nenhuma chave estiver preenchida ou em caso de perda de conexão, o BankAO entra em fallback com regras financeiras locais imediatas).*
+Modelo:    meta-models/muse-spark-open-1026
+Plataforma: Baseten (Inferência de Alta Performance)
+Throughput: até 2 milhões de tokens/minuto
+Reasoning:  Chain-of-thought nativo (extraído e apresentado separadamente)
+Fallback:   Regras financeiras locais (sem API key ou sem rede)
+```
 
 ---
 
-## Como correr
+## 5. Arquitetura
+
+```
+Utilizador
+    │
+    ▼
+BankAO UI  ──────────────────────────────────────────────────────
+(HTML/CSS/JS puro · PWA · Mobile-first · Voz via ElevenLabs)
+    │
+    ▼
+FastAPI Backend (Python)
+    │
+    ├── API REST  (/api/*)
+    │       ├── auth · accounts · transfers · deposits
+    │       ├── savings · expenses · investments · cards
+    │       ├── fx (câmbio) · iban · transactions · contacts
+    │       └── settings · kyc · analytics
+    │
+    └── AI Copilot  (/api/ai/*)
+            │
+            ▼
+        Orquestrador  (backend/ai/orchestrator.py)
+            │   ┌─────────────────────────────────┐
+            │   │  Contexto financeiro do utilizador│
+            │   │  (saldo, contas, metas, histórico)│
+            │   └─────────────────────────────────┘
+            ▼
+        Meta Muse Spark Open  (via Baseten)
+            │
+            ├── Chain-of-Thought  →  raciocínio isolado para o utilizador
+            │
+            └── Intent / Tool Selection
+                    │
+                    ▼
+                APIs Bancárias
+                    │
+                    ├── Transferência interna / IBAN
+                    ├── Depósito Multicaixa Express
+                    ├── Criação de meta de poupança
+                    ├── Registo de despesa categorizada
+                    ├── Conversão cambial (AOA ↔ EUR ↔ USD)
+                    └── Análise de investimentos
+                            │
+                            ▼
+                    Formulário pré-preenchido
+                            │
+                            ▼
+                    ✅ Confirmação obrigatória do utilizador
+                            │
+                            ▼
+                        Ação executada · Extrato atualizado
+```
+
+---
+
+## 6. Funcionalidades
+
+### 💳 Contas & Cartões
+- Contas multi-moeda: **AOA · EUR · USD**
+- IBAN angolano gerado automaticamente
+- Cartão virtual com histórico de operações
+- Gráfico de evolução do saldo (7d / 30d / 3m / 6m / 1a / Total)
+- Diagrama de Sankey: fluxo entre contas (origem → conta → destino)
+
+### 💸 Transferências & Pagamentos
+- Transferências internas (entre contas próprias)
+- Transferências IBAN internacionais
+- Referências de pagamento (simuladas)
+- Multicaixa Express (simulado)
+- Contactos guardados com avatar e histórico
+
+### 🐷 Poupanças
+- Metas de poupança com nome, valor-alvo e prazo
+- Ritmo de gasto ideal calculado pelo Muse Spark Open
+- Depósitos e levantamentos das metas
+
+### 📊 Despesas & Orçamentos
+- Registo manual de despesas com 9 categorias
+- Orçamento mensal por categoria
+- Gráficos de gastos por comerciante e por período
+- Análise de padrões via IA
+
+### 📈 Investimentos
+- Simulação de portfólios (Conservador / Moderado / Agressivo)
+- Análise de risco e sugestões de alocação pelo Muse Spark Open
+
+### 🤖 Copilot IA (Linguagem Natural + Voz)
+- Chat em português com o Muse Spark Open
+- Interpretação de pedidos bancários em texto e voz
+- Raciocínio transparente: o utilizador vê o *chain-of-thought*
+- Chips de acção rápida para operações frequentes
+- Análise de comprovativos por foto (visão multimodal)
+- Voz conversacional em tempo real via ElevenLabs
+
+### 🛂 KYC & Identidade
+- Verificação de identidade em 3 passos
+- Gerador de documentos de identidade angolanos (`/documento`)
+- Gerador de passaportes angolanos (`/passaporte`)
+- Análise de documentos com IA (OCR + validação)
+
+### 📱 Mobile & PWA
+- Instalável como app nativa (PWA)
+- Guard de permissões persistente (microfone + notificações)
+- Funciona offline com Service Worker
+- Copilot de voz adaptado para HTTP/mobile
+
+---
+
+## 7. Como Correr
+
+### Pré-requisitos
+
+- Python 3.11+
+- pip
+
+### Instalação
 
 ```bash
-pip install fastapi uvicorn python-dotenv "python-jose" bcrypt openai pillow "pydantic[email]"
-cp .env.example .env            # opcional: chave da Meta Model API, SECRET_KEY, ...
+# 1. Clonar o repositório
+git clone <url-do-repositório>
+cd bankao-meta-hackathon
+
+# 2. Instalar dependências Python
+pip install fastapi uvicorn python-dotenv "python-jose[cryptography]" bcrypt openai pillow "pydantic[email]" httpx
+
+# 3. Configurar variáveis de ambiente
+cp .env.example .env
+# Edite o .env e adicione as suas chaves (ver secção 8)
+
+# 4. Arrancar o servidor
 uvicorn backend.main:app --reload
 ```
 
-Abra <http://localhost:8000> (app) ou <http://localhost:8000/docs> (API). A base de dados `bankao.db`
-é criada na raiz do projeto. Sem `MODEL_API_KEY` o Copilot usa um fallback local.
+Abra **http://localhost:8000** para a aplicação ou **http://localhost:8000/docs** para a API interativa.
 
-Testes: `pytest` (a partir da raiz). Para ver o `index.html` final já montado: `python scripts/build_index.py`.
+A base de dados SQLite (`bankao.db`) é criada automaticamente na raiz do projeto.
 
-## Estrutura
+### Acesso em rede local (mobile)
+
+```bash
+uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+# Aceda em http://<ip-local>:8000 no telemóvel
+```
+
+### Testes
+
+```bash
+pytest tests/ -q
+# 174 testes · ~60 segundos
+```
+
+### Build do index.html (pré-visualização do HTML montado)
+
+```bash
+python scripts/build_index.py
+```
+
+---
+
+## 8. Variáveis de Ambiente
+
+Copie `.env.example` para `.env` e preencha:
+
+```env
+# ─── Servidor ────────────────────────────────────────────────────────────────
+HOST=0.0.0.0
+PORT=8000
+ENVIRONMENT=development
+
+# Chave JWT — mude em produção!
+SECRET_KEY=bankao_dev_secret_key_change_in_prod
+
+# ─── Meta AI via Baseten (Hackathon) ─────────────────────────────────────────
+# Provedor: "baseten" | "meta" | "auto"
+AI_PROVIDER=auto
+
+# Baseten — modelo oficial do Hackathon (2M tokens/min)
+BASETEN_API_KEY=           # obtenha em baseten.co
+BASETEN_BASE_URL=https://inference.baseten.co/v1
+BASETEN_MODEL=meta-models/muse-spark-open-1026
+
+# Meta Direct API (fallback)
+MODEL_API_KEY=             # opcional
+MODEL_BASE_URL=https://api.meta.ai/v1
+MODEL_NAME=muse-spark-1.3
+
+# Parâmetros de inferência
+AI_MAX_TOKENS=3500
+AI_TEMPERATURE=0.2
+AI_REQUEST_TIMEOUT=45
+AI_ENABLE_REASONING_TRACE=true   # mostra o chain-of-thought ao utilizador
+
+# ─── Base de dados ────────────────────────────────────────────────────────────
+DATABASE_PATH=bankao.db
+
+# ─── ElevenLabs (Voz conversacional — opcional) ───────────────────────────────
+ELEVENLABS_API_KEY=        # obtenha em elevenlabs.io
+ELEVENLABS_AGENT_ID=       # ID do agente conversacional
+ELEVENLABS_CUSTOM_LLM_SECRET=   # UUID aleatório — autentica o Custom LLM
+```
+
+> **Sem chaves configuradas**, o Copilot entra em modo de fallback com regras financeiras locais — a aplicação funciona na totalidade exceto o chat com IA.
+
+---
+
+## 9. Demo
+
+🎥 **[Ver vídeo de demonstração](#)** *(link a adicionar)*
+
+### Rotas notáveis
+
+| URL | Descrição |
+|---|---|
+| `/` | Aplicação principal |
+| `/docs` | API interativa (Swagger) |
+| `/documento` | Gerador de Bilhete de Identidade Angolano |
+| `/passaporte` | Gerador de Passaporte Angolano |
+| `/manifest.json` | Manifesto PWA |
+
+---
+
+## 10. Estrutura do Projeto
 
 ```
-bankao/
-├── backend/                    # API (pacote Python)
-│   ├── main.py                 # cria a app: CORS, rotas, frontend
-│   ├── core/                   # config.py (variáveis e caminhos) · security.py (JWT, passwords)
-│   ├── database/               # connection.py (SQLite/WAL) · schema.py (tabelas, migrações, seed)
-│   ├── schemas/                # modelos Pydantic, um ficheiro por domínio
-│   ├── services/               # regras de negócio: ledger.py (livro-razão) · iban.py
-│   ├── providers/              # integrações simuladas: deposits.py · fx.py · payout.py
-│   ├── ai/                     # client.py · prompts.py · intents.py · assistant.py · kyc.py
-│   ├── api/
-│   │   ├── __init__.py         # api_router: junta todas as rotas
-│   │   └── routes/             # um ficheiro por domínio: auth, kyc, accounts, deposits,
-│   │                           #   users, transfers, iban, fx, transactions, ai
-│   └── web/                    # includes.py (montagem de partials) · frontend.py (/ e /static)
+bankao-meta-hackathon/
+├── backend/
+│   ├── main.py                  # FastAPI app: CORS, rotas, montagem do frontend
+│   ├── core/                    # config.py · security.py (JWT, passwords)
+│   ├── database/                # connection.py (SQLite/WAL) · schema.py (migrações, seed)
+│   ├── schemas/                 # modelos Pydantic por domínio
+│   ├── services/                # ledger.py (livro-razão) · iban.py
+│   ├── providers/               # integrações simuladas: deposits · fx · payout
+│   ├── ai/
+│   │   ├── client.py            # ★ Cliente Meta/Baseten (OpenAI-compat, reasoning, vision)
+│   │   ├── orchestrator.py      # ★ Orquestrador de ferramentas bancárias
+│   │   ├── intents.py           # ★ Interpretação de linguagem natural → ações
+│   │   ├── assistant.py         # Sessão e histórico do Copilot
+│   │   ├── prompts.py           # System prompts e contexto financeiro
+│   │   ├── ideal_pace.py        # Ritmo de gasto ideal (Meta AI)
+│   │   ├── expense_flow.py      # Análise de despesas (Meta AI)
+│   │   ├── invest_flow.py       # Sugestões de investimento (Meta AI)
+│   │   ├── vision.py            # Análise de comprovativos (Multimodal)
+│   │   ├── kyc.py               # Validação de documentos KYC
+│   │   ├── elevenlabs.py        # Integração ElevenLabs + Meta Custom LLM
+│   │   └── tools/               # Ferramentas bancárias chamadas pelo modelo
+│   ├── api/routes/              # auth · accounts · transfers · deposits · savings
+│   │                            # expenses · investments · cards · fx · iban
+│   │                            # transactions · contacts · kyc · ai · eleven · analytics
+│   └── web/                     # frontend.py (rotas estáticas) · includes.py (partials)
 │
 ├── frontend/
-│   ├── index.html              # casca: só <!-- @include ... --> e a ordem dos blocos
+│   ├── index.html               # Shell com @include para todos os partials
+│   ├── manifest.json            # PWA manifest
+│   ├── sw.js                    # Service Worker (cache offline)
 │   ├── partials/
-│   │   ├── layout/             # ícones, banner, sidebar, topbar, bottom-nav, menu móvel, scripts
-│   │   ├── pages/              # uma página por ficheiro: home, accounts, payments, expenses,
-│   │   │                       #   savings, operations, statement, copilot
-│   │   └── modals/             # um modal por ficheiro
+│   │   ├── layout/              # icons · sidebar · topbar · bottom-nav · scripts
+│   │   ├── pages/               # home · accounts · payments · expenses · savings
+│   │   │                        # operations · statement · copilot · investments · cards
+│   │   └── modals/              # um ficheiro por modal
 │   ├── css/
-│   │   ├── main.css            # lista de @import (a ORDEM é a ordem da cascata)
-│   │   ├── base/               # tokens (variáveis), reset
-│   │   ├── layout/             # shell, sidebar, bottom-nav, breakpoints, acabamento responsivo
-│   │   ├── components/         # modais, toasts, copilot, cartões, filtros…
-│   │   ├── dashboard/          # estilos da página inicial
-│   │   └── features/           # um ficheiro por funcionalidade/página
-│   ├── js/
-│   │   ├── core/               # config, state, format (valores), currency, ui (toast…)
-│   │   ├── features/           # auth, dashboard, statement, accounts, payments, savings,
-│   │   │                       #   expenses, operations, copilot, shell, qr, kyc
-│   │   └── main.js             # arranque (DOMContentLoaded) — carrega por último
-│   └── assets/                 # recursos estáticos
+│   │   ├── main.css             # Ponto de entrada (@import ordenado)
+│   │   ├── base/                # tokens CSS · reset
+│   │   ├── layout/              # shell · sidebar · responsive
+│   │   ├── components/          # modais · toasts · copilot · mobile-guard
+│   │   ├── dashboard/           # página inicial
+│   │   └── features/            # um ficheiro por funcionalidade
+│   └── js/
+│       ├── core/                # config · state · format · currency · ui · mobile-app-guard
+│       ├── features/            # auth · dashboard · statement · accounts · payments
+│       │                        # savings · expenses · operations · copilot · kyc · cards
+│       └── main.js              # Arranque (DOMContentLoaded) — carrega por último
 │
-├── tests/                      # pytest + integration/ (scripts manuais)
-├── tools/                      # utilitários de apoio: scrapers SWIFT e geradores de documentos/passaportes KYC
-├── data/                       # bases de dados de suporte (atlas SWIFT e caches de scraping)
-├── scripts/                    # build_index.py · migrate_imports.py · legacy/
-└── docs/MIGRACAO.md            # mapa ficheiro antigo → novo
+├── tests/                       # 174 testes pytest
+├── tools/                       # Geradores de documentos/passaportes KYC
+├── data/                        # Atlas SWIFT, países, caches de scraping
+├── scripts/                     # build_index.py · migrate_imports.py
+└── docs/                        # MIGRACAO.md e documentação interna
 ```
 
-## Como acrescentar código
+---
 
-**Nova rota da API** — crie `backend/api/routes/<nome>.py` com
-`router = APIRouter(prefix="/api/<nome>", tags=[...])` e acrescente `<nome>` à lista em
-`backend/api/__init__.py`. Modelos de entrada/saída vão em `backend/schemas/<nome>.py` (e são
-reexportados em `schemas/__init__.py`); regras de negócio em `backend/services/`.
+## 11. Decisões de Design
 
-**Nova página** (ex.: `view-cartoes`)
-1. `frontend/partials/pages/cartoes.html` com `<section class="view" id="view-cartoes">…</section>`
-2. uma linha `<!-- @include partials/pages/cartoes.html -->` em `index.html` (junto das outras páginas)
-3. `frontend/css/features/cartoes.css` + `@import` em `css/main.css` (antes de `layout/responsive-polish.css`)
-4. `frontend/js/features/cartoes/cartoes.js` + `<script>` em `partials/layout/scripts.html` (antes de `main.js`)
-5. entrada no menu em `partials/layout/sidebar.html` / `bottom-nav.html` / `mobile-menu.html`
+- **Sem framework de frontend** — HTML/CSS/JS puro. Zero bundlers, zero `node_modules`, zero build step para o frontend. O servidor Python serve o `index.html` montado diretamente.
+- **A IA prepara, o humano decide** — O Copilot nunca executa uma operação sem confirmação explícita do utilizador. Preenche formulários; quem carrega em "Confirmar" é sempre a pessoa.
+- **Fallback determinístico** — Se a API Meta/Baseten não estiver configurada ou falhar, o sistema cai para regras financeiras locais (sem degradação da UI).
+- **SQLite com WAL** — Base de dados de ficheiro único, sem dependências externas, adequada para o hackathon e pequenas deployments.
+- **Raciocínio visível** — O *chain-of-thought* do Muse Spark Open é extraído e apresentado ao utilizador numa secção separada, promovendo transparência e confiança.
 
-**Novo modal** — um ficheiro em `partials/modals/` e uma linha `@include` em `index.html`.
+---
 
-**Regras do frontend**
-- Os scripts são clássicos (não módulos) e partilham o mesmo escopo global; funções chamadas por
-  `onclick="…"` têm de ser globais (`function nome(){}` ou `window.nome = …`).
-- Evite lógica que corra logo no carregamento do ficheiro: ligue eventos em funções `initXxx()` chamadas
-  por `main.js` (`DOMContentLoaded`). Por serem código legado, `payments/payments.js` e `savings/goals.js`
-  ainda ligam alguns eventos ao carregar — mantidos como no original.
-- CSS: a ordem importa. Variáveis novas em `base/tokens.css`; estilos de uma funcionalidade no
-  seu ficheiro de `features/`.
-- `pytest tests/test_frontend_structure.py` avisa se esquecer de ligar um `.js`/`.css`/partial.
+<div align="center">
 
-## Notas
+Feito com ❤️ para o **Meta Global AI Developer Hackathon**
 
-- Os dados de poupanças, despesas e orçamentos do frontend ficam em `localStorage` (por browser).
-- A base de dados SQLite (`bankao.db`) é ignorada pelo Git (ver `.gitignore`).
-
-## Gráfico do cartão
-
-Ao tocar no cartão de saldo do início abre-se `view-card-chart` (`frontend/js/features/card-chart/`): linhas verde (recebido), vermelha (saído) e azul (ritmo ideal). Intervalos: 7 dias, 30 dias, 3 meses, 6 meses, 1 ano e Total. A linha azul vem de `POST /api/ai/ideal-pace` (`backend/ai/ideal_pace.py`): a Meta Model API propõe o gasto mensal ideal para cumprir as metas de poupança, limitado a ±25 % do cálculo local, que também é o fallback sem chave, sem sessão ou sem rede. Sem sessão ou sem histórico o gráfico mostra dados de demonstração.
-
-O menu da página tem 6 gráficos: 1 Evolução do saldo, 2 Entradas vs. saídas, 3 Fluxo de gastos do cartão (`card-spend-chart.js`: barras por dia, semana ou mês com compras, levantamentos, pendentes e estornos; um cartão por moeda; comparação de períodos e lista de operações), 4 Gastos por comerciante (`merchants-chart.js`: barras horizontais com o total gasto por comerciante, filtros de moeda, intervalo e tipo de destino, e detalhe com as operações), 5 Fluxo entre contas (`accounts-flow-chart.js`: diagrama de Sankey em três colunas — origem do dinheiro → contas AOA/EUR/USD → destino — com transferências entre contas, conversões cambiais (faixas tracejadas), poupanças, compras, levantamentos, taxas e o que «Ficou na conta»; filtros de moeda de apresentação e intervalo; tocar num bloco ou faixa mostra o detalhe e as operações) e 6 em breve (Previsão do saldo). Os gráficos 3, 4 e 5 usam só dados reais do extrato (sem dados de demonstração). A «Despesas por categoria» saiu do menu porque já existe na página Despesas.
+</div>

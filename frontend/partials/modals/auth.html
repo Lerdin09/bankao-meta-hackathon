@@ -43,13 +43,36 @@
         <!-- Register Form -->
         <form class="auth-form" id="formRegister" style="display:none" onsubmit="handleRegister(event)">
             <div class="form-group">
+                <div class="form-label-row">
+                    <label for="regDisplayName">Nome de apresentação</label>
+                    <span class="form-label-hint">Visualização na app</span>
+                </div>
+                <input type="text" id="regDisplayName" placeholder="Ex: Santos Silva" required autocomplete="nickname">
+                <small class="form-field-note">O nome oficial da conta será extraído do seu documento na verificação.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="regPhoneNumber">Número de telefone</label>
+                <div class="phone-input-row">
+                    <select id="regPhoneCode" class="auth-select phone-code-select" aria-label="Indicativo do país">
+                        <!-- Carregado via BANKAO_COUNTRIES -->
+                    </select>
+                    <input type="tel" id="regPhoneNumber" placeholder="9XX XXX XXX" required autocomplete="tel-national">
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label for="regEmail">E-mail</label>
                 <input type="email" id="regEmail" placeholder="o.seu@email.com" required autocomplete="email">
             </div>
+
             <div class="form-group">
-                <label for="regPhone">Número de telefone</label>
-                <input type="tel" id="regPhone" placeholder="+244 9XX XXX XXX" required autocomplete="tel">
+                <label for="regNationality">Nacionalidade</label>
+                <select id="regNationality" class="auth-select" required aria-label="Nacionalidade">
+                    <!-- Carregado via BANKAO_COUNTRIES -->
+                </select>
             </div>
+
             <div class="form-group">
                 <label for="regPassword">Palavra-passe</label>
                 <div class="input-eye-wrap">
@@ -70,6 +93,12 @@
                     </button>
                 </div>
             </div>
+
+            <div class="auth-kyc-notice">
+                <svg class="ic-notice"><use href="#i-shield"/></svg>
+                <p><strong>Nome legal da conta:</strong> O seu nome completo oficial e NIF serão validados e extraídos diretamente do seu documento de identidade no passo seguinte.</p>
+            </div>
+
             <label class="terms-check">
                 <input type="checkbox" id="regTerms" required>
                 <span>Aceito os <a href="#" class="link-accent" onclick="return false">Termos e Condições</a> e a <a href="#" class="link-accent" onclick="return false">Política de Privacidade</a> da BankAO</span>

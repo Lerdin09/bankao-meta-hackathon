@@ -13,6 +13,7 @@ from backend.core.security import get_current_user, get_password_hash, verify_pa
 from backend.database import get_connection
 from backend.services import user_settings as us
 from backend.services.audit import write_audit_log
+from backend.services.email import send_support_ticket_email
 
 router = APIRouter(prefix="/api/settings", tags=["Definições"])
 
@@ -215,4 +216,18 @@ def support(body: SupportIn, user: dict = Depends(get_current_user)):
         c.execute("INSERT INTO support_requests (id, user_id, kind, message) VALUES (?, ?, ?, ?)",
                   (rid, user["id"], body.kind, body.message.strip()[:1000]))
     write_audit_log(user["id"], f"support.{body.kind}", rid)
+
+    # Encaminhar imediatamente por e-mail para o canal oficial de suporte
+    user_name = user.get("nome") or user.get("primeiro_nome") or "Cliente BankAO"
+    user_email = user.get("email") or ""
+    user_phone = user.get("telefone") or ""
+    send_support_ticket_email(
+        request_id=rid,
+        user_name=user_name,
+        user_email=user_email,
+        user_phone=user_phone,
+        kind=body.kind,
+        message=body.message.strip()
+    )
+
     return {"id": rid}

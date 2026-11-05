@@ -59,7 +59,8 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict[str, Any]:
         user = conn.execute(
             """
             SELECT id, nome, primeiro_nome, ultimo_nome, email, telefone, kyc_status,
-                   nome_pai, nome_mae, doc_tipo, doc_numero, morada, data_emissao, created_at
+                   nome_pai, nome_mae, doc_tipo, doc_numero, morada, data_emissao, created_at,
+                   nacionalidade, nome_apresentacao
             FROM users WHERE id = ?
             """,
             (user_id,)

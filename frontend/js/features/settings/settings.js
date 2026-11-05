@@ -7,6 +7,7 @@
  */
 const ST_DEFAULTS = {
     biometric: false, twofa: false, n_transfers: true, n_payments: true, n_received: true, n_card: true, n_movements: false,
+    n_expenses: true, n_savings: true, n_deposits: true, n_investments: true,
     n_low_balance: true, n_low_balance_threshold: 50000, n_promos: false, ch_push: true, ch_sms: true, ch_email: false,
     language: "pt", currency: "AOA", date_format: "DD/MM/AAAA", number_format: "1 234,56", theme: "dark", home_page: "view-home",
     hide_balances: true, main_account_id: "", online_payments: true, limit_withdraw: 200000, limit_payments: 1000000, limit_transfers: 2000000,
@@ -104,13 +105,21 @@ async function loadUserSettings() {
 }
 
 /* ---------- Alertas (notificações reais) ---------- */
-function bkNotify(msg, kind) {
+function bkNotify(msg, kind, settingKey) {
     if (!ST.settings.ch_push) return;
+    if (settingKey && ST.settings[settingKey] === false) return;
     toast(msg, kind || "success");
     try {
-        if (document.hidden && "Notification" in window && Notification.permission === "granted") new Notification("BankAO", { body: msg });
+        if ("Notification" in window) {
+            if (Notification.permission === "granted") {
+                new Notification("BankAO", { body: msg, icon: "/static/favicon.ico" });
+            } else if (Notification.permission === "default") {
+                Notification.requestPermission();
+            }
+        }
     } catch (_) {}
 }
+window.bkNotify = bkNotify;
 function checkAlerts() {
     const s = ST.settings;
     if (!ST.loaded || !state.token) return;
@@ -137,7 +146,7 @@ function checkAlerts() {
     }
 }
 
-/* ---------- Bloqueio por PIN (ao abrir a app) ---------- */
+/* ---------- Bloqueio e Confirmação por PIN ---------- */
 function maybePinLock() {
     if (!ST.settings.twofa || !ST.hasPin || sessionStorage.getItem("bankao_pin_ok") === "1" || document.getElementById("stPinLock")) return;
     const ov = document.createElement("div");
@@ -162,6 +171,131 @@ function maybePinLock() {
     document.getElementById("stPinLockOut").onclick = () => logout();
     setTimeout(() => document.getElementById("stPinLockIn").focus(), 50);
 }
+
+/**
+ * Solicita a confirmação do PIN de segurança sempre que o utilizador
+ * efetua uma operação que envolva gastar dinheiro ou transferir fundos.
+ * @param {string} operationDesc Descrição da operação (ex: "Transferência de 50.000 Kz")
+ * @returns {Promise<boolean>} Resolve true se confirmado com sucesso
+ */
+function requirePinAuthorization(operationDesc) {
+    return new Promise((resolve) => {
+        // Se o utilizador não configurou PIN ainda, solicita a criação imediata
+        if (!ST.hasPin) {
+            stModal("Definir PIN de Segurança", 
+                '<p class="st-hint">Para autorizar operações financeiras e proteger a sua conta, defina primeiro o seu PIN de segurança (4 a 6 dígitos).</p>' +
+                stIn("newReqPin", "Novo PIN (4 a 6 dígitos)", "password", 'inputmode="numeric" maxlength="6"') +
+                stIn("newReqPinConf", "Confirmar PIN", "password", 'inputmode="numeric" maxlength="6"'),
+                [
+                    { label: "Cancelar", run: () => { resolve(false); } },
+                    { 
+                        label: "Guardar e Continuar", 
+                        primary: 1, 
+                        run: async () => {
+                            const p1 = stV("newReqPin");
+                            const p2 = stV("newReqPinConf");
+                            if (!p1 || p1 !== p2) throw new Error("Os PINs introduzidos não coincidem.");
+                            if (!/^\d{4,6}$/.test(p1)) throw new Error("O PIN deve conter entre 4 e 6 dígitos numéricos.");
+                            await apiRequest("POST", "/api/settings/pin", { pin: p1 });
+                            ST.hasPin = true;
+                            sessionStorage.setItem("bankao_pin_ok", "1");
+                            toast("PIN de segurança configurado com sucesso!", "success");
+                            resolve(true);
+                        } 
+                    }
+                ]
+            );
+            return;
+        }
+
+        // Se já tem PIN, solicita a autenticação por PIN
+        const ov = document.createElement("div");
+        ov.className = "st-ov st-pin-auth-modal";
+        ov.innerHTML = `
+            <div class="st-modal" style="max-width: 380px; text-align: center;">
+                <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(230, 184, 92, 0.15); color: #E6B85C; display: grid; place-items: center; margin: 0 auto 14px;">
+                    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                </div>
+                <h3 style="margin-bottom: 6px; font-size: 1.25rem;">Autorização por PIN</h3>
+                <p style="color: var(--text-2, #94A3B8); font-size: 0.92rem; margin-bottom: 16px;">
+                    ${escapeHtml(operationDesc || "Confirme a operação com o seu PIN de segurança")}
+                </p>
+                <div style="margin-bottom: 16px;">
+                    <input class="st-in" id="authPinInput" type="password" inputmode="numeric" maxlength="6" 
+                           autocomplete="off" placeholder="••••" 
+                           style="text-align: center; font-size: 1.8rem; letter-spacing: 0.35em; height: 50px; font-weight: 700; width: 100%;">
+                    <p class="st-err" id="authPinErr" style="margin-top: 8px; font-size: 0.85rem; color: #EF4444; min-height: 1.2em;"></p>
+                </div>
+                <div class="st-mact" style="display: flex; gap: 10px;">
+                    <button type="button" class="st-btn" id="btnAuthPinCancel" style="flex: 1;">Cancelar</button>
+                    <button type="button" class="st-btn primary" id="btnAuthPinConfirm" style="flex: 1;">Autorizar</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(ov);
+
+        const input = document.getElementById("authPinInput");
+        const errEl = document.getElementById("authPinErr");
+        const btnConfirm = document.getElementById("btnAuthPinConfirm");
+        const btnCancel = document.getElementById("btnAuthPinCancel");
+
+        setTimeout(() => input && input.focus(), 60);
+
+        let attempts = 0;
+        const doVerify = async () => {
+            const pinVal = input.value.trim();
+            if (!pinVal) {
+                errEl.textContent = "Introduza o seu PIN.";
+                return;
+            }
+            errEl.textContent = "";
+            btnConfirm.disabled = true;
+            btnConfirm.textContent = "A validar...";
+
+            try {
+                const r = await apiRequest("POST", "/api/settings/pin/verify", { pin: pinVal });
+                if (r && r.ok) {
+                    ov.remove();
+                    resolve(true);
+                    return;
+                }
+            } catch (ex) {
+                // erro de rede ou validação
+            }
+
+            attempts++;
+            btnConfirm.disabled = false;
+            btnConfirm.textContent = "Autorizar";
+            input.value = "";
+            input.focus();
+            errEl.textContent = `PIN incorreto (${attempts}/3).`;
+            if (attempts >= 3) {
+                ov.remove();
+                toast("Número máximo de tentativas de PIN excedido.", "error");
+                resolve(false);
+            }
+        };
+
+        btnConfirm.onclick = doVerify;
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                doVerify();
+            } else if (e.key === "Escape") {
+                ov.remove();
+                resolve(false);
+            }
+        });
+        btnCancel.onclick = () => {
+            ov.remove();
+            resolve(false);
+        };
+    });
+}
+window.requirePinAuthorization = requirePinAuthorization;
 
 /* ---------- Modais ---------- */
 function stModal(title, body, buttons, onOpen) {
@@ -237,16 +371,22 @@ function stCats() {
             { g: "Zona de risco" },
             { t: "act", i: "i-ban", n: ST.locked ? "Desbloquear a conta" : "Bloquear temporariamente a conta", s: ST.locked ? "A conta está bloqueada: nenhum movimento é permitido" : "Suspende todos os movimentos", act: "lock", danger: 1 }] },
         { id: "notificacoes", icon: "i-bell", c: "#F59E0B", n: "Notificações", d: "Alertas e canais", rows: [
-            { g: "Alertas" },
-            { t: "toggle", i: "i-swap", n: "Transferências", key: "n_transfers" }, { t: "toggle", i: "i-receipt", n: "Pagamentos efetuados", key: "n_payments" },
-            { t: "toggle", i: "i-down", n: "Dinheiro recebido", key: "n_received" }, { t: "toggle", i: "i-card", n: "Compras com cartão", key: "n_card" },
-            { t: "toggle", i: "i-activity", n: "Movimentos da conta", key: "n_movements" },
+            { g: "Alertas Financeiros" },
+            { t: "toggle", i: "i-swap", n: "Transferências enviadas", key: "n_transfers" },
+            { t: "toggle", i: "i-down", n: "Depósitos e dinheiro recebido", key: "n_received" },
+            { t: "toggle", i: "i-pie", n: "Registo de despesas", key: "n_expenses" },
+            { t: "toggle", i: "i-target", n: "Metas de poupança", key: "n_savings" },
+            { t: "toggle", i: "i-trending", n: "Investimentos", key: "n_investments" },
+            { t: "toggle", i: "i-receipt", n: "Pagamentos efetuados", key: "n_payments" },
+            { t: "toggle", i: "i-card", n: "Compras com cartão", key: "n_card" },
+            { t: "toggle", i: "i-activity", n: "Todos os movimentos da conta", key: "n_movements" },
             { t: "toggle", i: "i-alert", n: "Alerta de saldo baixo", s: "Abaixo de " + kz(bk("n_low_balance_threshold")), key: "n_low_balance" },
             { t: "num", i: "i-alert", n: "Limite do alerta de saldo", key: "n_low_balance_threshold", unit: "Kz" },
             { t: "toggle", i: "i-bolt", n: "Promoções e novidades", key: "n_promos" },
             { g: "Canais" },
-            { t: "toggle", i: "i-bell", n: "Push (na app e no navegador)", key: "ch_push" },
-            { t: "toggle", i: "i-phone", n: "SMS", s: "Preferência registada", key: "ch_sms" }, { t: "toggle", i: "i-mail", n: "E-mail", s: "Preferência registada", key: "ch_email" }] },
+            { t: "toggle", i: "i-bell", n: "Notificações Push (na app e navegador)", key: "ch_push" },
+            { t: "toggle", i: "i-phone", n: "SMS", s: "Preferência registada", key: "ch_sms" },
+            { t: "toggle", i: "i-mail", n: "E-mail", s: "Preferência registada", key: "ch_email" }] },
         { id: "preferencias", icon: "i-sliders", c: "#A78BFA", n: "Preferências", d: "Idioma, moeda e aparência", rows: [
             { g: "Regional" },
             { t: "select", i: "i-globe", n: "Idioma", key: "language", opts: OPT.lang }, { t: "select", i: "i-wallet", n: "Moeda principal", key: "currency", opts: OPT.cur },
@@ -444,7 +584,11 @@ function stPhoto() {
             const c = document.createElement("canvas"); c.width = c.height = 160; const x = c.getContext("2d");
             const s = Math.min(img.width, img.height); x.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, 160, 160);
             localStorage.setItem("bankao_avatar_" + state.user.id, c.toDataURL("image/jpeg", .85));
-            toast("Fotografia atualizada com sucesso.", "success"); renderSettings();
+            toast("Fotografia atualizada com sucesso.", "success");
+            renderSettings();
+            if (typeof updateTopbarUser === "function" && state.user) {
+                updateTopbarUser(state.user);
+            }
         };
         img.src = URL.createObjectURL(f);
     };
@@ -568,3 +712,17 @@ function initSettings() {
         if (row) { try { await stAction(panel._rows[+row.dataset.r]); } catch (er) { toast(er.message, "error"); } }
     });
 }
+
+// Exportações globais de definições
+window.ST = ST;
+window.renderSettings = renderSettings;
+window.loadUserSettings = loadUserSettings;
+window.saveSettings = saveSettings;
+window.cancelSettings = cancelSettings;
+window.openSettingsCat = openSettingsCat;
+window.stModal = stModal;
+window.stIn = stIn;
+window.stV = stV;
+window.bkSetting = bkSetting;
+window.bkFormatNumber = bkFormatNumber;
+window.bkFormatDate = bkFormatDate;

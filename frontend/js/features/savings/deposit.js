@@ -122,6 +122,14 @@ window.handleDepositGoal = async function(e) {
     const idx = financeStore.goals.findIndex(x => x.id === id);
     if (idx === -1) return toast("Meta não encontrada.", "error");
 
+    // Exigir confirmação por PIN antes de alocar fundos na meta de poupança
+    if (typeof window.requirePinAuthorization === "function") {
+        const goalName = financeStore.goals[idx]?.name || "Meta de Poupança";
+        const desc = `Depositar ${formatMoney(amount, "AOA")} na meta "${goalName}"`;
+        const authorized = await window.requirePinAuthorization(desc);
+        if (!authorized) return;
+    }
+
     // A base de dados soma o valor à meta e regista a despesa (categoria Poupança) numa só operação
     let result;
     depSubmitting = true;
@@ -151,7 +159,13 @@ window.handleDepositGoal = async function(e) {
     loadUserData();   // saldo da conta e extrato (sem esperar)
 
     const done = goal.saved >= (Number(goal.target) || 0);
-    toast(done
+    const msg = done
         ? `Meta "${goal.name}" atingida! Depósito de ${formatMoney(amount, "AOA")} registado.`
-        : `Depósito de ${formatMoney(amount, "AOA")} em "${goal.name}" registado!`, "success");
+        : `Depósito de ${formatMoney(amount, "AOA")} em "${goal.name}" registado!`;
+    toast(msg, "success");
+
+    // Notificação do sistema (respeita definições n_savings e ch_push)
+    if (typeof window.bkNotify === "function") {
+        window.bkNotify(msg, "success", "n_savings");
+    }
 };

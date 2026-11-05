@@ -90,24 +90,30 @@ function initDepositMethodToggle() {
     });
 
     // Botões dos Modais de Depósito
-    document.getElementById("btnMcxReject").addEventListener("click", () => {
-        document.getElementById("modalExpressSim").classList.remove("active");
+    document.getElementById("btnMcxReject")?.addEventListener("click", () => {
+        document.getElementById("modalExpressSim")?.classList.remove("active");
+    });
+    document.getElementById("btnCloseExpressSimX")?.addEventListener("click", () => {
+        document.getElementById("modalExpressSim")?.classList.remove("active");
     });
 
-    document.getElementById("btnMcxApprove").addEventListener("click", async () => {
+    document.getElementById("btnMcxApprove")?.addEventListener("click", async () => {
         if (!state.currentPendingDepositId) return;
         await confirmDepositPayment(state.currentPendingDepositId);
-        document.getElementById("modalExpressSim").classList.remove("active");
+        document.getElementById("modalExpressSim")?.classList.remove("active");
     });
 
-    document.getElementById("btnCloseRefModal").addEventListener("click", () => {
-        document.getElementById("modalRefSim").classList.remove("active");
+    document.getElementById("btnCloseRefModal")?.addEventListener("click", () => {
+        document.getElementById("modalRefSim")?.classList.remove("active");
+    });
+    document.getElementById("btnCloseRefModalX")?.addEventListener("click", () => {
+        document.getElementById("modalRefSim")?.classList.remove("active");
     });
 
-    document.getElementById("btnSimulateRefPay").addEventListener("click", async () => {
+    document.getElementById("btnSimulateRefPay")?.addEventListener("click", async () => {
         if (!state.currentPendingDepositId) return;
         await confirmDepositPayment(state.currentPendingDepositId);
-        document.getElementById("modalRefSim").classList.remove("active");
+        document.getElementById("modalRefSim")?.classList.remove("active");
     });
 }
 // Confirmação de Pagamento Simulado
@@ -120,8 +126,15 @@ async function confirmDepositPayment(depositId) {
         });
         const data = await res.json();
         if (res.ok) {
-            addCopilotMessage("ai", `🎉 **Depósito Confirmado!** O montante de **${formatMoney(data.data.amount_minor / 100, data.data.currency)}** já está disponível e contabilizado no seu livro-razão.`);
-            if (typeof copilotOpDone === "function") copilotOpDone("deposit", { speech: `Concluído. O depósito de ${formatMoney(data.data.amount_minor / 100, data.data.currency)} foi confirmado e já está disponível.` });
+            const depAmount = formatMoney(data.data.amount_minor / 100, data.data.currency);
+            addCopilotMessage("ai", `🎉 **Depósito Confirmado!** O montante de **${depAmount}** já está disponível e contabilizado no seu livro-razão.`);
+            if (typeof copilotOpDone === "function") copilotOpDone("deposit", { speech: `Concluído. O depósito de ${depAmount} foi confirmado e já está disponível.` });
+
+            // Notificação do sistema (respeita definições n_received e ch_push)
+            if (typeof window.bkNotify === "function") {
+                window.bkNotify(`Depósito recebido com sucesso: +${depAmount}`, "success", "n_received");
+            }
+
             await loadUserData();
         } else {
             toast(data.detail || "Erro ao confirmar pagamento.");

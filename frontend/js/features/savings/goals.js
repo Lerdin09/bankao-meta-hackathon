@@ -193,6 +193,12 @@ window.handleCreateGoal = async function(e) {
     updateDashboardHero();
     if (typeof refreshCardChart === "function") refreshCardChart();
     toast(`Meta "${name}" criada com sucesso!`, "success");
+
+    // Notificação do sistema (respeita definições n_savings e ch_push)
+    if (typeof window.bkNotify === "function") {
+        window.bkNotify(`Nova meta de poupança criada: "${name}" · Alvo: ${Number(target).toLocaleString("pt-PT")} Kz`, "success", "n_savings");
+    }
+
     if (typeof copilotAnnounceDone === "function") {
         const fmt = n => Number(n).toLocaleString("pt-PT") + " Kz";
         const linhas = [`✅ **Meta criada!** A poupança **${name}** já está ativa.`, `• Objetivo: **${fmt(target)}**`];

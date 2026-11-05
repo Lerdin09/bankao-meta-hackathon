@@ -105,6 +105,11 @@ function showTransferSuccess({ recipientName, recipientDest, amountText, arriveT
     modal.classList.add("active");
     const done = document.getElementById("btnTransferDone");
     if (done) setTimeout(() => done.focus(), 50);
+
+    // Notificação do sistema (respeita definições n_transfers e ch_push)
+    if (typeof window.bkNotify === "function") {
+        window.bkNotify(`Transferência enviada: ${amountText || ""} para ${recipientName || "destinatário"}`, "success", "n_transfers");
+    }
 }
 window.showTransferSuccess = showTransferSuccess;
 // Inicializar botões do modal de confirmação
@@ -126,6 +131,17 @@ function initTransferConfirmModalEvents() {
         btnExecute.addEventListener("click", async () => {
             if (transferInFlight) return;
             if (typeof pendingTransferExecution === "function") {
+                // Exigir autorização por PIN de segurança antes de transferir dinheiro
+                if (typeof window.requirePinAuthorization === "function") {
+                    const recipient = document.getElementById("confirmRecipientName")?.textContent || "Destinatário";
+                    const amount = document.getElementById("confirmAmountSent")?.textContent || "";
+                    const desc = `Autorizar transferência de ${amount} para ${recipient}`;
+                    const authorized = await window.requirePinAuthorization(desc);
+                    if (!authorized) {
+                        return; // Operação cancelada pelo utilizador ou PIN inválido
+                    }
+                }
+
                 transferInFlight = true;
                 btnExecute.closest(".confirm-transfer-modal")?.classList.add("is-busy");
                 const originalHtml = btnExecute.innerHTML;

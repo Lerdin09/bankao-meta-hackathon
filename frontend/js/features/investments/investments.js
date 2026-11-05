@@ -479,6 +479,14 @@ async function handleInvestApplySubmit(e) {
     if (amount < Number(p.min_amount)) return invFormError("mivAppError", `O montante mínimo é ${invFmt(p.min_amount, p.currency)}.`);
     if (amount > invAccountBalance(acc)) return invFormError("mivAppError", "Saldo insuficiente na conta selecionada.");
     invFormError("mivAppError", "");
+
+    // Exigir confirmação por PIN antes de aplicar fundos em investimentos
+    if (typeof window.requirePinAuthorization === "function") {
+        const desc = `Investir ${invFmt(amount, p.currency)} em ${p.name || "produto financeiro"}`;
+        const authorized = await window.requirePinAuthorization(desc);
+        if (!authorized) return;
+    }
+
     invBusy(btn, true);
     try {
         const res = await apiRequest("POST", "/api/investments/portfolio/apply", {
@@ -489,6 +497,12 @@ async function handleInvestApplySubmit(e) {
         });
         invClose("modalInvestApply");
         toast((res && res.message) || "Investimento subscrito com sucesso!", "success");
+
+        // Notificação do sistema (respeita definições n_investments e ch_push)
+        if (typeof window.bkNotify === "function") {
+            window.bkNotify(`Investimento subscrito: ${p.name || "Produto"} · ${invFmt(amount, p.currency)}`, "success", "n_investments");
+        }
+
         if (typeof copilotAnnounceDone === "function") {
             copilotAnnounceDone("investment", `✅ **Investimento realizado!** Subscreveu **${p.name || "o produto"}** com **${invFmt(amount, p.currency)}**.\n\nPode acompanhá-lo em **Investimentos → Carteira**.`, `Concluído. O investimento em ${p.name || "o produto"} foi realizado com sucesso.`);
         }

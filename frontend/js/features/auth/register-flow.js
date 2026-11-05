@@ -52,15 +52,28 @@ function rfRender() {
     $rf('rfNum').textContent = `Passo ${st} de 3 · Página ${p}/7`;
     const d = rf.d; let h = '';
     const maxBirth = new Date(Date.now() - 18 * 365.25 * 864e5).toISOString().slice(0, 10);
-    if (p === 1) h = `<h2>Vamos começar</h2><p class="rf-sub">Diga-nos quem é e como o podemos contactar.</p>
-        ${rfField('nome', 'Nome completo', 'text', 'Como no seu BI', 'autocomplete="name"')}
+    if (p === 1) {
+        const countries = window.BANKAO_COUNTRIES || [{code:'AO', name:'Angola', dial:'+244'}];
+        const dialOptions = countries.map(c => `<option value="${c.dial}" ${(d.dial || '+244') === c.dial ? 'selected' : ''}>${c.code} (${c.dial})</option>`).join('');
+        h = `<h2>Vamos começar</h2><p class="rf-sub">Diga-nos quem é e como o podemos contactar.</p>
+        ${rfField('nome', 'Nome de apresentação', 'text', 'Como prefere ser chamado (o nome oficial da conta será extraído do documento)', 'autocomplete="nickname"')}
         ${rfField('nasc', 'Data de nascimento', 'date', '', `max="${maxBirth}"`)}
-        <label class="rf-l" for="rf_tel">Número de telefone</label><div class="rf-phone"><span>🇦🇴 +244</span><input id="rf_tel" type="tel" inputmode="numeric" maxlength="9" placeholder="9XX XXX XXX" value="${rfEsc(d.tel)}" autocomplete="tel-national"></div><div class="rf-msg" id="rfm_tel"></div>
+        <label class="rf-l" for="rf_tel">Número de telefone</label>
+        <div class="rf-phone">
+            <select id="rf_dial" style="background:transparent;border:0;color:var(--text);font-weight:700;font-size:.85rem;padding:0 4px;outline:none;cursor:pointer;">${dialOptions}</select>
+            <input id="rf_tel" type="tel" inputmode="numeric" placeholder="9XX XXX XXX" value="${rfEsc(d.tel)}" autocomplete="tel-national">
+        </div>
+        <div class="rf-msg" id="rfm_tel"></div>
         ${rfField('email', 'E-mail', 'email', 'o.seu@email.com', 'autocomplete="email"')}${rfNav(false)}`;
-    if (p === 2) h = `<h2>Sobre si</h2><p class="rf-sub">Nacionalidade, onde vive e o que faz.</p>
-        <label class="rf-l" for="rf_nac">Nacionalidade</label><select id="rf_nac">${['Angolana', 'Portuguesa', 'Brasileira', 'Cabo-verdiana', 'Moçambicana', 'Outra'].map(n => `<option ${d.nac === n ? 'selected' : ''}>${n}</option>`).join('')}</select>
+    }
+    if (p === 2) {
+        const countries = window.BANKAO_COUNTRIES || [{code:'AO', name:'Angola'}];
+        const natOptions = countries.map(c => `<option value="${c.name}" ${(d.nac || 'Angola') === c.name || (d.nac === 'Angolana' && c.code === 'AO') ? 'selected' : ''}>${c.name} (${c.code})</option>`).join('');
+        h = `<h2>Sobre si</h2><p class="rf-sub">Nacionalidade, onde vive e o que faz.</p>
+        <label class="rf-l" for="rf_nac">Nacionalidade</label><select id="rf_nac">${natOptions}</select>
         ${rfField('end', 'Endereço de residência', 'text', 'Rua, bairro, município, província', 'autocomplete="street-address"')}
         ${rfField('prof', 'Profissão', 'text', 'Ex.: Engenheiro, Estudante, Comerciante')}${rfNav()}`;
+    }
     if (p === 3) h = `<h2>Perfil financeiro</h2><p class="rf-sub">Ajuda-nos a adaptar a conta e a cumprir a lei.</p>
         <label class="rf-l" for="rf_renda">Rendimento mensal aproximado</label><select id="rf_renda"><option value="">Selecione…</option>${['Até 150.000 Kz', '150.000 – 400.000 Kz', '400.000 – 1.000.000 Kz', '1.000.000 – 3.000.000 Kz', 'Mais de 3.000.000 Kz'].map(n => `<option ${d.renda === n ? 'selected' : ''}>${n}</option>`).join('')}</select><div class="rf-msg" id="rfm_renda"></div>
         <label class="rf-l">Finalidade da conta</label><div class="rf-chips">${RF_FIN.map(f => `<div class="rf-chip ${d.fin === f ? 'on' : ''}" onclick="rf.d.fin='${f}';rfRender()">${f}</div>`).join('')}</div><div class="rf-msg" id="rfm_fin"></div>${rfNav()}`;
@@ -93,10 +106,11 @@ function rfVal() {
     const v = id => $rf('rf_' + id).value.trim(), d = rf.d, p = rf.p; let ok = true;
     if (p === 1) {
         d.nome = v('nome'); d.nasc = v('nasc'); d.tel = v('tel').replace(/\s/g, ''); d.email = v('email');
+        d.dial = $rf('rf_dial') ? $rf('rf_dial').value : (d.dial || '+244');
         const maxBirth = new Date(Date.now() - 18 * 365.25 * 864e5);
-        ok &= rfErr('nome', d.nome.split(/\s+/).length < 2 ? 'Introduza o nome completo.' : '');
+        ok &= rfErr('nome', d.nome.length < 2 ? 'Introduza o seu nome de apresentação.' : '');
         ok &= rfErr('nasc', !d.nasc ? 'Indique a data de nascimento.' : new Date(d.nasc) > maxBirth ? 'Tem de ter 18 anos ou mais.' : '');
-        ok &= rfErr('tel', !/^9\d{8}$/.test(d.tel) ? 'Número inválido (9 dígitos, começa por 9).' : '');
+        ok &= rfErr('tel', d.tel.length < 6 ? 'Número de telefone demasiado curto.' : '');
         ok &= rfErr('email', !/^\S+@\S+\.\S+$/.test(d.email) ? 'E-mail inválido.' : '');
     }
     if (p === 2) { d.nac = $rf('rf_nac').value; d.end = v('end'); d.prof = v('prof');
@@ -148,7 +162,7 @@ async function rfSubmit() {
         const res = await fetch(`${API_BASE}/api/auth/register`, {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                nome: d.nome, email: d.email, telefone: '+244' + d.tel,
+                nome: d.nome, email: d.email, telefone: (d.dial || '+244') + d.tel,
                 password: d.pw, confirm_password: d.pw, terms_accepted: true,
                 data_nascimento: d.nasc, nacionalidade: d.nac, morada: d.end, profissao: d.prof,
                 rendimento_mensal: d.renda, finalidade: d.fin, pin: d.pin

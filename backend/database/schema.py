@@ -31,6 +31,7 @@ def init_db():
             morada TEXT,
             data_emissao TEXT,
             terms_accepted INTEGER DEFAULT 1,
+            nome_apresentacao TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
 
@@ -202,7 +203,8 @@ def init_db():
             ("profissao", "TEXT"),
             ("rendimento_mensal", "TEXT"),
             ("finalidade", "TEXT"),
-            ("pin_hash", "TEXT")
+            ("pin_hash", "TEXT"),
+            ("nome_apresentacao", "TEXT")
         ]
         for col_nome, col_tipo in novas_colunas:
             try:

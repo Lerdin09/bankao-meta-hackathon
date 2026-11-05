@@ -1,0 +1,226 @@
+/* ==========================================================================
+   MODAL DE INSTALAÇÃO OBRIGATÓRIA MOBILE & PWA APP ATALHO
+   ========================================================================== */
+
+.mobile-app-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    background: rgba(3, 6, 12, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mobile-app-card {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    background: #0B1120;
+    border: 1px solid rgba(230, 184, 92, 0.3);
+    border-radius: 28px;
+    padding: 28px 22px 24px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(230, 184, 92, 0.15);
+    text-align: center;
+    animation: mobCardIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes mobCardIn {
+    from { opacity: 0; transform: translateY(24px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.mob-app-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(230, 184, 92, 0.14);
+    border: 1px solid rgba(230, 184, 92, 0.35);
+    padding: 6px 14px;
+    border-radius: 99px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 16px;
+}
+
+.mob-pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #EF4444;
+    animation: mobPulse 1.5s infinite;
+}
+
+@keyframes mobPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.4); }
+}
+
+.mob-app-icon-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 14px;
+}
+
+.mob-app-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    background: #050811;
+    border: 2px solid rgba(230, 184, 92, 0.4);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5), 0 0 20px rgba(230, 184, 92, 0.2);
+    display: grid;
+    place-items: center;
+    padding: 6px;
+}
+.mob-app-logo svg {
+    width: 100%;
+    height: 100%;
+}
+
+.mobile-app-card h2 {
+    margin: 0 0 8px;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.02em;
+}
+
+.mob-app-lead {
+    margin: 0 0 20px;
+    font-size: 0.86rem;
+    line-height: 1.45;
+    color: var(--text-2);
+}
+
+.mob-app-lead strong {
+    color: var(--text);
+}
+
+.mob-step-box {
+    display: flex;
+    gap: 14px;
+    text-align: left;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.mob-step-num {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), var(--gold-2));
+    color: #1a1200;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    font-size: 0.88rem;
+}
+
+.mob-step-content {
+    flex: 1;
+}
+
+.mob-step-content h4 {
+    margin: 0 0 4px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.mob-step-content p {
+    margin: 0 0 10px;
+    font-size: 0.8rem;
+    line-height: 1.38;
+    color: var(--text-3);
+}
+
+.mob-perm-btn {
+    width: 100%;
+    min-height: 44px;
+    border-radius: 12px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    gap: 8px;
+    justify-content: center;
+}
+
+.mob-perm-btn.ok {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.4);
+    color: #4ADE80;
+}
+
+.mob-install-btn {
+    min-height: 48px;
+    font-size: 0.92rem;
+    font-weight: 800;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--gold) 0%, #D97706 100%);
+    color: #111;
+    margin-bottom: 8px;
+}
+
+.mob-hint-alt {
+    margin: 6px 0 0;
+    font-size: 0.76rem !important;
+    color: var(--text-3) !important;
+}
+
+.mob-ios-steps {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 0.82rem;
+    color: var(--text-2);
+    line-height: 1.5;
+}
+
+.mob-ios-icon {
+    display: inline-block;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.12);
+    font-size: 0.9rem;
+}
+
+.mob-perm-denied-note {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    border-radius: 10px;
+    font-size: 0.78rem;
+    color: #fca5a5;
+    text-align: left;
+    line-height: 1.5;
+}
+
+.mob-step-box {
+    display: flex;
+}
+
+.mob-actions-row {
+    margin-top: 14px;
+}
+
+.mob-skip-btn {
+    font-size: 0.8rem;
+    color: var(--text-3);
+    padding: 8px;
+}
+.mob-skip-btn:hover {
+    color: var(--text);
+}
+

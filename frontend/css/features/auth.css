@@ -175,3 +175,80 @@
 }
 .kyc-badge.verified { background: var(--green-soft); color: var(--green); }
 .kyc-badge.pendente { background: rgba(230,184,92,.15); color: var(--gold); }
+
+/* Novos campos do formulário de registo */
+.form-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+}
+.form-label-row label {
+    margin-bottom: 0;
+}
+.form-label-hint {
+    font-size: .75rem;
+    color: var(--gold);
+    font-weight: 600;
+}
+.form-field-note {
+    display: block;
+    font-size: .76rem;
+    color: var(--text-3);
+    margin-top: 5px;
+    line-height: 1.35;
+}
+.phone-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+.auth-select {
+    width: 100%;
+    background: var(--bg-2);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-sm);
+    padding: 12px 14px;
+    color: var(--text);
+    font-size: .95rem;
+    font-family: var(--font);
+    outline: none;
+    cursor: pointer;
+    transition: border .18s, box-shadow .18s;
+}
+.auth-select:focus {
+    border-color: rgba(230,184,92,.5);
+    box-shadow: 0 0 0 3px rgba(230,184,92,.1);
+}
+.phone-code-select {
+    flex: 0 0 135px;
+    max-width: 140px;
+    font-size: .88rem;
+    padding: 10px 8px;
+}
+.auth-kyc-notice {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(230, 184, 92, 0.08);
+    border: 1px solid rgba(230, 184, 92, 0.22);
+    margin-bottom: 18px;
+}
+.auth-kyc-notice .ic-notice {
+    width: 20px;
+    height: 20px;
+    color: var(--gold);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+.auth-kyc-notice p {
+    margin: 0;
+    font-size: .8rem;
+    color: var(--text-2);
+    line-height: 1.4;
+}
+.auth-kyc-notice strong {
+    color: var(--gold);
+}

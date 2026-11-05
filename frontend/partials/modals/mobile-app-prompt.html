@@ -1,0 +1,73 @@
+<!-- ============ MODAL: INSTALAÇÃO OBRIGATÓRIA MOBILE & ATALHO ============ -->
+<div class="mobile-app-overlay" id="modalMobileAppPrompt" style="display:none">
+    <div class="mobile-app-card" role="dialog" aria-modal="true" aria-labelledby="mobAppTitle">
+        <div class="mob-app-badge-pill" id="mobAppBadge">
+            <span class="mob-pulse-dot"></span>
+            <span>Instalação Obrigatória</span>
+        </div>
+
+        <div class="mob-app-icon-wrap">
+            <div class="mob-app-logo">
+                <svg viewBox="0 0 512 512" fill="none">
+                    <rect width="512" height="512" rx="128" fill="#0F172A"/>
+                    <path d="M 170 120 L 290 120 C 350 120 380 150 380 195 C 380 230 355 250 325 256 C 365 264 395 290 395 330 C 395 380 355 410 290 410 L 170 410 Z M 235 175 L 235 235 L 280 235 C 310 235 325 220 325 205 C 325 190 310 175 280 175 Z M 235 295 L 235 355 L 285 355 C 320 355 335 340 335 325 C 335 310 320 295 285 295 Z" fill="#E6B85C"/>
+                    <circle cx="410" cy="120" r="18" fill="#38BDF8"/>
+                </svg>
+            </div>
+        </div>
+
+        <h2 id="mobAppTitle">Instale o BankAO como App</h2>
+        <p class="mob-app-lead">
+            Para garantir a <strong>segurança bancária</strong>, <strong>assistente de voz IA</strong> e <strong>alertas de transferências em tempo real</strong>, é obrigatório adicionar o BankAO ao seu ecrã principal.
+        </p>
+
+        <!-- Etapa 1: Permissões de Microfone e Notificação -->
+        <div class="mob-step-box" id="mobStepPermissions">
+            <div class="mob-step-num">1</div>
+            <div class="mob-step-content">
+                <h4>Permissões do Sistema</h4>
+                <p>Ative o microfone para o Copilot de voz e as notificações push de segurança.</p>
+                <button type="button" class="btn btn-secondary mob-perm-btn" id="btnRequestMobilePerms" onclick="requestAppPermissions()">
+                    <svg><use href="#i-bell"/></svg>
+                    <svg><use href="#i-mic"/></svg>
+                    <span id="txtPermBtn">Permitir Microfone &amp; Notificações</span>
+                </button>
+                <!-- Aviso quando o utilizador bloqueou as notificações -->
+                <p class="mob-perm-denied-note" id="mobPermDeniedNote" style="display:none">
+                    ⚠️ As notificações foram bloqueadas. Para ativar: abra as <strong>Definições do Navegador → Privacidade e Segurança → Definições do Site → Notificações</strong> e permita este site.
+                </p>
+            </div>
+        </div>
+
+        <!-- Etapa 2: Adicionar ao Ecrã (Atalho / PWA) -->
+        <div class="mob-step-box" id="mobStepInstall">
+            <div class="mob-step-num">2</div>
+            <div class="mob-step-content">
+                <h4>Adicionar ao Ecrã Principal</h4>
+                <div id="mobGuideAndroid" style="display:none">
+                    <p>Toque no botão abaixo para instalar diretamente o atalho oficial:</p>
+                    <button type="button" class="btn btn-primary btn-full mob-install-btn" id="btnPwaInstall" onclick="triggerPwaInstall()">
+                        <svg><use href="#i-download"/></svg>
+                        <span>📲 Adicionar ao Ecrã Inicial (App)</span>
+                    </button>
+                    <p class="mob-hint-alt">Ou toque nos 3 pontinhos (⋮) do navegador e escolha <strong>«Adicionar ao ecrã inicial»</strong>.</p>
+                </div>
+
+                <div id="mobGuideIos" style="display:none">
+                    <p>No Safari do iPhone/iPad:</p>
+                    <ol class="mob-ios-steps">
+                        <li>Toque no ícone de <strong>Partilhar</strong> <span class="mob-ios-icon">⎋</span> (na barra inferior do Safari).</li>
+                        <li>Deslize para baixo e toque em <strong>«Adicionar ao Ecrã Principal»</strong> <span>⊞</span>.</li>
+                        <li>Toque em <strong>«Adicionar»</strong> no canto superior direito.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="mob-actions-row">
+            <button type="button" class="btn btn-ghost mob-skip-btn" id="btnMobContinueAnyhow" onclick="dismissMobileAppGuard(false)">
+                Já adicionei ao ecrã / Continuar
+            </button>
+        </div>
+    </div>
+</div>

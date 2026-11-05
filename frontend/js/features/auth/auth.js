@@ -7,7 +7,31 @@
 //  AUTENTICAÇÃO — Login / Registo / Logout
 // =====================================================================
 
+function populateAuthCountries() {
+    const countries = window.BANKAO_COUNTRIES || [];
+    const selCode = document.getElementById('regPhoneCode');
+    const selNat = document.getElementById('regNationality');
+    if (!selCode || !selNat || selCode.options.length > 0) return;
+
+    countries.forEach(c => {
+        // Indicativo telefónico: "AO (+244)"
+        const optCode = document.createElement('option');
+        optCode.value = c.dial;
+        optCode.textContent = `${c.code} (${c.dial})`;
+        if (c.code === 'AO') optCode.selected = true;
+        selCode.appendChild(optCode);
+
+        // Nacionalidade: "Angola"
+        const optNat = document.createElement('option');
+        optNat.value = c.name;
+        optNat.textContent = `${c.name} (${c.code})`;
+        if (c.code === 'AO') optNat.selected = true;
+        selNat.appendChild(optNat);
+    });
+}
+
 function openAuthModal() {
+    populateAuthCountries();
     const m = document.getElementById('modalAuth');
     m.style.display = 'flex';
     setTimeout(() => m.classList.add('active'), 10);
@@ -18,12 +42,7 @@ function closeAuthModal() {
     setTimeout(() => m.style.display = 'none', 300);
 }
 function switchAuthTab(tab) {
-    // O registo é feito no novo fluxo de 7 páginas (register-flow.js)
-    if (tab === 'register' && typeof openRegisterFlow === 'function') {
-        closeAuthModal();
-        openRegisterFlow();
-        return;
-    }
+    populateAuthCountries();
     const isLogin = tab === 'login';
     document.getElementById('tabLogin').classList.toggle('active', isLogin);
     document.getElementById('tabRegister').classList.toggle('active', !isLogin);
@@ -74,8 +93,24 @@ async function handleRegister(e) {
     const errEl = document.getElementById('registerError');
     errEl.classList.remove('show');
 
+    const displayName = (document.getElementById('regDisplayName')?.value || '').trim();
+    const dialCode = document.getElementById('regPhoneCode')?.value || '+244';
+    const phoneRaw = (document.getElementById('regPhoneNumber')?.value || '').trim().replace(/\D/g, '');
+    const email = (document.getElementById('regEmail')?.value || '').trim();
+    const nationality = document.getElementById('regNationality')?.value || 'Angola';
     const password = document.getElementById('regPassword').value;
     const confirm  = document.getElementById('regConfirmPassword').value;
+
+    if (!displayName) {
+        errEl.textContent = 'Introduza o seu nome de apresentação.';
+        errEl.classList.add('show');
+        return;
+    }
+    if (!phoneRaw || phoneRaw.length < 5) {
+        errEl.textContent = 'Introduza um número de telefone válido.';
+        errEl.classList.add('show');
+        return;
+    }
     if (password !== confirm) {
         errEl.textContent = 'As palavras-passe não coincidem.';
         errEl.classList.add('show');
@@ -87,6 +122,7 @@ async function handleRegister(e) {
         return;
     }
 
+    const telefone = dialCode + phoneRaw;
     const btn = document.getElementById('btnRegisterSubmit');
     btn.disabled = true;
     btn.querySelector('span').textContent = 'A criar conta...';
@@ -96,8 +132,10 @@ async function handleRegister(e) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                email: document.getElementById('regEmail').value.trim(),
-                telefone: document.getElementById('regPhone').value.trim(),
+                nome: displayName,
+                email: email,
+                telefone: telefone,
+                nacionalidade: nationality,
                 password,
                 confirm_password: confirm,
                 terms_accepted: true
@@ -108,8 +146,10 @@ async function handleRegister(e) {
 
         await onAuthSuccess(data);
         closeAuthModal();
-        // Abre KYC logo após registo
-        setTimeout(() => openKYCModal(), 400);
+        // Abre KYC logo após registo para capturar e validar o verdadeiro nome legal da conta
+        setTimeout(() => {
+            if (typeof openKYCModal === 'function') openKYCModal();
+        }, 400);
     } catch (err) {
         errEl.textContent = err.message;
         errEl.classList.add('show');
@@ -187,15 +227,29 @@ function updateTopbarUser(user) {
 
     const name = user.nome || user.primeiro_nome || 'Utilizador';
     const initials = name.split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    const photoUrl = user.id ? localStorage.getItem('bankao_avatar_' + user.id) : null;
+
+    const applyAvatar = (el) => {
+        if (!el) return;
+        if (photoUrl) {
+            el.style.backgroundImage = `url("${photoUrl}")`;
+            el.style.backgroundSize = "cover";
+            el.style.backgroundPosition = "center";
+            el.textContent = "";
+        } else {
+            el.style.backgroundImage = "";
+            el.textContent = initials;
+        }
+    };
 
     if (nameEl)  nameEl.textContent  = name;
-    if (avatarEl) avatarEl.textContent = initials;
+    applyAvatar(avatarEl);
 
     if (sideNameEl)   sideNameEl.textContent   = name;
-    if (sideAvatarEl) sideAvatarEl.textContent = initials;
+    applyAvatar(sideAvatarEl);
 
     if (mobNameEl)   mobNameEl.textContent   = name;
-    if (mobAvatarEl) mobAvatarEl.textContent = initials;
+    applyAvatar(mobAvatarEl);
 
     // Saudação (nome + frase conforme a hora)
     updateHomeGreeting(user);
@@ -222,3 +276,5 @@ function updateTopbarUser(user) {
 
     updateDashboardHero();
 }
+
+document.addEventListener('DOMContentLoaded', populateAuthCountries);
