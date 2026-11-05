@@ -223,11 +223,19 @@
     padding: 16px 24px 24px;
     border-top: 1px solid var(--line);
     background: var(--bg-1);
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
 }
 .confirm-modal-actions .btn {
     flex: 1;
     justify-content: center;
-    min-height: 44px;
+    min-height: 48px;
+    white-space: nowrap;
+}
+.confirm-modal-actions .btn-primary {
+    flex: 1.4;
 }
 
 

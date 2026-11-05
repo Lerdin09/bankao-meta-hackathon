@@ -99,9 +99,11 @@ button.st-row:hover { background: rgba(255,255,255,.035); }
 .st-row.ro { cursor: default; }
 .st-row .st-lockic { width: 16px; height: 16px; color: var(--text-3); display: grid; place-items: center; }
 .st-row .st-lockic svg { width: 15px; height: 15px; fill: none; stroke: currentColor; }
-.st-ov { position: fixed; inset: 0; z-index: 300; display: grid; place-items: center; padding: 16px; background: rgba(3,6,12,.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-.st-ov.st-lock { z-index: 400; background: rgba(3,6,12,.94); }
-.st-modal { width: min(440px, 100%); max-height: 88vh; overflow: auto; background: var(--surface-2); border: 1px solid var(--line-2); border-radius: var(--r-lg); padding: 22px; color: var(--text); box-shadow: 0 24px 60px rgba(0,0,0,.45); }
+.st-ov { position: fixed; inset: 0; z-index: 1200; display: grid; place-items: center; padding: 16px; background: rgba(3,6,12,.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.st-ov.st-lock { z-index: 1300; background: rgba(3,6,12,.94); }
+/* Modal PIN de autorização sempre acima de qualquer modal de operação */
+.st-pin-auth-modal { z-index: 1400 !important; }
+.st-modal { width: min(440px, 100%); max-height: 90dvh; overflow-y: auto; background: var(--surface-2); border: 1px solid var(--line-2); border-radius: var(--r-lg); padding: 22px; color: var(--text); box-shadow: 0 24px 60px rgba(0,0,0,.7), 0 0 0 1px rgba(230,184,92,.15); }
 .st-modal h3 { margin: 0 0 12px; font-size: 1.05rem; }
 .st-modal p { color: var(--text-2); font-size: .88rem; line-height: 1.5; margin: 0 0 12px; }
 .st-modal svg { width: 18px; height: 18px; fill: none; stroke: currentColor; }
@@ -110,7 +112,8 @@ button.st-row:hover { background: rgba(255,255,255,.035); }
 .st-in:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
 .st-err { min-height: 18px; margin: 4px 0 0 !important; color: var(--red) !important; font-size: .8rem !important; }
 .st-hint { font-size: .78rem !important; color: var(--text-3) !important; }
-.st-mact { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; margin-top: 12px; }
+.st-mact { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; margin-top: 16px; }
+.st-mact .st-btn { flex: 1; min-height: 44px; min-width: 100px; justify-content: center; }
 .st-opts { display: grid; gap: 8px; }
 .st-opt { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid var(--line-2); border-radius: 12px; cursor: pointer; }
 .st-opt:has(input:checked) { border-color: var(--gold); background: var(--gold-soft); }

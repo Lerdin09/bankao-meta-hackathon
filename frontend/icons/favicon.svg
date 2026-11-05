@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="50%" stop-color="#E6B85C"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+  </defs>
+  <!-- Background rounded square -->
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <!-- Gold border -->
+  <rect x="2" y="2" width="60" height="60" rx="12" fill="none" stroke="url(#gold)" stroke-width="1.5" stroke-opacity="0.5"/>
+  <!-- B letter mark -->
+  <path d="M 20 12 L 36 12 C 44 12 48 16 48 22 C 48 27 45 30 41 31 C 46 32.5 50 36 50 42 C 50 49 45 52 36 52 L 20 52 Z
+           M 27 19 L 27 29 L 34 29 C 38 29 40 27 40 24 C 40 21 38 19 34 19 Z
+           M 27 36 L 27 45 L 35 45 C 39.5 45 42 43 42 40.5 C 42 38 39.5 36 35 36 Z"
+        fill="url(#gold)"/>
+  <!-- Cyan dot -->
+  <circle cx="51" cy="13" r="4" fill="#38BDF8"/>
+</svg>
+
